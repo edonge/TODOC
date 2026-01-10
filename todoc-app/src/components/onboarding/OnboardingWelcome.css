@@ -1,0 +1,63 @@
+.welcome-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 40px 50px;
+  box-sizing: border-box;
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 일러스트 이미지 */
+.welcome-illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.welcome-image {
+  width: 240px;
+  height: auto;
+}
+
+/* 메인 문구 */
+.welcome-text {
+  text-align: center;
+}
+
+.welcome-message {
+  font-size: 24px;
+  font-weight: 600;
+  color: #3D3D3D;
+  line-height: 1.5;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+/* 하단 버튼 영역 */
+.start-button {
+  width: 200px;
+  height: 52px;
+  border: none;
+  border-radius: 12px;
+  background-color: #E8C5C5;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 4px 4px 12px rgba(72, 50, 42, 0.25);
+}
+
+.start-button:active {
+  background-color: #DDB5B5;
+}

@@ -1,0 +1,121 @@
+.login-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #FDF6E9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-content {
+  width: 100%;
+  max-width: 390px;
+  min-height: 844px;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* 로고 섹션 */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.logo-image {
+  width: 96px;
+  height: auto;
+  margin-bottom: 8px;
+}
+
+.logo-subtitle {
+  font-size: 14px;
+  color: #C4A77D;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+/* 입력 폼 */
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.input-wrapper {
+  width: 100%;
+}
+
+.login-input {
+  width: 100%;
+  height: 56px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 28px;
+  background-color: #FFFDF9;
+  font-size: 15px;
+  color: #5C5C5C;
+  box-sizing: border-box;
+  box-shadow:
+    inset 0 4px 10px rgba(128, 96, 64, 0.45),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  outline: none;
+}
+
+.login-input::placeholder {
+  color: #BFBFBF;
+}
+
+.login-input:focus {
+  box-shadow:
+    inset 0 5px 12px rgba(128, 96, 64, 0.5),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.6),
+    0 2px 12px rgba(196, 167, 125, 0.15);
+}
+
+/* 로그인 버튼 */
+.login-button {
+  width: 140px;
+  height: 48px;
+  margin-top: 24px;
+  border: none;
+  border-radius: 9px;
+  background-color: #E8C5C5;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 8px 18px rgba(96, 72, 56, 0.28);
+}
+
+.login-button:active {
+  background-color: #DDB5B5;
+}
+
+/* 하단 링크 */
+.login-footer {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-link {
+  font-size: 13px;
+  color: #8C8C8C;
+  cursor: pointer;
+}
+
+.footer-divider {
+  font-size: 13px;
+  color: #CCCCCC;
+}

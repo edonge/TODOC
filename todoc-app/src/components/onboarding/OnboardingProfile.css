@@ -1,0 +1,214 @@
+.profile-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 상단 바 */
+.profile-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  background-color: #FDF6E9;
+  z-index: 10;
+}
+
+.profile-container .back-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: #F5EDE0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.profile-container .back-button:active {
+  opacity: 0.7;
+}
+
+.skip-button {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #999999;
+  cursor: pointer;
+  padding: 0 8px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: underline;
+  margin-left: auto;
+}
+
+.skip-button:active {
+  opacity: 0.7;
+}
+
+/* 스크롤 가능한 컨텐츠 */
+.profile-content {
+  flex: 1;
+  padding: 0 24px 24px;
+  overflow-y: auto;
+}
+
+/* 헤더 */
+.profile-header {
+  margin-top: 12px;
+  margin-bottom: 28px;
+}
+
+.profile-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3D3D3D;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+}
+
+.profile-subtitle {
+  font-size: 14px;
+  color: #999999;
+  margin: 0;
+}
+
+/* 섹션 */
+.profile-section {
+  margin-bottom: 28px;
+}
+
+.section-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #3D3D3D;
+  margin-bottom: 12px;
+}
+
+.section-hint {
+  font-size: 12px;
+  color: #AAAAAA;
+  margin: 8px 0 0 0;
+}
+
+.emphasize-options .select-button {
+  font-weight: 600;
+}
+
+/* 버튼 그룹 */
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.button-group.single-column {
+  flex-direction: column;
+}
+
+.button-group.two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.button-group.three-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.button-group.four-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+/* 선택 버튼 */
+.select-button {
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  background-color: #F5EDE0;
+  font-size: 14px;
+  color: #5C5C5C;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  box-shadow: 4px 4px 12px rgba(72, 50, 42, 0.2);
+}
+
+.select-button.wide {
+  width: 100%;
+}
+
+.select-button:active {
+  opacity: 0.8;
+}
+
+/* 선택됨 - 기본 (민트색) */
+.select-button.selected {
+  background-color: #D4E8DC;
+  color: #3D3D3D;
+  font-weight: 500;
+}
+
+/* 선택됨 - 남아 (파란색) */
+.select-button.selected-male {
+  background-color: #C5D4E8;
+  color: #3D3D3D;
+  font-weight: 500;
+}
+
+/* 선택됨 - 여아 (분홍색) */
+.select-button.selected-female {
+  background-color: #E8C5D4;
+  color: #3D3D3D;
+  font-weight: 500;
+}
+
+/* 하단 안내 문구 */
+.profile-footer-info {
+  text-align: right;
+  padding: 20px 0;
+  margin-top: 12px;
+}
+
+.profile-footer-info p {
+  font-size: 13px;
+  color: #AAAAAA;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* 하단 버튼 */
+.profile-footer {
+  padding: 16px 24px 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-footer .next-button {
+  width: 140px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 12px rgba(72, 50, 42, 0.25);
+}
+
+.profile-footer .next-button.active {
+  background-color: #D4E8DC;
+  color: #5C5C5C;
+}
+
+.profile-footer .next-button.active:active {
+  background-color: #C4D8CC;
+}

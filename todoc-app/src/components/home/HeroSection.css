@@ -1,0 +1,52 @@
+.hero-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  margin-bottom: 16px;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-message {
+  font-size: 20px;
+  font-weight: 800;
+  color: #3D3D3D;
+  line-height: 1.4;
+  margin: 0 0 4px 0;
+}
+
+.hero-message .highlight {
+  color: #6F99F4;
+  text-decoration: none;
+}
+
+.hero-cta {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cta-text {
+  font-size: 13px;
+  color: #8F8F8F;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.hero-cta:active {
+  opacity: 0.7;
+}
+
+.hero-character {
+  flex-shrink: 0;
+  margin-left: 11px;
+}
+
+.character-image {
+  width: 120px;
+  height: auto;
+}

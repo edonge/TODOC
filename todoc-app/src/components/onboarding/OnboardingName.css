@@ -1,0 +1,128 @@
+.name-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 40px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 뒤로가기 버튼 */
+.name-container .back-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: #F5EDE0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.name-container .back-button:active {
+  opacity: 0.7;
+}
+
+/* 헤더 영역 */
+.name-header {
+  margin-top: 70px;
+  margin-bottom: 20px;
+}
+
+.name-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #3D3D3D;
+  line-height: 1.4;
+  margin: 0 0 8px 0;
+}
+
+.name-subtitle {
+  font-size: 14px;
+  color: #999999;
+  margin: 0;
+}
+
+/* 입력 영역 */
+.name-input-area {
+  width: 60%;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 64px;
+}
+
+.name-input-wrapper {
+  width: 100%;
+}
+
+.name-input {
+  width: 100%;
+  height: 56px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 16px;
+  background-color: #FFFDF9;
+  font-size: 16px;
+  color: #3D3D3D;
+  box-sizing: border-box;
+  box-shadow:
+    inset 0 3px 8px rgba(128, 96, 64, 0.35),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  outline: none;
+}
+
+.name-input::placeholder {
+  color: #BFBFBF;
+}
+
+.name-input:focus {
+  box-shadow:
+    inset 0 4px 10px rgba(128, 96, 64, 0.42),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.65),
+    0 2px 12px rgba(196, 167, 125, 0.2);
+}
+
+/* 다음 버튼 */
+.name-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.next-button {
+  width: 120px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 12px rgba(72, 50, 42, 0.25);
+}
+
+.next-button.active {
+  background-color: #D4E8DC;
+  color: #5C5C5C;
+}
+
+.next-button.active:active {
+  background-color: #C4D8CC;
+}
+
+.next-button.disabled {
+  background-color: #E8E0D5;
+  color: #BFBFBF;
+  cursor: not-allowed;
+}

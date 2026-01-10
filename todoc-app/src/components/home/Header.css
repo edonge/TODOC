@@ -1,0 +1,62 @@
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  margin-bottom: 8px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.header-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #3D3D3D;
+  margin: 0;
+}
+
+.header-date-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #FFF2DB;
+  padding: 8px 14px;
+  border-radius: 20px;
+  box-shadow: 4px 4px 12px rgba(72, 50, 42, 0.18);
+}
+
+.date-text {
+  font-size: 12px;
+  color: #000000;
+  font-weight: 800;
+}
+
+.weather-icon {
+  font-size: 12px;
+}
+
+.weather-temp {
+  font-size: 13px;
+  color: #5C5C5C;
+  font-weight: 500;
+}
+
+.header-settings {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.header-settings:active {
+  opacity: 0.6;
+}

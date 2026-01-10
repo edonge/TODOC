@@ -1,0 +1,26 @@
+.onboarding-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #FDF6E9;
+  position: relative;
+}
+
+/* 뒤로가기 버튼 */
+.back-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.back-button:active {
+  opacity: 0.6;
+}

@@ -1,0 +1,17 @@
+/* 앱 래퍼 - 모바일 앱처럼 보이도록 중앙 정렬 */
+.app-wrapper {
+  width: 100%;
+  max-width: 390px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: #FDF6E9;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 데스크탑에서 볼 때 모바일 프레임 효과 (선택적) */
+@media (min-width: 420px) {
+  .app-wrapper {
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  }
+}

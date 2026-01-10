@@ -1,0 +1,52 @@
+.insight-card {
+  background: linear-gradient(135deg, #FFF9F0 0%, #F8F0FF 100%);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.insight-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.insight-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.insight-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #3D3D3D;
+}
+
+.insight-title .highlight {
+  color: #6F99F4;
+}
+
+.insight-content {
+  padding-left: 4px;
+}
+
+.insight-text {
+  font-size: 14px;
+  color: #5C5C5C;
+  line-height: 1.6;
+  margin: 0 0 8px 0;
+  font-weight: 800;
+}
+
+.insight-text.emphasis {
+  color: #3D3D3D;
+}
+
+.insight-sub {
+  font-size: 13px;
+  color: #AAAAAA;
+  margin: 12px 0 0 0;
+}

@@ -1,0 +1,105 @@
+.complete-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 40px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 뒤로가기 버튼 */
+.complete-container .back-button {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: #8C8C8C;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.complete-container .back-button svg path {
+  stroke: #FFFFFF;
+}
+
+.complete-container .back-button:active {
+  opacity: 0.7;
+}
+
+/* 일러스트 이미지 */
+.complete-illustration {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 60px;
+  padding-bottom: 32px;
+}
+
+.complete-image {
+  width: 220px;
+  height: auto;
+}
+
+/* 텍스트 영역 */
+.complete-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px;
+}
+
+.complete-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #3D3D3D;
+  margin: 0 0 20px 0;
+  line-height: 1.3;
+}
+
+.complete-description {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3D3D3D;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+.complete-hint {
+  font-size: 13px;
+  font-weight: 700;
+  color: #AAAAAA;
+  margin: 0;
+}
+
+/* 시작하기 버튼 */
+.complete-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 28px;
+}
+
+.complete-actions .start-button {
+  width: 200px;
+  height: 52px;
+  border: none;
+  border-radius: 12px;
+  background-color: #E8C5C5;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  box-shadow: 4px 4px 16px rgba(72, 50, 42, 0.45);
+}
+
+.complete-actions .start-button:active {
+  background-color: #DDB5B5;
+}
