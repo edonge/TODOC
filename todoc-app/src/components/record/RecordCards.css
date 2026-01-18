@@ -1,0 +1,592 @@
+.record-cards-container {
+  padding: 0 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 카드 공통 */
+.record-card {
+  position: relative;
+}
+
+/* 카드 후면 레이어 */
+.record-card::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  left: 5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 8px;
+  z-index: 0;
+}
+
+.record-card.sleep-card::before {
+  background-color: #FFF2DB;
+}
+
+.record-card.growth-card::before {
+  background-color: #328B6D;
+}
+
+.record-card.meal-card::before {
+  background-color: #DBD0BC;
+}
+
+.record-card.health-card::before {
+  background-color: #8D0000;
+}
+
+.record-card.diaper-card::before {
+  background-color: #EFC3C8;
+}
+
+.record-card.etc-card::before {
+  background-color: #8F8F8F;
+}
+
+.record-card-label {
+  display: inline-block;
+  width: 67px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFF;
+  border-radius: 4px;
+  margin-bottom: -8px;
+  margin-left: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.record-card-label.sleep {
+  background-color: #FFF2DB;
+  color: #3D3D3D;
+}
+
+.record-card-label.growth {
+  background-color: #328B6D;
+}
+
+.record-card-label.meal {
+  background-color: #DBD0BC;
+  color: #3D3D3D;
+}
+
+.record-card-label.health {
+  background-color: #8D0000;
+}
+
+.record-card-label.diaper {
+  background-color: #EFC3C8;
+  color: #3D3D3D;
+}
+
+.record-card-label.etc {
+  background-color: #8F8F8F;
+}
+
+.record-card-content {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 120px;
+  max-height: 178px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+/* 카드 헤더 */
+.record-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.header-text {
+  width: 169px;
+  height: 33px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  background-color: #FFF2DB;
+  border-radius: 8px;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.28);
+  padding: 0 10px;
+}
+
+.header-with-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.header-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-text-plain {
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+}
+
+.header-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8F8F8F;
+}
+
+/* 메뉴 */
+.record-card-menu {
+  position: relative;
+}
+
+.menu-trigger {
+  background: none;
+  border: none;
+  color: #8F8F8F;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.menu-icon {
+  width: 16px;
+  height: 4px;
+  display: block;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 10;
+}
+
+.menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: #3D3D3D;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.menu-dropdown button:hover {
+  background-color: #F5F5F5;
+}
+
+/* ====== 수면 카드 ====== */
+.sleep-records {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sleep-records-wrapper {
+  width: 310px;
+  height: 80px;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 8px 10px 16px;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.24);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.sleep-record-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.sleep-type-label {
+  width: 43px;
+  height: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3D3D3D;
+  min-width: 43px;
+  border-radius: 4px;
+  background-color: #FFF2DB;
+}
+
+.sleep-time {
+  font-size: 14px;
+  color: #5C5C5C;
+  flex: 0 0 auto;
+}
+
+.sleep-duration {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8F8F8F;
+}
+
+.sleep-record-item.night .sleep-type-label {
+  background-color: #FFF2DB;
+  color: #3D3D3D;
+}
+
+.sleep-record-item.day .sleep-type-label {
+  background-color: #6F6A63;
+  color: #FFFFFF;
+}
+
+.sleep-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+/* ====== 성장 카드 ====== */
+.record-card-content.growth-content {
+  overflow: visible;
+  max-height: none;
+}
+
+.growth-info {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.growth-info-wrapper {
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 120px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+.growth-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.growth-stat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.stat-label {
+  width: 43px;
+  height: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: #328B6D;
+  border-radius: 4px;
+}
+
+.stat-value {
+  width: 178px;
+  height: 37px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 14px;
+  font-weight: 700;
+  color: #3D3D3D;
+  background-color: #FFF2DB;
+  border-radius: 8px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  padding: 0 10px;
+  gap: 6px;
+}
+
+.stat-change {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stat-change.positive {
+  color: #E85B5B;
+}
+
+.stat-change.negative {
+  color: #6F99F4;
+}
+
+.growth-activities {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 90px;
+  background-color: #FFF2DB;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+  align-self: flex-start;
+}
+
+.activities-label {
+  width: 43px;
+  height: 19px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: #328B6D;
+  border-radius: 4px;
+}
+
+.activity-tags {
+  background-color: transparent;
+  border-radius: 8px;
+  padding: 0;
+  box-shadow: none;
+}
+
+.activity-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.activity-tag {
+  width: 70px;
+  height: 23px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5C5C5C;
+  background-color: #F5F5F5;
+  border-radius: 4px;
+}
+
+/* ====== 식사 카드 ====== */
+.meal-records {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.meal-card .record-card-content {
+  background-color: #FFFFFF;
+}
+
+.meal-header-text {
+  background-color: #DBD0BC;
+}
+
+.meal-record-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+}
+
+.meal-time {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3D3D3D;
+}
+
+.meal-type {
+  font-size: 13px;
+  font-weight: 500;
+  color: #FFFFFF;
+  padding: 4px 8px;
+  background-color: #DBD0BC;
+  border-radius: 4px;
+}
+
+.meal-amount {
+  font-size: 13px;
+  color: #3D3D3D;
+}
+
+/* ====== 건강 카드 ====== */
+.health-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.health-note-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #FFF5F5;
+  border-radius: 8px;
+}
+
+.health-note {
+  font-size: 14px;
+  color: #3D3D3D;
+}
+
+.health-date {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5C5C5C;
+  padding: 4px 8px;
+  background-color: #FFFFFF;
+  border-radius: 4px;
+}
+
+.health-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.health-tag {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 4px;
+}
+
+.health-tag.symptom {
+  background-color: #FFEAEA;
+  color: #8D0000;
+}
+
+.health-tag.medicine {
+  background-color: #E6F3EC;
+  color: #328B6D;
+}
+
+/* ====== 배변 카드 ====== */
+.diaper-records {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diaper-record-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: #FFF5F7;
+  border-radius: 8px;
+}
+
+.diaper-time {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3D3D3D;
+}
+
+.diaper-type {
+  font-size: 14px;
+  font-weight: 700;
+  color: #3D3D3D;
+}
+
+.diaper-condition {
+  font-size: 13px;
+  color: #8F8F8F;
+  flex: 1;
+}
+
+.diaper-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.diaper-menu-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #8F8F8F;
+  cursor: pointer;
+  padding: 4px;
+  letter-spacing: 2px;
+}
+
+/* ====== 기타 카드 ====== */
+.etc-records {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.etc-record-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background-color: #FFF9F0;
+  border-radius: 8px;
+}
+
+.etc-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8F8F8F;
+}
+
+.etc-text {
+  font-size: 14px;
+  color: #3D3D3D;
+  flex: 1;
+}
+
+.etc-menu-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #8F8F8F;
+  cursor: pointer;
+  padding: 4px;
+  letter-spacing: 2px;
+}
+
+/* 스크롤바 스타일 */
+.record-card-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.record-card-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.record-card-content::-webkit-scrollbar-thumb {
+  background-color: #D9D9D9;
+  border-radius: 2px;
+}

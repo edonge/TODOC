@@ -1,0 +1,75 @@
+.record-page {
+  min-height: 100vh;
+  background-color: #F1F1F1;
+  padding-bottom: 100px;
+}
+
+/* 헤더 */
+.record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+}
+
+.record-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #3D3D3D;
+  margin: 0;
+}
+
+.record-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.record-date-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5C5C5C;
+  background-color: #FFFFFF;
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+
+.record-weather {
+  font-size: 12px;
+  color: #5C5C5C;
+}
+
+.record-settings-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 기록 추가 버튼 영역 */
+.record-add-area {
+  display: flex;
+  justify-content: flex-end;
+  padding: 28px 30px;
+}
+
+.record-add-btn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  background-color: #DDD6F3;
+  color: #3D3D3D;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.record-add-btn:active {
+  transform: scale(0.98);
+}

@@ -52,9 +52,27 @@ function OnboardingPage() {
   };
 
   const handleComplete = () => {
+    // 아이 이름을 localStorage에 저장
+    if (childData.name) {
+      localStorage.setItem('childName', childData.name);
+    }
     // 온보딩 완료 후 메인 화면으로 이동
     navigate('/home');
   };
+
+  const getCallName = (fullName) => {
+    if (!fullName) return '아이';
+    const nameOnly = fullName.length > 1 ? fullName.slice(1) : fullName;
+    const lastChar = nameOnly[nameOnly.length - 1];
+    const code = lastChar.charCodeAt(0) - 0xac00;
+    if (code < 0 || code > 11171) {
+      return nameOnly;
+    }
+    const hasBatchim = code % 28 !== 0;
+    return hasBatchim ? `${nameOnly}이` : nameOnly;
+  };
+
+  const callName = getCallName(childData.name);
 
   const renderStep = () => {
     switch (step) {
@@ -75,7 +93,7 @@ function OnboardingPage() {
           <OnboardingBirthday
             onNext={handleBirthdaySubmit}
             onBack={handleBack}
-            childName={childData.name}
+            childName={callName}
             initialDate={childData.birthday}
           />
         );

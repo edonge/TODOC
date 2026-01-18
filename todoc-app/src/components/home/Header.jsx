@@ -1,11 +1,11 @@
 import './Header.css';
 
-function Header() {
+function Header({ title = '홈' }) {
   const dateLabel = '01.26 월요일';
 
   return (
     <header className="home-header">
-      <h1 className="header-title">홈</h1>
+      <h1 className="header-title">{title}</h1>
 
       <div className="header-actions">
         <div className="header-date-badge">

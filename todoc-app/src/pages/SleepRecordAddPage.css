@@ -1,0 +1,275 @@
+.sleep-add-page {
+  min-height: 100vh;
+  background-color: #F1F1F1;
+  padding-bottom: 100px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 서브 헤더 */
+.sleep-add-subheader {
+  padding: 12px 30px;
+}
+
+.sleep-add-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  padding: 0;
+}
+
+/* 카테고리 라벨 */
+.sleep-category-label {
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  margin-bottom: 24px;
+}
+
+.sleep-category-image {
+  width: 120px;
+  height: auto;
+}
+
+/* 폼 영역 */
+.sleep-form {
+  padding: 0 30px;
+}
+
+.sleep-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.sleep-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sleep-form-section {
+  margin-bottom: 24px;
+}
+
+.sleep-form-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  text-align: left;
+}
+
+.sleep-form-input {
+  height: 35px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.sleep-form-input:focus {
+  outline: none;
+}
+
+.sleep-form-input::placeholder {
+  color: #AAAAAA;
+}
+
+.sleep-input-date {
+  width: 101px;
+}
+
+.sleep-input-time {
+  width: 82px;
+}
+
+/* 종류 버튼 */
+.sleep-type-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 0;
+}
+
+.sleep-type-btn {
+  height: 35px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #5C5C5C;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.sleep-type-btn.active {
+  background-color: #FFF2DB;
+  color: #3D3D3D;
+}
+
+.sleep-type-btn.night.active {
+  background-color: #6F6A63;
+  color: #FFFFFF;
+}
+
+/* 시간 입력 행 */
+.sleep-time-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* 수면 품질 버튼 */
+.sleep-quality-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sleep-quality-btn {
+  height: 35px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: none;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.sleep-quality-btn.good {
+  color: #328B6D;
+}
+
+.sleep-quality-btn.good.active {
+  background-color: #328B6D;
+  color: #FFFFFF;
+}
+
+.sleep-quality-btn.normal {
+  color: #5C5C5C;
+}
+
+.sleep-quality-btn.normal.active {
+  background-color: #E6D1A6;
+  color: #000000;
+}
+
+.sleep-quality-btn.bad {
+  color: #E85B5B;
+}
+
+.sleep-quality-btn.bad.active {
+  background-color: #E85B5B;
+  color: #FFFFFF;
+}
+
+/* 메모 */
+.sleep-form-textarea {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background-color: #E0E0E0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-top: 10px;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.24),
+    4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.memo-section {
+  align-items: stretch;
+  text-align: left;
+}
+
+.memo-section .sleep-form-label {
+  text-align: left;
+}
+
+.sleep-form-textarea:focus {
+  outline: none;
+}
+
+.sleep-form-textarea::placeholder {
+  color: #AAAAAA;
+}
+
+/* 버튼 영역 */
+.sleep-form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-bottom: 20px;
+}
+
+.sleep-submit-btn {
+  width: 82px;
+  height: 35px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #FFF2DB;
+  color: #3D3D3D;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.sleep-submit-btn:hover {
+  background-color: #D9C694;
+}
+
+.sleep-submit-btn:active {
+  transform: scale(0.98);
+}
+
+.sleep-cancel-btn {
+  width: 50px;
+  height: 35px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #E0E0E0;
+  color: #8F8F8F;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.sleep-cancel-btn:hover {
+  background-color: #F5F5F5;
+}
+
+.sleep-cancel-btn:active {
+  transform: scale(0.98);
+}
