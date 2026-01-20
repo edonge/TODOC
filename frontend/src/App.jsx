@@ -7,6 +7,9 @@ import RecordPage from './pages/RecordPage';
 import GrowthRecordAddPage from './pages/GrowthRecordAddPage';
 import SleepRecordAddPage from './pages/SleepRecordAddPage';
 import DiaperRecordAddPage from './pages/DiaperRecordAddPage';
+import EtcRecordAddPage from './pages/EtcRecordAddPage';
+import HealthRecordAddPage from './pages/HealthRecordAddPage';
+import MealRecordAddPage from './pages/MealRecordAddPage';
 import AppLayout from './components/layout/AppLayout';
 import './App.css';
 
@@ -25,6 +28,9 @@ function App() {
             <Route path="/record/growth/add" element={<GrowthRecordAddPage />} />
             <Route path="/record/sleep/add" element={<SleepRecordAddPage />} />
             <Route path="/record/diaper/add" element={<DiaperRecordAddPage />} />
+            <Route path="/record/etc/add" element={<EtcRecordAddPage />} />
+            <Route path="/record/health/add" element={<HealthRecordAddPage />} />
+            <Route path="/record/meal/add" element={<MealRecordAddPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

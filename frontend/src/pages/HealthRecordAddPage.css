@@ -1,0 +1,360 @@
+.health-add-page {
+  min-height: 100vh;
+  background-color: #F1F1F1;
+  padding-bottom: 100px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 서브 헤더 */
+.health-add-subheader {
+  padding: 12px 30px;
+}
+
+.health-add-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  padding: 0;
+}
+
+/* 카테고리 라벨 */
+.health-category-label {
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  margin-bottom: 24px;
+}
+
+.health-category-image {
+  width: 120px;
+  height: auto;
+}
+
+/* 폼 영역 */
+.health-form {
+  padding: 0 30px;
+}
+
+.health-form-section {
+  margin-bottom: 24px;
+}
+
+.health-form-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+/* 기본 입력 필드 */
+.health-form-input {
+  height: 35px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.health-form-input:focus {
+  outline: none;
+}
+
+.health-form-input::placeholder {
+  color: #AAAAAA;
+}
+
+/* 날짜 및 시간 */
+.health-datetime-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.health-input-date {
+  width: 101px;
+}
+
+.health-input-time {
+  width: 70px;
+}
+
+.health-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5C5C5C;
+  cursor: pointer;
+}
+
+.health-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.health-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #CCCCCC;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+}
+
+.health-checkbox-label input[type="checkbox"]:checked + .health-checkbox-custom {
+  border-color: #328B6D;
+}
+
+/* 제목 입력 */
+.health-input-title {
+  width: 100%;
+  text-align: left;
+  padding: 0 14px;
+  height: 45px;
+  background-color: #E0E0E0;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.24),
+    4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+/* 태그 영역 */
+.health-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.health-tag {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background-color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  color: #5C5C5C;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.health-tag.active {
+  background-color: #A63232;
+  color: #FFFFFF;
+}
+
+.health-add-tag-btn {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid #A63232;
+  background-color: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: #A63232;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.health-add-tag-btn:hover {
+  background-color: #FDF2F2;
+}
+
+/* 메모 */
+.memo-section {
+  align-items: stretch;
+  text-align: left;
+}
+
+.health-form-textarea {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background-color: #E0E0E0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.24),
+    4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.health-form-textarea:focus {
+  outline: none;
+}
+
+.health-form-textarea::placeholder {
+  color: #AAAAAA;
+}
+
+/* 버튼 영역 */
+.health-form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-bottom: 20px;
+}
+
+.health-submit-btn {
+  width: 82px;
+  height: 35px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #A63232;
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.health-submit-btn:hover {
+  background-color: #8B2929;
+}
+
+.health-submit-btn:active {
+  transform: scale(0.98);
+}
+
+.health-cancel-btn {
+  width: 50px;
+  height: 35px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #E0E0E0;
+  color: #8F8F8F;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.health-cancel-btn:hover {
+  background-color: #F5F5F5;
+}
+
+.health-cancel-btn:active {
+  transform: scale(0.98);
+}
+
+/* 시간 드롭다운 */
+.health-time-dropdown-container {
+  position: relative;
+}
+
+.health-time-select {
+  width: 50px;
+  height: 35px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.health-time-select.disabled {
+  background-color: #E0E0E0;
+  color: #AAAAAA;
+  cursor: not-allowed;
+}
+
+.health-time-separator {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3D3D3D;
+  margin: 0 -2px;
+}
+
+/* 드롭다운 메뉴 공통 */
+.health-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.health-dropdown-menu.time-dropdown {
+  width: 50px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.health-dropdown-menu.tag-dropdown {
+  min-width: 100px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.health-dropdown-item {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3D3D3D;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.health-dropdown-item:hover {
+  background-color: #F5F5F5;
+}
+
+.health-dropdown-item.selected {
+  background-color: #A63232;
+  color: #FFFFFF;
+}
+
+/* 태그 드롭다운 컨테이너 */
+.health-tag-dropdown-container {
+  position: relative;
+}
+
+.health-tag-dropdown-container .health-dropdown-menu {
+  left: 0;
+}
+
+.health-tag-dropdown-container .health-dropdown-item {
+  text-align: left;
+  padding: 10px 16px;
+}
+
+.health-tag-dropdown-container .health-dropdown-item:hover {
+  background-color: #FDF2F2;
+  color: #A63232;
+}

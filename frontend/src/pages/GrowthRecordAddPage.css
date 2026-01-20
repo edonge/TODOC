@@ -139,23 +139,65 @@
   color: #FFFFFF;
 }
 
+.growth-activity-tag.active {
+  cursor: pointer;
+}
+
 .growth-add-activity-btn {
-  width: 101px;
-  height: 35px;
-  padding: 0;
-  border-radius: 10px;
-  border: none;
-  background-color: #FFFFFF;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 2px solid #328B6D;
+  background-color: transparent;
+  font-size: 14px;
+  font-weight: 700;
   color: #328B6D;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
 }
 
 .growth-add-activity-btn:hover {
+  background-color: #E8F5E9;
+}
+
+/* 활동 드롭다운 */
+.growth-activity-dropdown-container {
+  position: relative;
+}
+
+.growth-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 100px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.growth-dropdown-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3D3D3D;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+
+.growth-dropdown-item:hover {
   background-color: #E6F3EC;
+  color: #328B6D;
+}
+
+/* 범위 힌트 */
+.growth-range-hint {
+  font-size: 12px;
+  font-weight: 500;
+  color: #AAAAAA;
 }
 
 /* 메모 */

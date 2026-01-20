@@ -1,0 +1,376 @@
+.meal-add-page {
+  min-height: 100vh;
+  background-color: #F1F1F1;
+  padding-bottom: 100px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 서브 헤더 */
+.meal-add-subheader {
+  padding: 12px 30px;
+}
+
+.meal-add-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  padding: 0;
+}
+
+/* 카테고리 라벨 */
+.meal-category-label {
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  margin-bottom: 24px;
+}
+
+.meal-category-image {
+  width: 120px;
+  height: auto;
+}
+
+/* 폼 영역 */
+.meal-form {
+  padding: 0 30px;
+}
+
+.meal-form-section {
+  margin-bottom: 24px;
+}
+
+.meal-form-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+/* 기본 입력 필드 */
+.meal-form-input {
+  height: 35px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  text-align: center;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.meal-form-input:focus {
+  outline: none;
+}
+
+.meal-form-input::placeholder {
+  color: #AAAAAA;
+}
+
+/* 날짜 및 시간 */
+.meal-datetime-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meal-input-date {
+  width: 101px;
+}
+
+/* 시간 드롭다운 */
+.meal-time-dropdown-container {
+  position: relative;
+}
+
+.meal-time-select {
+  width: 50px;
+  height: 35px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.meal-time-select.selected {
+  background-color: #DBD0BC;
+}
+
+.meal-time-select.disabled {
+  background-color: #E0E0E0;
+  color: #AAAAAA;
+  cursor: not-allowed;
+}
+
+.meal-time-separator {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3D3D3D;
+  margin: 0 -2px;
+}
+
+/* 체크박스 */
+.meal-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5C5C5C;
+  cursor: pointer;
+}
+
+.meal-checkbox-label input[type="checkbox"] {
+  display: none;
+}
+
+.meal-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #CCCCCC;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+}
+
+.meal-checkbox-custom.large {
+  width: 22px;
+  height: 22px;
+}
+
+.meal-checkbox-label input[type="checkbox"]:checked + .meal-checkbox-custom {
+  border-color: #A89680;
+}
+
+/* 드롭다운 메뉴 공통 */
+.meal-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.meal-dropdown-container.wide {
+  width: 100%;
+}
+
+.meal-select-btn {
+  min-width: 56px;
+  height: 35px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.meal-select-btn.food-type {
+  min-width: 80px;
+  text-align: center;
+  padding: 0 14px;
+}
+
+.meal-select-btn.selected {
+  background-color: #DBD0BC;
+}
+
+.meal-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.meal-dropdown-menu.time-dropdown {
+  width: 50px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.meal-dropdown-menu.duration-dropdown {
+  width: 56px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.meal-dropdown-menu.food-type-dropdown {
+  min-width: 80px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.meal-dropdown-menu.amount-dropdown {
+  width: 70px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.meal-dropdown-item {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3D3D3D;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.meal-dropdown-item:hover {
+  background-color: #F5F5F5;
+}
+
+.meal-dropdown-item.selected {
+  background-color: #DBD0BC;
+  color: #5C5C5C;
+}
+
+/* 식사 시간, 양 row */
+.meal-duration-row,
+.meal-amount-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.meal-unit {
+  font-size: 16px;
+  font-weight: 700;
+  color: #5C5C5C;
+}
+
+/* 종류 입력 */
+.meal-input-detail {
+  width: 100%;
+  text-align: left;
+  padding: 0 14px;
+  height: 45px;
+  background-color: #E0E0E0;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.24),
+    4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+/* 양 입력 */
+.meal-input-amount {
+  width: 100%;
+  text-align: left;
+  padding: 0 14px;
+  height: 45px;
+  background-color: #E0E0E0;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.24),
+    4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+/* N/A 텍스트 */
+.meal-na-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #AAAAAA;
+  padding: 10px 0;
+}
+
+/* 트림 체크박스 row */
+.meal-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.meal-checkbox-row input[type="checkbox"] {
+  display: none;
+}
+
+.meal-checkbox-row input[type="checkbox"]:checked + .meal-checkbox-custom {
+  border-color: #A89680;
+}
+
+.meal-checkbox-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+}
+
+/* 버튼 영역 */
+.meal-form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-bottom: 20px;
+}
+
+.meal-submit-btn {
+  width: 82px;
+  height: 35px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #DBD0BC;
+  color: #3D3D3D;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.meal-submit-btn:hover {
+  background-color: #C9BDA8;
+}
+
+.meal-submit-btn:active {
+  transform: scale(0.98);
+}
+
+.meal-cancel-btn {
+  width: 50px;
+  height: 35px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  background-color: #E0E0E0;
+  color: #8F8F8F;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.meal-cancel-btn:hover {
+  background-color: #F5F5F5;
+}
+
+.meal-cancel-btn:active {
+  transform: scale(0.98);
+}

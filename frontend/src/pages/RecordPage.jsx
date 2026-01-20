@@ -28,6 +28,12 @@ function RecordPage() {
       navigate('/record/sleep/add');
     } else if (category.id === 'diaper') {
       navigate('/record/diaper/add');
+    } else if (category.id === 'etc') {
+      navigate('/record/etc/add');
+    } else if (category.id === 'health') {
+      navigate('/record/health/add');
+    } else if (category.id === 'meal') {
+      navigate('/record/meal/add');
     } else {
       // 다른 카테고리는 아직 미구현
       alert(`${category.name} 기록 추가 페이지는 준비 중입니다.`);

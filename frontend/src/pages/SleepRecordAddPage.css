@@ -91,6 +91,7 @@
 
 .sleep-input-date {
   width: 101px;
+  background-color: #FFF2DB;
 }
 
 .sleep-input-time {
@@ -131,8 +132,73 @@
 /* 시간 입력 행 */
 .sleep-time-row {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
   margin-top: 10px;
+}
+
+/* 시간 드롭다운 */
+.sleep-time-dropdown-container {
+  position: relative;
+}
+
+.sleep-time-select {
+  width: 50px;
+  height: 35px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background-color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.24);
+}
+
+.sleep-time-separator {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3D3D3D;
+  margin: 0 -2px;
+}
+
+.sleep-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 50px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.sleep-dropdown-item {
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3D3D3D;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+
+.sleep-dropdown-item:hover {
+  background-color: #F5F5F5;
+}
+
+.sleep-dropdown-item.selected {
+  background-color: #FFF2DB;
+  color: #3D3D3D;
+}
+
+.sleep-time-select.selected {
+  background-color: #FFF2DB;
 }
 
 /* 수면 품질 버튼 */
