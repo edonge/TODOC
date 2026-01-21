@@ -5,7 +5,7 @@
   max-width: 390px;
   margin: 0 auto;
   background: #f1f1f1;
-  padding-bottom: 120px;
+  padding-bottom: 180px;
 }
 
 .ai-chat-body {
@@ -15,34 +15,9 @@
   gap: 12px;
 }
 
-.ai-mode-pill {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  font-size: 14px;
-  font-weight: 700;
-  color: #2d2d2d;
-  background: #f9e8c9;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
-.ai-mode-arrow {
-  font-size: 14px;
-}
-
 .ai-chat-messages {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding-bottom: 16px;
-}
-
-.ai-chat-backdrop {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
 }

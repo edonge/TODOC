@@ -24,8 +24,7 @@ function ChatHistoryItem({ item }) {
           <div className="chat-history-date">{item.dateLabel}</div>
         </div>
         <div className="chat-history-question">{item.question}</div>
-        <div className="chat-history-meta">
-          <span className="chat-history-relative">{item.relative}</span>
+        <div className="chat-history-mode-row">
           <span className="chat-history-mode">{label}</span>
         </div>
       </div>

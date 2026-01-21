@@ -46,12 +46,9 @@
   line-height: 1.4;
 }
 
-.chat-history-meta {
+.chat-history-mode-row {
   display: flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 12px;
-  color: #7a7a7a;
+  justify-content: flex-end;
 }
 
 .chat-history-mode {
@@ -60,4 +57,5 @@
   border-radius: 12px;
   font-weight: 600;
   color: #333;
+  font-size: 12px;
 }

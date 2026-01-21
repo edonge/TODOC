@@ -6,12 +6,11 @@ function ModeCard({ image, label, background, outline, onClick }) {
       className="mode-card"
       style={{
         backgroundColor: background,
-        borderColor: outline,
       }}
       onClick={onClick}
     >
       <img className="mode-card-image" src={image} alt={label} />
-      <span className="mode-card-label" style={{ WebkitTextStroke: `1px ${outline}` }}>
+      <span className="mode-card-label" style={{ WebkitTextStroke: `0.5px ${outline}` }}>
         {label}
       </span>
     </button>
