@@ -1,0 +1,75 @@
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 10px;
+  background: #f1f1f1;
+}
+
+.chat-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-header-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #2d2d2d;
+}
+
+.chat-header-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.chat-header-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #fff2db;
+  padding: 8px 12px;
+  border-radius: 20px;
+  box-shadow: 4px 4px 12px rgba(72, 50, 42, 0.16);
+  font-size: 12px;
+  font-weight: 700;
+  color: #2d2d2d;
+  width: fit-content;
+}
+
+.chat-date-text {
+  font-weight: 800;
+}
+
+.chat-weather-icon {
+  font-size: 12px;
+}
+
+.chat-weather-temp {
+  font-size: 13px;
+  color: #5c5c5c;
+  font-weight: 500;
+}
+
+.chat-header-settings {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.chat-header-settings:active {
+  opacity: 0.7;
+}

@@ -1,0 +1,36 @@
+.ai-home-page {
+  width: 100%;
+  min-height: 100vh;
+  max-width: 390px;
+  margin: 0 auto;
+  background: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 120px;
+}
+
+.ai-section {
+  padding: 0 24px;
+  margin-top: 10px;
+}
+
+.ai-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4a4a4a;
+  text-align: center;
+  margin: 12px 0 14px;
+}
+
+.ai-mode-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 6px;
+}
+
+.ai-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

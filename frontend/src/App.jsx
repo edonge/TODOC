@@ -10,6 +10,8 @@ import DiaperRecordAddPage from './pages/DiaperRecordAddPage';
 import EtcRecordAddPage from './pages/EtcRecordAddPage';
 import HealthRecordAddPage from './pages/HealthRecordAddPage';
 import MealRecordAddPage from './pages/MealRecordAddPage';
+import AiHomePage from './pages/AiHomePage';
+import AiChatPage from './pages/AiChatPage';
 import AppLayout from './components/layout/AppLayout';
 import './App.css';
 
@@ -32,6 +34,8 @@ function App() {
             <Route path="/record/health/add" element={<HealthRecordAddPage />} />
             <Route path="/record/meal/add" element={<MealRecordAddPage />} />
           </Route>
+          <Route path="/ai" element={<AiHomePage />} />
+          <Route path="/ai/:mode" element={<AiChatPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

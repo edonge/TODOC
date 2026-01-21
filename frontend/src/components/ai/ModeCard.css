@@ -1,0 +1,32 @@
+.mode-card {
+  width: 100%;
+  max-width: 105px;
+  aspect-ratio: 3 / 5;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mode-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.mode-card-image {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.mode-card-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
