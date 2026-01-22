@@ -1,0 +1,235 @@
+/* ====== 식사 카드 ====== */
+
+/* 헤더 */
+.meal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.meal-header-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  background-color: #DBD0BC;
+  border-radius: 8px;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.28);
+  padding: 8px 14px;
+}
+
+/* 메뉴 */
+.meal-card-menu {
+  position: relative;
+}
+
+.meal-card-menu .menu-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.meal-card-menu .menu-icon {
+  width: 16px;
+  height: 4px;
+  display: block;
+}
+
+.meal-card-menu .menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 10;
+}
+
+.meal-card-menu .menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: #3D3D3D;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.meal-card-menu .menu-dropdown button:hover {
+  background-color: #F5F5F5;
+}
+
+.record-item-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.record-item-menu .menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 1000;
+  min-width: 80px;
+}
+
+.record-item-menu .menu-dropdown button {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: #3D3D3D;
+  text-align: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.record-item-menu .menu-dropdown button:hover {
+  background-color: #F5F5F5;
+}
+/* 기록 래퍼 - 스크롤 가능 */
+.meal-card-records-wrapper {
+  width: 100%;
+  height: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.24);
+  scrollbar-width: thin;
+  scrollbar-color: #D9D9D9 transparent;
+}
+
+/* 기록 목록 - 2x2 그리드 */
+.meal-card-records {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 0;
+}
+
+.meal-card-record-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  height: 39px;
+  padding: 0 12px;
+  background-color: #DBD0BC;
+  border-radius: 8px;
+  box-sizing: border-box;
+  line-height: 1.2;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.28);
+}
+
+.meal-card-time {
+  font-size: 12px;
+  font-weight: 400;
+  color: #3D3D3D;
+  min-width: 40px;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.meal-card-type {
+  font-size: 16px;
+  font-weight: 600;
+  color: #3D3D3D;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  flex-shrink: 0;
+  line-height: 1.2;
+  margin-left: 0;
+  min-width: 50px;
+}
+
+.meal-card-amount {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8F8F8F;
+  flex: 1;
+  line-height: 1.2;
+}
+
+.meal-card-burp {
+  font-size: 12px;
+  font-weight: 400;
+  color: #3D3D3D;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.meal-card-dot {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background-color: transparent;
+  flex-shrink: 0;
+}
+
+.meal-card-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.meal-card-menu-btn .menu-icon {
+  width: 16px;
+  height: 4px;
+}
+
+/* 빈 상태 */
+.meal-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.meal-empty p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8F8F8F;
+  line-height: 1.6;
+}
+
+/* 스크롤바 */
+.meal-card-records-wrapper::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.meal-card-records-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.meal-card-records-wrapper::-webkit-scrollbar-thumb {
+  background-color: #D9D9D9;
+  border-radius: 2px;
+}

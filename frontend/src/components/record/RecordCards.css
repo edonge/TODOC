@@ -10,42 +10,6 @@
   position: relative;
 }
 
-/* 카드 후면 레이어 */
-.record-card::before {
-  content: '';
-  position: absolute;
-  top: 30px;
-  left: 5px;
-  right: -5px;
-  bottom: -5px;
-  border-radius: 8px;
-  z-index: 0;
-}
-
-.record-card.sleep-card::before {
-  background-color: #FFF2DB;
-}
-
-.record-card.growth-card::before {
-  background-color: #328B6D;
-}
-
-.record-card.meal-card::before {
-  background-color: #DBD0BC;
-}
-
-.record-card.health-card::before {
-  background-color: #8D0000;
-}
-
-.record-card.diaper-card::before {
-  background-color: #EFC3C8;
-}
-
-.record-card.etc-card::before {
-  background-color: #8F8F8F;
-}
-
 .record-card-label {
   display: inline-block;
   width: 67px;
@@ -87,18 +51,6 @@
 
 .record-card-label.etc {
   background-color: #8F8F8F;
-}
-
-.record-card-content {
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  padding: 16px;
-  min-height: 120px;
-  max-height: 178px;
-  overflow-y: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  position: relative;
-  z-index: 1;
 }
 
 /* 카드 헤더 */
@@ -175,7 +127,8 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  z-index: 10;
+  z-index: 1000;
+  min-width: 80px;
 }
 
 .menu-dropdown button {
@@ -186,7 +139,7 @@
   background: none;
   font-size: 14px;
   color: #3D3D3D;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -195,94 +148,119 @@
   background-color: #F5F5F5;
 }
 
+.record-item-menu {
+  position: relative;
+  display: inline-flex;
+}
+
 /* ====== 수면 카드 ====== */
+.sleep-records-wrapper {
+  width: 100%;
+  height: 100px;
+  background-color: #FFFFFF;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.24);
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
 .sleep-records {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.sleep-records-wrapper {
-  width: 310px;
-  height: 80px;
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  padding: 8px 10px 16px;
-  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.24);
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
-.sleep-record-item {
+/* 베이지색 박스 wrapper */
+.sleep-record-box {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background-color: transparent;
+  gap: 12px;
+  width: 100%;
+  height: 39px;
+  padding: 0 12px;
+  background-color: #FFF2DB;
   border-radius: 8px;
+  box-sizing: border-box;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.28);
 }
 
 .sleep-type-label {
-  width: 43px;
-  height: 19px;
+  font-size: 12px;
+  font-weight: 400;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #3D3D3D;
-  min-width: 43px;
+  padding: 4px 8px;
   border-radius: 4px;
-  background-color: #FFF2DB;
+  flex-shrink: 0;
 }
 
-.sleep-time {
-  font-size: 14px;
-  color: #5C5C5C;
-  flex: 0 0 auto;
-}
-
-.sleep-duration {
-  font-size: 14px;
-  font-weight: 600;
-  color: #8F8F8F;
-}
-
-.sleep-record-item.night .sleep-type-label {
-  background-color: #FFF2DB;
-  color: #3D3D3D;
-}
-
-.sleep-record-item.day .sleep-type-label {
-  background-color: #6F6A63;
+.sleep-type-label.night {
+  background-color: #6F99F4;
   color: #FFFFFF;
 }
 
+.sleep-type-label.day {
+  background-color: #DDD6F3;
+  color: #3D3D3D;
+}
+
+.sleep-time {
+  font-size: 12px;
+  font-weight: 400;
+  color: #3D3D3D;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.sleep-duration {
+  font-size: 12px;
+  font-weight: 500;
+  color: #8F8F8F;
+  flex: 1;
+}
+
 .sleep-dot {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sleep-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sleep-menu-btn .menu-icon {
+  width: 16px;
+  height: 4px;
 }
 
 /* ====== 성장 카드 ====== */
-.record-card-content.growth-content {
-  overflow: visible;
-  max-height: none;
-}
-
 .growth-info {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px;
+  align-items: start;
+  gap: 12px;
 }
 
 .growth-info-wrapper {
   background-color: #FFFFFF;
   border-radius: 8px;
-  padding: 12px;
-  max-height: 120px;
-  overflow-y: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 8px 10px;
+  max-height: none;
+  overflow-y: visible;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.24);
   box-sizing: border-box;
 }
 
@@ -290,12 +268,14 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  margin-top: 10px;
 }
 
 .growth-stat-item {
   display: flex;
-  align-items: flex-start;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
 }
 
 .stat-label {
@@ -312,7 +292,7 @@
 }
 
 .stat-value {
-  width: 178px;
+  width: auto;
   height: 37px;
   display: inline-flex;
   align-items: center;
@@ -325,6 +305,7 @@
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
   padding: 0 10px;
   gap: 6px;
+  flex: 1;
 }
 
 .stat-change {
@@ -343,14 +324,14 @@
 .growth-activities {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  width: 90px;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
   background-color: #FFF2DB;
   border-radius: 8px;
   padding: 8px;
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
-  align-self: flex-start;
+  margin: 0;
 }
 
 .activities-label {
@@ -364,13 +345,7 @@
   color: #FFFFFF;
   background-color: #328B6D;
   border-radius: 4px;
-}
-
-.activity-tags {
-  background-color: transparent;
-  border-radius: 8px;
-  padding: 0;
-  box-shadow: none;
+  margin: 0;
 }
 
 .activity-tags {
@@ -393,200 +368,197 @@
 }
 
 /* ====== 식사 카드 ====== */
+.meal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.meal-header-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3D3D3D;
+  background-color: #DBD0BC;
+  border-radius: 8px;
+  box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.28);
+  padding: 8px 14px;
+}
+
 .meal-records {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-}
-
-.meal-card .record-card-content {
-  background-color: #FFFFFF;
-}
-
-.meal-header-text {
-  background-color: #DBD0BC;
+  overflow-y: auto;
+  max-height: 104px;
+  padding-right: 4px;
+  box-sizing: border-box;
 }
 
 .meal-record-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background-color: #FFFFFF;
+  padding: 10px 12px;
+  background-color: #DBD0BC;
   border-radius: 8px;
 }
 
 .meal-time {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: #3D3D3D;
+  min-width: 42px;
+  flex-shrink: 0;
 }
 
 .meal-type {
-  font-size: 13px;
-  font-weight: 500;
-  color: #FFFFFF;
-  padding: 4px 8px;
-  background-color: #DBD0BC;
+  font-size: 14px;
+  font-weight: 800;
+  color: #3D3D3D;
+  padding: 4px 10px;
+  background-color: #FFFFFF;
   border-radius: 4px;
+  flex-shrink: 0;
 }
 
 .meal-amount {
   font-size: 13px;
-  color: #3D3D3D;
+  font-weight: 500;
+  color: #5C5C5C;
+  margin-left: auto;
 }
 
 /* ====== 건강 카드 ====== */
-.health-info {
+.health-card-stack {
+  width: 355px;
+}
+
+.health-card-stack .card-stack-content {
+  height: 178px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.health-records {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  padding-bottom: 8px;
 }
 
-.health-note-row {
+.health-record-box {
+  width: 258px;
+  height: 59px;
+  background-color: #FFF2DB;
+  border-radius: 8px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.28);
+  padding: 8px 10px;
+  box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background-color: #FFF5F5;
-  border-radius: 8px;
 }
 
-.health-note {
-  font-size: 14px;
-  color: #3D3D3D;
-}
-
-.health-date {
-  font-size: 12px;
-  font-weight: 600;
-  color: #5C5C5C;
-  padding: 4px 8px;
-  background-color: #FFFFFF;
-  border-radius: 4px;
-}
-
-.health-tags {
+.health-record-header {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.health-tag {
+.health-record-title {
   font-size: 12px;
   font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 4px;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.health-tag.symptom {
-  background-color: #FFEAEA;
+.health-record-date {
+  font-size: 12px;
+  font-weight: 400;
   color: #8D0000;
+  flex-shrink: 0;
 }
 
-.health-tag.medicine {
-  background-color: #E6F3EC;
-  color: #328B6D;
-}
-
-/* ====== 배변 카드 ====== */
-.diaper-records {
+.health-record-footer {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.diaper-record-item {
+.health-record-tags {
   display: flex;
+  gap: 6px;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  background-color: #FFF5F7;
-  border-radius: 8px;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.diaper-time {
-  font-size: 14px;
+.health-record-tag {
+  height: 19px;
+  min-width: 24px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background-color: #8D0000;
+  color: #FFFFFF;
+  font-size: 12px;
   font-weight: 600;
-  color: #3D3D3D;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.diaper-type {
-  font-size: 14px;
-  font-weight: 700;
-  color: #3D3D3D;
-}
-
-.diaper-condition {
-  font-size: 13px;
-  color: #8F8F8F;
-  flex: 1;
-}
-
-.diaper-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-}
-
-.diaper-menu-btn {
+.health-record-menu-btn {
   background: none;
   border: none;
-  font-size: 14px;
-  color: #8F8F8F;
   cursor: pointer;
-  padding: 4px;
-  letter-spacing: 2px;
-}
-
-/* ====== 기타 카드 ====== */
-.etc-records {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.etc-record-item {
-  display: flex;
+  padding: 0;
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  background-color: #FFF9F0;
-  border-radius: 8px;
-}
-
-.etc-date {
-  font-size: 13px;
-  font-weight: 600;
-  color: #8F8F8F;
-}
-
-.etc-text {
-  font-size: 14px;
-  color: #3D3D3D;
-  flex: 1;
-}
-
-.etc-menu-btn {
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: #8F8F8F;
-  cursor: pointer;
-  padding: 4px;
-  letter-spacing: 2px;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
 }
 
 /* 스크롤바 스타일 */
-.record-card-content::-webkit-scrollbar {
+.card-stack-content::-webkit-scrollbar,
+.growth-info-wrapper::-webkit-scrollbar {
   width: 4px;
 }
 
-.record-card-content::-webkit-scrollbar-track {
+.card-stack-content::-webkit-scrollbar-track,
+.growth-info-wrapper::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.record-card-content::-webkit-scrollbar-thumb {
+.card-stack-content::-webkit-scrollbar-thumb,
+.growth-info-wrapper::-webkit-scrollbar-thumb {
+  background-color: #D9D9D9;
+  border-radius: 2px;
+}
+
+/* 수면 카드 스크롤바 */
+.sleep-records-wrapper::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sleep-records-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sleep-records-wrapper::-webkit-scrollbar-thumb {
   background-color: #D9D9D9;
   border-radius: 2px;
 }

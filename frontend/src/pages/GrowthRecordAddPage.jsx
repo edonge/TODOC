@@ -228,7 +228,7 @@ function GrowthRecordAddPage() {
         {/* 활동 */}
         <div className="growth-form-section">
           <label className="growth-form-label">활동</label>
-          <div className="growth-activities">
+          <div className="growth-add-activities">
             {activities.map((activity, index) => (
               <span
                 key={index}

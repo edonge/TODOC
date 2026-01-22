@@ -117,11 +117,15 @@
 }
 
 /* 활동 태그 */
-.growth-activities {
+.growth-add-activities {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
+  align-items: center;
+  background-color: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
 .growth-activity-tag {
@@ -144,6 +148,9 @@
 }
 
 .growth-add-activity-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 8px 16px;
   border-radius: 20px;
   border: 2px solid #328B6D;
@@ -156,7 +163,7 @@
 }
 
 .growth-add-activity-btn:hover {
-  background-color: #E8F5E9;
+  background-color: transparent;
 }
 
 /* 활동 드롭다운 */
