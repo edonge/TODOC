@@ -31,6 +31,7 @@
   font-weight: 700;
   color: #2d2d2d;
   margin: 0;
+  flex: 1;
 }
 
 .chat-history-date {
@@ -38,6 +39,7 @@
   color: #666;
   min-width: 72px;
   text-align: right;
+  flex-shrink: 0;
 }
 
 .chat-history-question {
@@ -49,6 +51,7 @@
 .chat-history-mode-row {
   display: flex;
   justify-content: flex-end;
+  margin-top: 4px;
 }
 
 .chat-history-mode {

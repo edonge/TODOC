@@ -9,8 +9,9 @@
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: rgba(241, 241, 241, 0.9);
+  background: rgba(241, 241, 241, 0.95);
   backdrop-filter: blur(4px);
+  z-index: 90;
 }
 
 .chat-input-field {

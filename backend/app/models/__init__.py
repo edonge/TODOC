@@ -12,6 +12,7 @@ from app.models.enums import (
     ActivityEnum,
     CommunityCategoryEnum,
 )
+from app.models.chat import ChatSession, ChatMessage
 
 __all__ = [
     "RecordTypeEnum",
@@ -26,4 +27,6 @@ __all__ = [
     "StoolColorEnum",
     "ActivityEnum",
     "CommunityCategoryEnum",
+    "ChatSession",
+    "ChatMessage",
 ]
