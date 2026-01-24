@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { withApiBase } from '../api/base';
 import HeroSection from '../components/home/HeroSection';
 import BabyCard from '../components/home/BabyCard';
 import InsightCard from '../components/home/InsightCard';
@@ -37,7 +38,7 @@ function HomePage() {
       const token = localStorage.getItem('access_token');
       if (!token) return;
 
-      const response = await fetch('/api/users/me/home-data', {
+      const response = await fetch(withApiBase('/api/users/me/home-data'), {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -66,7 +67,7 @@ function HomePage() {
 
   const fetchPopularPost = async () => {
     try {
-      const response = await fetch('/api/community/posts/popular');
+      const response = await fetch(withApiBase('/api/community/posts/popular'));
       if (response.ok) {
         const data = await response.json();
         setPopularPost(data);

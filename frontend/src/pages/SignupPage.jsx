@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { withApiBase } from '../api/base';
 import { useNavigate } from 'react-router-dom';
 import todocLogo from '../assets/Todoc.png';
 import './LoginPage.css';
@@ -34,7 +35,7 @@ function SignupPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch(withApiBase('/api/auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

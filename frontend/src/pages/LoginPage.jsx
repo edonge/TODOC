@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { withApiBase } from '../api/base';
 import { useNavigate } from 'react-router-dom';
 import todocLogo from '../assets/Todoc.png';
 import './LoginPage.css';
@@ -27,7 +28,7 @@ function LoginPage() {
       formData.append('username', username);
       formData.append('password', password);
 
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(withApiBase('/api/auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

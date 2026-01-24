@@ -1,7 +1,7 @@
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+import { withApiBase } from './base';
 
 export async function sendAiMessage({ mode, message, history = [], kidId = null, sessionId = null }) {
-  const res = await fetch(`${API_BASE}/api/ai/chat`, {
+  const res = await fetch(withApiBase('/api/ai/chat'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
