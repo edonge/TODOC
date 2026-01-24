@@ -1,3 +1,5 @@
+import hashlib
+import base64
 from datetime import datetime, timedelta
 from typing import Optional, List
 
@@ -11,14 +13,25 @@ from app.schemas.user import UserCreate, UserUpdate
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+def _prehash_password(password: str) -> str:
+    """
+    bcrypt의 72바이트 제한을 우회하기 위해 비밀번호를 SHA-256으로 프리해싱.
+    결과는 base64 인코딩하여 44자의 ASCII 문자열로 변환 (72바이트 미만).
+    """
+    sha256_hash = hashlib.sha256(password.encode("utf-8")).digest()
+    return base64.b64encode(sha256_hash).decode("ascii")
+
+
 def get_password_hash(password: str) -> str:
-    """비밀번호 해시"""
-    return pwd_context.hash(password)
+    """비밀번호 해시 (SHA-256 프리해싱 후 bcrypt 적용)"""
+    prehashed = _prehash_password(password)
+    return pwd_context.hash(prehashed)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """비밀번호 검증"""
-    return pwd_context.verify(plain_password, hashed_password)
+    """비밀번호 검증 (SHA-256 프리해싱 후 bcrypt 검증)"""
+    prehashed = _prehash_password(plain_password)
+    return pwd_context.verify(prehashed, hashed_password)
 
 
 # =============================================================================
