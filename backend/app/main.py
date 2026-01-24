@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +14,22 @@ def get_db():
     return None
 
 
+def get_cors_origins() -> List[str]:
+    """CORS 허용 origin 목록 생성"""
+    origins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://todoc.ai.kr",
+        "https://www.todoc.ai.kr",
+    ]
+
+    # 환경변수 FRONTEND_ORIGIN이 있으면 추가
+    if settings.frontend_origin and settings.frontend_origin not in origins:
+        origins.append(settings.frontend_origin)
+
+    return origins
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Todoc API",
@@ -19,12 +37,15 @@ def create_app() -> FastAPI:
         description="육아 기록 및 커뮤니티 API"
     )
 
+    # CORS 설정 - 배포/개발 환경 모두 지원
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[settings.frontend_origin],
+        allow_origins=get_cors_origins(),
         allow_credentials=True,
-        allow_methods=["*"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
+        expose_headers=["*"],
+        max_age=600,  # preflight 캐시 10분
     )
 
     # API 라우터 등록
