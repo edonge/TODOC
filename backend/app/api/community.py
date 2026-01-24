@@ -63,11 +63,14 @@ def create_post(
     db: Session = Depends(get_db)
 ):
     """게시글 작성"""
-    if post_in.kid_id is None:
+    # kid_id가 없으면 사용자의 첫 번째 아이를 자동 연결
+    kid_id = post_in.kid_id
+    if kid_id is None:
         kids = kid_crud.get_kids_by_user(db, current_user.id)
         if kids:
-            post_in = post_in.copy(update={"kid_id": kids[0].id})
-    post = community_crud.create_post(db, current_user.id, post_in)
+            kid_id = kids[0].id
+
+    post = community_crud.create_post(db, current_user.id, post_in, kid_id_override=kid_id)
     return _post_to_response(post, current_user, db)
 
 

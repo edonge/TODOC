@@ -82,11 +82,16 @@ def get_posts(
     return posts, total
 
 
-def create_post(db: Session, user_id: int, post_in: PostCreate) -> Post:
+def create_post(
+    db: Session,
+    user_id: int,
+    post_in: PostCreate,
+    kid_id_override: Optional[int] = None
+) -> Post:
     """게시글 작성"""
     post = Post(
         user_id=user_id,
-        kid_id=post_in.kid_id,
+        kid_id=kid_id_override if kid_id_override is not None else post_in.kid_id,
         category=post_in.category,
         title=post_in.title,
         content=post_in.content,
