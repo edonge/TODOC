@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { withApiBase } from '../api/base';
+import { apiFetch } from '../api/base';
 import { categories, categoryColors, formatTimeAgo, categoryToEnum, enumToCategory, formatMomName } from '../data/communityData';
 import PostCard from '../components/community/PostCard';
 import WritePostModal from '../components/community/WritePostModal';
@@ -11,9 +11,11 @@ function CommunityPage() {
   const [selectedCategory, setSelectedCategory] = useState('전체');
   const [sortBy, setSortBy] = useState('인기순');
   const [showWriteModal, setShowWriteModal] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   // 게시글 목록 조회
   const fetchPosts = useCallback(async (resetPage = false) => {
@@ -48,7 +50,7 @@ function CommunityPage() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(withApiBase(`/api/community/posts?${params.toString()}`), {
+      const response = await apiFetch(`/api/community/posts?${params.toString()}`, {
         headers,
       });
 
@@ -62,6 +64,7 @@ function CommunityPage() {
           content: post.content,
           author: formatMomName(post.kid_name) || post.author?.nickname || post.author?.username || '익명',
           authorImage: post.author?.profile_image_url,
+          authorId: post.author?.id || null,
           createdAt: post.created_at,
           likeCount: post.likes_count || 0,
           commentCount: post.comment_count || 0,
@@ -83,6 +86,31 @@ function CommunityPage() {
     }
   }, [selectedCategory, sortBy, page]);
 
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        setCurrentUserId(null);
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentUserId(data.id);
+        }
+      } catch (error) {
+        console.error('사용자 정보 조회 실패:', error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
   // 초기 로드 및 필터/정렬 변경 시
   useEffect(() => {
     fetchPosts(true);
@@ -99,7 +127,7 @@ function CommunityPage() {
 
       const categoryEnum = categoryToEnum[newPost.category];
 
-      const response = await fetch(withApiBase('/api/community/posts'), {
+      const response = await apiFetch('/api/community/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,6 +154,78 @@ function CommunityPage() {
     }
   };
 
+  const handleEditPost = async (updatedPost) => {
+    if (!editingPost) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
+      const categoryEnum = categoryToEnum[updatedPost.category];
+
+      const response = await apiFetch(`/api/community/posts/${editingPost.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          category: categoryEnum,
+          title: updatedPost.title,
+          content: updatedPost.content,
+        }),
+      });
+
+      if (response.ok) {
+        setEditingPost(null);
+        fetchPosts(true);
+      } else {
+        const error = await response.json();
+        alert(error.detail || '게시글 수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게시글 수정 실패:', error);
+      alert('게시글 수정에 실패했습니다.');
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    const confirmed = window.confirm('게시글을 삭제할까요?');
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
+      const response = await apiFetch(`/api/community/posts/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setPosts(prev => prev.filter(post => post.id !== postId));
+      } else {
+        const error = await response.json();
+        alert(error.detail || '게시글 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('게시글 삭제 실패:', error);
+      alert('게시글 삭제에 실패했습니다.');
+    }
+  };
+
   // 좋아요 토글
   const handleLikeToggle = async (postId) => {
     try {
@@ -135,7 +235,7 @@ function CommunityPage() {
         return;
       }
 
-      const response = await fetch(withApiBase(`/api/community/posts/${postId}/like`), {
+      const response = await apiFetch(`/api/community/posts/${postId}/like`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -207,6 +307,9 @@ function CommunityPage() {
               categoryColor={categoryColors[post.category]}
               formatTimeAgo={formatTimeAgo}
               onLikeToggle={handleLikeToggle}
+              isOwn={Boolean(currentUserId && post.authorId === currentUserId)}
+              onEdit={() => setEditingPost(post)}
+              onDelete={() => handleDeletePost(post.id)}
             />
           ))
         )}
@@ -224,11 +327,19 @@ function CommunityPage() {
       </div>
 
       {/* 글 작성 모달 */}
-      {showWriteModal && (
+      {(showWriteModal || editingPost) && (
         <WritePostModal
-          onClose={() => setShowWriteModal(false)}
-          onSubmit={handleAddPost}
+          onClose={() => {
+            setShowWriteModal(false);
+            setEditingPost(null);
+          }}
+          onSubmit={editingPost ? handleEditPost : handleAddPost}
           categories={categories.filter(c => c !== '전체')}
+          initialCategory={editingPost?.category}
+          initialTitle={editingPost?.title}
+          initialContent={editingPost?.content}
+          headerTitle={editingPost ? '글 수정하기' : '글 작성하기'}
+          submitLabel={editingPost ? '글 수정하기' : '글 추가하기'}
         />
       )}
 

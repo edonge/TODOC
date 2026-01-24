@@ -1,4 +1,4 @@
-import photoMom from '../../assets/photos/photo_mom.png';
+import todocCharacter from '../../assets/characters/todoc_character.png';
 import { formatMomName } from '../../data/communityData';
 import './CommunityPreview.css';
 
@@ -49,7 +49,7 @@ function CommunityPreview({ popularPost }) {
         <div className="community-post">
           <div className="post-header">
             <img
-              src={popularPost.author?.profile_image_url || photoMom}
+              src={todocCharacter}
               alt="프로필"
               className="post-avatar"
             />

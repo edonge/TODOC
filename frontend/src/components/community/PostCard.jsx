@@ -1,14 +1,51 @@
+import { useEffect, useRef, useState } from 'react';
 import todocCharacter from '../../assets/characters/todoc_character.png';
+import moreIcon from '../../assets/icons/more.png';
 import './PostCard.css';
 
-function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle }) {
+function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle, isOwn, onEdit, onDelete }) {
   const avatarSrc = post.authorImage || todocCharacter;
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const handleLikeClick = () => {
     if (onLikeToggle) {
       onLikeToggle(post.id);
     }
   };
+
+  const handleCommentClick = () => {
+    alert('준비중입니다');
+  };
+
+  const handleMenuToggle = () => {
+    setIsMenuOpen((prev) => !prev);
+  };
+
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit();
+    }
+    setIsMenuOpen(false);
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete();
+    }
+    setIsMenuOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div
@@ -26,12 +63,32 @@ function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle }) {
             <span className="post-card-author">{post.author}</span>
             <span className="post-card-date">{formatTimeAgo(post.createdAt)}</span>
           </div>
-          <span
-            className="post-card-category"
-            style={{ backgroundColor: categoryColor }}
-          >
-            {post.category}
-          </span>
+          <div className="post-card-header-right">
+            <span
+              className="post-card-category"
+              style={{ backgroundColor: categoryColor }}
+            >
+              {post.category}
+            </span>
+            {isOwn && (
+              <div className="post-card-menu" ref={menuRef}>
+                <button
+                  type="button"
+                  className="menu-trigger"
+                  onClick={handleMenuToggle}
+                  aria-label="게시글 메뉴"
+                >
+                  <img src={moreIcon} alt="더보기" className="menu-icon" />
+                </button>
+                {isMenuOpen && (
+                  <div className="menu-dropdown">
+                    <button type="button" onClick={handleEdit}>수정하기</button>
+                    <button type="button" onClick={handleDelete}>삭제하기</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="post-card-body">
@@ -58,12 +115,16 @@ function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle }) {
             </svg>
             {post.likeCount}
           </button>
-          <span className="post-card-stat">
+          <button
+            type="button"
+            className="post-card-stat post-card-comment"
+            onClick={handleCommentClick}
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             {post.commentCount}
-          </span>
+          </button>
         </div>
       </article>
     </div>

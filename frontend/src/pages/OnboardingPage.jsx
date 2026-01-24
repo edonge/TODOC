@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { withApiBase } from '../api/base';
+import { apiFetch } from '../api/base';
 import { useNavigate } from 'react-router-dom';
 import OnboardingWelcome from '../components/onboarding/OnboardingWelcome';
 import OnboardingTerms from '../components/onboarding/OnboardingTerms';
@@ -65,7 +65,7 @@ function OnboardingPage() {
     try {
       const token = localStorage.getItem('access_token');
       if (token) {
-        await fetch(withApiBase('/api/auth/complete-onboarding'), {
+        await apiFetch('/api/auth/complete-onboarding', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

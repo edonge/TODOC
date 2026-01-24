@@ -2,10 +2,19 @@ import { useEffect, useState } from 'react';
 import { categoryColors } from '../../data/communityData';
 import './WritePostModal.css';
 
-function WritePostModal({ onClose, onSubmit, categories }) {
-  const [category, setCategory] = useState(categories[0]);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+function WritePostModal({
+  onClose,
+  onSubmit,
+  categories,
+  initialCategory,
+  initialTitle = '',
+  initialContent = '',
+  headerTitle = '글 작성하기',
+  submitLabel = '글 추가하기',
+}) {
+  const [category, setCategory] = useState(initialCategory || categories[0]);
+  const [title, setTitle] = useState(initialTitle);
+  const [content, setContent] = useState(initialContent);
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -14,6 +23,12 @@ function WritePostModal({ onClose, onSubmit, categories }) {
       document.body.style.overflow = originalOverflow;
     };
   }, []);
+
+  useEffect(() => {
+    setCategory(initialCategory || categories[0]);
+    setTitle(initialTitle || '');
+    setContent(initialContent || '');
+  }, [initialCategory, initialTitle, initialContent, categories]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -28,7 +43,7 @@ function WritePostModal({ onClose, onSubmit, categories }) {
     <div className="write-modal-overlay" onClick={onClose}>
       <div className="write-modal" onClick={(e) => e.stopPropagation()}>
         <div className="write-modal-header">
-          <h2 className="write-modal-title">글 작성하기</h2>
+          <h2 className="write-modal-title">{headerTitle}</h2>
           <button className="write-modal-close" onClick={onClose}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M18 6L6 18M6 6L18 18" stroke="#3D3D3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -85,7 +100,7 @@ function WritePostModal({ onClose, onSubmit, categories }) {
             </div>
 
             <button type="submit" className="write-submit-btn write-submit-below">
-              글 추가하기
+              {submitLabel}
             </button>
             <div className="write-modal-spacer"></div>
           </div>

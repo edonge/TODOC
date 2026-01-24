@@ -1,7 +1,7 @@
-import { withApiBase } from './base';
+import { apiFetch } from './base';
 
 export async function sendAiMessage({ mode, message, history = [], kidId = null, sessionId = null }) {
-  const res = await fetch(withApiBase('/api/ai/chat'), {
+  const res = await apiFetch('/api/ai/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

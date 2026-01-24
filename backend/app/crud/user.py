@@ -102,9 +102,17 @@ def authenticate_user(db: Session, username: str, password: str) -> Optional[Use
     user = get_user_by_username(db, username)
     if not user:
         return None
-    if not verify_password(password, user.password_hash):
-        return None
-    return user
+    if verify_password(password, user.password_hash):
+        return user
+
+    # Legacy fallback: bcrypt-only hashes (before prehash introduction)
+    if pwd_context.verify(password, user.password_hash):
+        user.password_hash = get_password_hash(password)
+        db.commit()
+        db.refresh(user)
+        return user
+
+    return None
 
 
 def update_first_login_status(db: Session, user: User) -> User:
