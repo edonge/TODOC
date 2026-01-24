@@ -119,3 +119,11 @@
   font-size: 13px;
   color: #CCCCCC;
 }
+
+/* 에러 메시지 */
+.error-message {
+  color: #E57373;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}

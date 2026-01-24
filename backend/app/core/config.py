@@ -8,7 +8,12 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
-    """애플리케이션 설정"""
+    """
+    애플리케이션 설정
+
+    모든 값은 .env 파일에서 관리됩니다.
+    기본값은 개발 편의를 위한 것이며, 민감 정보는 반드시 .env에서 설정하세요.
+    """
 
     model_config = SettingsConfigDict(
         env_file=str(BASE_DIR / ".env"),
@@ -22,7 +27,7 @@ class Settings(BaseSettings):
     # -------------------------------------------------------------------------
     app_env: str = "development"
     debug: bool = True
-    secret_key: str = "change-this-secret-key-in-production"
+    secret_key: str  # .env 필수
 
     # -------------------------------------------------------------------------
     # Frontend Origin (CORS)
@@ -32,44 +37,26 @@ class Settings(BaseSettings):
     # -------------------------------------------------------------------------
     # Database - PostgreSQL
     # -------------------------------------------------------------------------
-    database_url: Optional[str] = None
-    database_url_async: Optional[str] = None
-    db_host: str = "localhost"
-    db_port: int = 5432
-    db_name: str = "postgres"
-    db_user: str = "edonge0213"
-    db_password: str = "@@71knight"
+    database_url: str  # .env 필수
 
     @property
     def db_url(self) -> str:
-        """DATABASE_URL이 있으면 사용, 없으면 개별 설정으로 생성"""
-        if self.database_url:
-            return self.database_url
-        return (
-            "postgresql+psycopg2://"
-            f"{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
-        )
+        """DATABASE_URL 반환"""
+        return self.database_url
 
     @property
     def db_url_async(self) -> str:
         """비동기 드라이버용 URL"""
-        if self.database_url_async:
-            return self.database_url_async
-        if self.database_url:
-            if "postgresql+asyncpg://" in self.database_url:
-                return self.database_url
-            if "postgresql+psycopg2://" in self.database_url:
-                return self.database_url.replace("postgresql+psycopg2://", "postgresql+asyncpg://")
-            return self.database_url.replace("postgresql://", "postgresql+asyncpg://")
-        return (
-            "postgresql+asyncpg://"
-            f"{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
-        )
+        if "postgresql+asyncpg://" in self.database_url:
+            return self.database_url
+        if "postgresql+psycopg2://" in self.database_url:
+            return self.database_url.replace("postgresql+psycopg2://", "postgresql+asyncpg://")
+        return self.database_url.replace("postgresql://", "postgresql+asyncpg://")
 
     # -------------------------------------------------------------------------
     # JWT Authentication
     # -------------------------------------------------------------------------
-    jwt_secret_key: str = "change-this-jwt-secret-in-production"
+    jwt_secret_key: str  # .env 필수
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
@@ -85,7 +72,7 @@ class Settings(BaseSettings):
     redis_url: Optional[str] = None
 
     # -------------------------------------------------------------------------
-    # Optional: AWS S3
+    # Optional: AWS S3 (현재 미사용)
     # -------------------------------------------------------------------------
     aws_access_key_id: Optional[str] = None
     aws_secret_access_key: Optional[str] = None

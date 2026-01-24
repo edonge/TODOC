@@ -64,7 +64,11 @@ function WritePostModal({ onClose, onSubmit, categories }) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
-              <button type="button" className="write-image-btn">
+              <button
+                type="button"
+                className="write-image-btn"
+                onClick={() => alert('추후 구현 예정입니다.')}
+              >
                 이미지 삽입
               </button>
             </div>

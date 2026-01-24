@@ -51,11 +51,28 @@ function OnboardingPage() {
     handleNext();
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // 아이 이름을 localStorage에 저장
     if (childData.name) {
       localStorage.setItem('childName', childData.name);
     }
+
+    // 온보딩 완료 API 호출 (is_first_login을 false로 변경)
+    try {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        await fetch('/api/auth/complete-onboarding', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+    } catch (error) {
+      console.error('온보딩 완료 처리 실패:', error);
+    }
+
     // 온보딩 완료 후 메인 화면으로 이동
     navigate('/home');
   };

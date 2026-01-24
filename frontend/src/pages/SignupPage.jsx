@@ -3,54 +3,57 @@ import { useNavigate } from 'react-router-dom';
 import todocLogo from '../assets/Todoc.png';
 import './LoginPage.css';
 
-function LoginPage() {
+function SignupPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!username || !password) {
-      setError('아이디와 비밀번호를 입력해주세요');
+    // 유효성 검사
+    if (username.length < 3) {
+      setError('아이디는 3자 이상이어야 합니다');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('비밀번호는 6자 이상이어야 합니다');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // OAuth2PasswordRequestForm 형식으로 전송 (form-urlencoded)
-      const formData = new URLSearchParams();
-      formData.append('username', username);
-      formData.append('password', password);
-
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: formData,
+        body: JSON.stringify({
+          username,
+          password,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || '로그인에 실패했습니다');
+        throw new Error(data.detail || '회원가입에 실패했습니다');
       }
 
-      // 토큰 저장
-      localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
-
-      // 첫 로그인 여부에 따라 분기
-      if (data.is_first_login) {
-        navigate('/onboarding');
-      } else {
-        navigate('/home');
-      }
+      // 회원가입 성공 시 로그인 페이지로 이동
+      alert('회원가입이 완료되었습니다. 로그인해주세요.');
+      navigate('/login');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -68,11 +71,11 @@ function LoginPage() {
         </div>
 
         {/* 입력 폼 영역 */}
-        <form className="login-form" onSubmit={handleLogin}>
+        <form className="login-form" onSubmit={handleSignup}>
           <div className="input-wrapper">
             <input
               type="text"
-              placeholder="아이디를 입력하세요"
+              placeholder="아이디를 입력하세요 (3자 이상)"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="login-input"
@@ -83,9 +86,20 @@ function LoginPage() {
           <div className="input-wrapper">
             <input
               type="password"
-              placeholder="비밀번호를 입력하세요"
+              placeholder="비밀번호를 입력하세요 (6자 이상)"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="login-input"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="input-wrapper">
+            <input
+              type="password"
+              placeholder="비밀번호 확인"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="login-input"
               disabled={isLoading}
             />
@@ -94,21 +108,19 @@ function LoginPage() {
           {error && <p className="error-message">{error}</p>}
 
           <button type="submit" className="login-button" disabled={isLoading}>
-            {isLoading ? '로그인 중...' : '로그인'}
+            {isLoading ? '가입 중...' : '회원가입'}
           </button>
         </form>
 
         {/* 하단 링크 */}
         <div className="login-footer">
-          <span className="footer-link" onClick={() => navigate('/signup')}>
-            회원가입
+          <span className="footer-link" onClick={() => navigate('/login')}>
+            로그인으로 돌아가기
           </span>
-          <span className="footer-divider">|</span>
-          <span className="footer-link">ID/비번 찾기</span>
         </div>
       </div>
     </div>
   );
 }
 
-export default LoginPage;
+export default SignupPage;
