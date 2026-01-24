@@ -18,6 +18,7 @@ from app.models.enums import (
     StoolAmountEnum,
     StoolConditionEnum,
     StoolColorEnum,
+    enum_values,
 )
 
 if TYPE_CHECKING:
@@ -31,7 +32,12 @@ class Record(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     kid_id: Mapped[int] = mapped_column(ForeignKey("kids.id", ondelete="CASCADE"), nullable=False, index=True)
     record_type: Mapped[RecordTypeEnum] = mapped_column(
-        SQLEnum(RecordTypeEnum, name="record_type_enum", create_type=False),
+        SQLEnum(
+            RecordTypeEnum,
+            name="record_type_enum",
+            create_type=False,
+            values_callable=enum_values,
+        ),
         nullable=False,
         index=True
     )
@@ -58,13 +64,23 @@ class SleepRecord(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     record_id: Mapped[int] = mapped_column(ForeignKey("records.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
     sleep_type: Mapped[SleepTypeEnum] = mapped_column(
-        SQLEnum(SleepTypeEnum, name="sleep_type_enum", create_type=False),
+        SQLEnum(
+            SleepTypeEnum,
+            name="sleep_type_enum",
+            create_type=False,
+            values_callable=enum_values,
+        ),
         nullable=False
     )
     start_datetime: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     end_datetime: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     sleep_quality: Mapped[Optional[SleepQualityEnum]] = mapped_column(
-        SQLEnum(SleepQualityEnum, name="sleep_quality_enum", create_type=False)
+        SQLEnum(
+            SleepQualityEnum,
+            name="sleep_quality_enum",
+            create_type=False,
+            values_callable=enum_values,
+        )
     )
 
     # Relationship
@@ -102,7 +118,12 @@ class MealRecord(Base):
     unknown_time: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     duration_minutes: Mapped[Optional[int]] = mapped_column(Integer)
     meal_type: Mapped[MealTypeEnum] = mapped_column(
-        SQLEnum(MealTypeEnum, name="meal_type_enum", create_type=False),
+        SQLEnum(
+            MealTypeEnum,
+            name="meal_type_enum",
+            create_type=False,
+            values_callable=enum_values,
+        ),
         nullable=False
     )
     meal_detail: Mapped[Optional[str]] = mapped_column(String(200))
@@ -139,17 +160,37 @@ class DiaperRecord(Base):
     diaper_datetime: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     unknown_time: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     diaper_type: Mapped[DiaperTypeEnum] = mapped_column(
-        SQLEnum(DiaperTypeEnum, name="diaper_type_enum", create_type=False),
+        SQLEnum(
+            DiaperTypeEnum,
+            name="diaper_type_enum",
+            create_type=False,
+            values_callable=enum_values,
+        ),
         nullable=False
     )
     amount: Mapped[Optional[StoolAmountEnum]] = mapped_column(
-        SQLEnum(StoolAmountEnum, name="stool_amount_enum", create_type=False)
+        SQLEnum(
+            StoolAmountEnum,
+            name="stool_amount_enum",
+            create_type=False,
+            values_callable=enum_values,
+        )
     )
     condition: Mapped[Optional[StoolConditionEnum]] = mapped_column(
-        SQLEnum(StoolConditionEnum, name="stool_condition_enum", create_type=False)
+        SQLEnum(
+            StoolConditionEnum,
+            name="stool_condition_enum",
+            create_type=False,
+            values_callable=enum_values,
+        )
     )
     color: Mapped[Optional[StoolColorEnum]] = mapped_column(
-        SQLEnum(StoolColorEnum, name="stool_color_enum", create_type=False)
+        SQLEnum(
+            StoolColorEnum,
+            name="stool_color_enum",
+            create_type=False,
+            values_callable=enum_values,
+        )
     )
 
     # Relationship

@@ -69,7 +69,7 @@ CREATE TYPE stool_color_enum AS ENUM ('yellow', 'brown', 'green', 'other');
 CREATE TYPE activity_enum AS ENUM ('reading', 'walking', 'bathing', 'playing', 'music', 'exercise', 'swimming');
 
 -- 근거: app/models/enums.py:105-110 (CommunityCategoryEnum)
-CREATE TYPE community_category_enum AS ENUM ('free', 'qna', 'tip', 'review');
+CREATE TYPE community_category_enum AS ENUM ('general', 'concern', 'market');
 
 -- =============================================================================
 -- 4. Drop existing tables (for clean re-run) - 역순으로 삭제

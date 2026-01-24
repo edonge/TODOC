@@ -5,7 +5,7 @@ from sqlalchemy import String, Text, DateTime, ForeignKey, Integer, Enum as SQLE
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
-from app.models.enums import CommunityCategoryEnum
+from app.models.enums import CommunityCategoryEnum, enum_values
 
 if TYPE_CHECKING:
     from app.models.user import User
@@ -20,7 +20,12 @@ class Post(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     kid_id: Mapped[Optional[int]] = mapped_column(ForeignKey("kids.id", ondelete="SET NULL"), index=True)
     category: Mapped[CommunityCategoryEnum] = mapped_column(
-        SQLEnum(CommunityCategoryEnum, name="community_category_enum", create_type=False),
+        SQLEnum(
+            CommunityCategoryEnum,
+            name="community_category_enum",
+            create_type=False,
+            values_callable=enum_values,
+        ),
         nullable=False,
         index=True
     )

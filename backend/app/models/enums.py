@@ -1,6 +1,10 @@
 from enum import Enum
 
 
+# SQLAlchemy Enum helper (use Enum values, not names)
+def enum_values(enum_cls):
+    return [e.value for e in enum_cls]
+
 # ===== Record Type =====
 class RecordTypeEnum(str, Enum):
     """기록 유형"""

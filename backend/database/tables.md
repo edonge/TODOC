@@ -41,7 +41,7 @@
 | `stool_condition_enum` | normal, diarrhea, constipation | `app/models/enums.py:77-81` |
 | `stool_color_enum` | yellow, brown, green, other | `app/models/enums.py:84-89` |
 | `activity_enum` | reading, walking, bathing, playing, music, exercise, swimming | `app/models/enums.py:93-101` |
-| `community_category_enum` | free, qna, tip, review | `app/models/enums.py:105-110` |
+| `community_category_enum` | general, concern, market | `app/models/enums.py:105-110` |
 
 **ENUM 선택 이유**: `app/models/enums.py`에서 Python `Enum`을 사용하므로 PostgreSQL ENUM 타입으로 구현. VARCHAR + CHECK constraint보다 타입 안전성이 높고 저장 공간 효율적.
 
