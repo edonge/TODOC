@@ -108,6 +108,25 @@ def delete_record(db: Session, record: Record) -> None:
     db.commit()
 
 
+def get_latest_record_by_kid(db: Session, kid_id: int) -> Optional[Record]:
+    """아이의 가장 최근 기록 조회"""
+    stmt = (
+        select(Record)
+        .options(
+            joinedload(Record.sleep_record),
+            joinedload(Record.growth_record),
+            joinedload(Record.meal_record),
+            joinedload(Record.health_record),
+            joinedload(Record.diaper_record),
+            joinedload(Record.etc_record),
+        )
+        .where(Record.kid_id == kid_id)
+        .order_by(Record.created_at.desc())
+        .limit(1)
+    )
+    return db.execute(stmt).scalar_one_or_none()
+
+
 # =============================================================================
 # Sleep Record CRUD
 # =============================================================================

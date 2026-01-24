@@ -64,13 +64,13 @@ class Settings(BaseSettings):
     # -------------------------------------------------------------------------
     # OpenAI API (LLM/RAG)
     # -------------------------------------------------------------------------
-    # NOTE: 요청에 따라 키를 파일에 직접 보관합니다.
-    luxia_api_key: str = None
-    luxia_base_url: str = "https://bridge.luxiacloud.com/llm/openai"
-    luxia_model: str = "gpt-4o-mini-2024-07-18"
-
     openai_api_key: Optional[str] = None
     openai_model: str = "gpt-4o-mini"
+
+    # Luxia API (선택)
+    luxia_api_key: Optional[str] = None
+    luxia_base_url: str = "https://bridge.luxiacloud.com/llm/openai"
+    luxia_model: str = "gpt-4o-mini-2024-07-18"
 
     # -------------------------------------------------------------------------
     # Vector DB

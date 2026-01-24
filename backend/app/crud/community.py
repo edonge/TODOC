@@ -285,3 +285,20 @@ def toggle_comment_like(db: Session, comment_id: int, user_id: int) -> Tuple[boo
 def is_comment_liked_by_user(db: Session, comment_id: int, user_id: int) -> bool:
     """사용자의 댓글 좋아요 여부"""
     return get_comment_like(db, comment_id, user_id) is not None
+
+
+def get_popular_post(db: Session, days: int = 7) -> Optional[Post]:
+    """최근 N일 내 가장 인기있는 게시글 조회 (좋아요 기준)"""
+    from datetime import datetime, timedelta
+
+    cutoff_date = datetime.utcnow() - timedelta(days=days)
+
+    stmt = (
+        select(Post)
+        .options(joinedload(Post.user))
+        .where(Post.created_at >= cutoff_date)
+        .order_by(Post.likes_count.desc(), Post.created_at.desc())
+        .limit(1)
+    )
+
+    return db.execute(stmt).scalar_one_or_none()

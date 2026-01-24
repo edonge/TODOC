@@ -52,9 +52,12 @@ function OnboardingPage() {
   };
 
   const handleComplete = async () => {
-    // 아이 이름을 localStorage에 저장
+    // 아이 정보를 localStorage에 저장
     if (childData.name) {
       localStorage.setItem('childName', childData.name);
+    }
+    if (childData.birthday) {
+      localStorage.setItem('childBirthday', childData.birthday.toISOString());
     }
 
     // 온보딩 완료 API 호출 (is_first_login을 false로 변경)

@@ -66,22 +66,6 @@ def create_post(
     return _post_to_response(post, current_user, db)
 
 
-@router.get("/posts/{post_id}", response_model=PostResponse)
-def get_post(
-    post_id: int,
-    current_user: Optional[User] = Depends(get_current_user_optional),
-    db: Session = Depends(get_db)
-):
-    """게시글 상세 조회"""
-    post = community_crud.get_post_with_author(db, post_id)
-    if not post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="게시글을 찾을 수 없습니다"
-        )
-    return _post_to_response(post, current_user, db)
-
-
 @router.patch("/posts/{post_id}", response_model=PostResponse)
 def update_post(
     post_id: int,
@@ -103,6 +87,35 @@ def update_post(
         )
 
     post = community_crud.update_post(db, post, post_in)
+    return _post_to_response(post, current_user, db)
+
+
+@router.get("/posts/popular", response_model=Optional[PostBriefResponse])
+def get_popular_post(
+    days: int = Query(7, ge=1, le=30),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    """최근 N일 내 가장 인기있는 게시글 조회"""
+    post = community_crud.get_popular_post(db, days=days)
+    if not post:
+        return None
+    return _post_to_brief_response(post, current_user, db)
+
+
+@router.get("/posts/{post_id}", response_model=PostResponse)
+def get_post(
+    post_id: int,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
+    """게시글 상세 조회"""
+    post = community_crud.get_post_with_author(db, post_id)
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="게시글을 찾을 수 없습니다"
+        )
     return _post_to_response(post, current_user, db)
 
 

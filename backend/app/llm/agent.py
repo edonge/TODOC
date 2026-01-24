@@ -80,6 +80,7 @@ def build_agent(
             ("system", system),
             MessagesPlaceholder("chat_history"),
             ("user", "{input}"),
+            MessagesPlaceholder("agent_scratchpad"),
         ]
     )
     llm = build_llm()

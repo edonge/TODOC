@@ -45,7 +45,14 @@ function SignupPage() {
         }),
       });
 
-      const data = await response.json();
+      // 응답 텍스트 먼저 확인
+      const text = await response.text();
+
+      if (!text) {
+        throw new Error('서버 응답이 없습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
+      }
+
+      const data = JSON.parse(text);
 
       if (!response.ok) {
         throw new Error(data.detail || '회원가입에 실패했습니다');
@@ -55,7 +62,11 @@ function SignupPage() {
       alert('회원가입이 완료되었습니다. 로그인해주세요.');
       navigate('/login');
     } catch (err) {
-      setError(err.message);
+      if (err.name === 'TypeError' && err.message.includes('fetch')) {
+        setError('서버에 연결할 수 없습니다. 백엔드 서버를 확인해주세요.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setIsLoading(false);
     }
