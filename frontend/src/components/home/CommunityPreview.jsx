@@ -1,4 +1,5 @@
 import photoMom from '../../assets/photos/photo_mom.png';
+import { formatMomName } from '../../data/communityData';
 import './CommunityPreview.css';
 
 function CommunityPreview({ popularPost }) {
@@ -35,7 +36,10 @@ function CommunityPreview({ popularPost }) {
     );
   }
 
-  const authorName = popularPost.author?.nickname || popularPost.author?.username || '익명';
+  const authorName = formatMomName(popularPost.kid_name)
+    || popularPost.author?.nickname
+    || popularPost.author?.username
+    || '익명';
 
   return (
     <div className="community-preview-stack">

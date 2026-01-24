@@ -38,7 +38,7 @@ def get_posts(
 ) -> Tuple[List[Post], int]:
     """게시글 목록 조회"""
     # 기본 쿼리
-    stmt = select(Post).options(joinedload(Post.user))
+    stmt = select(Post).options(joinedload(Post.user), joinedload(Post.kid))
 
     # 필터
     if category:
@@ -136,13 +136,11 @@ def toggle_post_like(db: Session, post_id: int, user_id: int) -> Tuple[bool, int
     if like:
         # 좋아요 취소
         db.delete(like)
-        post.likes_count = max(0, post.likes_count - 1)
         is_liked = False
     else:
         # 좋아요 추가
         new_like = PostLike(post_id=post_id, user_id=user_id)
         db.add(new_like)
-        post.likes_count += 1
         is_liked = True
 
     db.commit()
@@ -268,13 +266,11 @@ def toggle_comment_like(db: Session, comment_id: int, user_id: int) -> Tuple[boo
     if like:
         # 좋아요 취소
         db.delete(like)
-        comment.likes_count = max(0, comment.likes_count - 1)
         is_liked = False
     else:
         # 좋아요 추가
         new_like = CommentLike(comment_id=comment_id, user_id=user_id)
         db.add(new_like)
-        comment.likes_count += 1
         is_liked = True
 
     db.commit()
@@ -295,7 +291,7 @@ def get_popular_post(db: Session, days: int = 7) -> Optional[Post]:
 
     stmt = (
         select(Post)
-        .options(joinedload(Post.user))
+        .options(joinedload(Post.user), joinedload(Post.kid))
         .where(Post.created_at >= cutoff_date)
         .order_by(Post.likes_count.desc(), Post.created_at.desc())
         .limit(1)

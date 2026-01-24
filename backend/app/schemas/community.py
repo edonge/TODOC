@@ -79,6 +79,8 @@ class PostBriefResponse(BaseModel):
     likes_count: int = 0
     comment_count: int = 0
     author: Optional[UserBriefResponse] = None
+    kid_name: Optional[str] = Field(None, description="아이 이름")
+    kid_image_url: Optional[str] = Field(None, description="아이 프로필 이미지")
 
     class Config:
         from_attributes = True

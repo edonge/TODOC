@@ -23,6 +23,14 @@ export const enumToCategory = {
   'market': '장터',
 };
 
+export function formatMomName(kidName) {
+  if (!kidName) return null;
+  const trimmed = kidName.trim();
+  if (!trimmed) return null;
+  const base = trimmed.length > 1 ? trimmed.slice(1) : trimmed;
+  return `${base}맘`;
+}
+
 // 시간 포맷 함수
 export function formatTimeAgo(dateString) {
   const now = new Date();

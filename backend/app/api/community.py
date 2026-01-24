@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user, get_current_user_optional
 from app.crud import community as community_crud
+from app.crud import kid as kid_crud
 from app.models.user import User
 from app.models.enums import CommunityCategoryEnum
 from app.schemas.community import (
@@ -62,6 +63,10 @@ def create_post(
     db: Session = Depends(get_db)
 ):
     """게시글 작성"""
+    if post_in.kid_id is None:
+        kids = kid_crud.get_kids_by_user(db, current_user.id)
+        if kids:
+            post_in = post_in.copy(update={"kid_id": kids[0].id})
     post = community_crud.create_post(db, current_user.id, post_in)
     return _post_to_response(post, current_user, db)
 
@@ -330,6 +335,11 @@ def _post_to_response(post, current_user: Optional[User], db: Session) -> PostRe
 def _post_to_brief_response(post, current_user: Optional[User], db: Session) -> PostBriefResponse:
     """Post를 간략 응답으로 변환"""
     content_preview = post.content[:100] + "..." if len(post.content) > 100 else post.content
+    kid_name = None
+    kid_image_url = None
+    if post.kid:
+        kid_name = post.kid.name
+        kid_image_url = post.kid.profile_image_url
 
     return PostBriefResponse(
         id=post.id,
@@ -339,7 +349,9 @@ def _post_to_brief_response(post, current_user: Optional[User], db: Session) -> 
         created_at=post.created_at,
         likes_count=post.likes_count,
         comment_count=post.comment_count,
-        author=_user_to_brief_response(post.user) if post.user else None
+        author=_user_to_brief_response(post.user) if post.user else None,
+        kid_name=kid_name,
+        kid_image_url=kid_image_url
     )
 
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { withApiBase } from '../api/base';
-import { categories, categoryColors, formatTimeAgo, categoryToEnum, enumToCategory } from '../data/communityData';
+import { categories, categoryColors, formatTimeAgo, categoryToEnum, enumToCategory, formatMomName } from '../data/communityData';
 import PostCard from '../components/community/PostCard';
 import WritePostModal from '../components/community/WritePostModal';
 import BottomTabBar from '../components/home/BottomTabBar';
@@ -60,7 +60,7 @@ function CommunityPage() {
           category: enumToCategory[post.category] || post.category,
           title: post.title,
           content: post.content,
-          author: post.author?.nickname || post.author?.username || '익명',
+          author: formatMomName(post.kid_name) || post.author?.nickname || post.author?.username || '익명',
           authorImage: post.author?.profile_image_url,
           createdAt: post.created_at,
           likeCount: post.likes_count || 0,
