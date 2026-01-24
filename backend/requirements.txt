@@ -37,10 +37,10 @@ bcrypt>=4.1.2
 # LLM & RAG (Vector DB)
 # -----------------------------------------------------------------------------
 # 근거: backend/app/llm/vector_db/ 폴더의 .pkl 파일들 (openai_faiss)
-openai>=1.12.0
-langchain>=0.1.0
-langchain-openai>=0.0.5
-langchain-community>=0.0.20
+openai>=1.40.0
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-openai==0.1.23
 faiss-cpu>=1.7.4
 tiktoken>=0.5.2
 
