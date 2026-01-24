@@ -69,6 +69,12 @@ from app.schemas.community import (
     LikeResponse,
     PostSearchParams,
 )
+from app.schemas.chat import (
+    ChatRequest,
+    ChatResponse,
+    ChatMessage,
+    ChatSessionSummary,
+)
 
 __all__ = [
     # User
@@ -134,4 +140,9 @@ __all__ = [
     "CommentListResponse",
     "LikeResponse",
     "PostSearchParams",
+    # Chat
+    "ChatRequest",
+    "ChatResponse",
+    "ChatMessage",
+    "ChatSessionSummary",
 ]

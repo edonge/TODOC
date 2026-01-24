@@ -25,6 +25,7 @@ from app.models.record import (
     EtcRecord,
 )
 from app.models.community import Post, Comment, PostLike, CommentLike
+from app.models.chat import ChatSession, ChatMessage
 
 __all__ = [
     # Base
@@ -61,4 +62,7 @@ __all__ = [
     "Comment",
     "PostLike",
     "CommentLike",
+    # Chat
+    "ChatSession",
+    "ChatMessage",
 ]

@@ -1,8 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.api import api_router
+from app.llm.service import generate_response
+from app.schemas import ChatRequest, ChatResponse
+
+# TODO: DB 세션 연결 시 사용
+def get_db():
+    return None
 
 
 def create_app() -> FastAPI:
@@ -26,6 +33,30 @@ def create_app() -> FastAPI:
     @app.get("/health")
     def health_check() -> dict:
         return {"status": "ok"}
+
+    @app.post("/api/ai/chat", response_model=ChatResponse)
+    async def ai_chat(req: ChatRequest, db=Depends(get_db)):
+        # DB 연결/아이 선택은 추후 주입 (현재 None).
+        reply = await generate_response(
+            message=req.message,
+            mode=req.mode,
+            history=req.history,
+            kid=None,
+            db=None,
+        )
+        # 임시 session_id/date_label/title 생성 (DB 도입 후 교체)
+        from datetime import datetime
+
+        session_id = req.session_id or int(datetime.utcnow().timestamp())
+        date_label = datetime.utcnow().strftime("%m.%d")
+        return {
+            "reply": reply,
+            "session_id": session_id,
+            "mode": req.mode,
+            "date_label": date_label,
+            "title": req.message[:32],
+            "question_snippet": req.message[:80],
+        }
 
     return app
 

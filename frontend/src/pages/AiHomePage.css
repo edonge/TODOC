@@ -34,3 +34,21 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.ai-history-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ai-history-list.empty-placeholder {
+  align-items: center;
+  color: #666;
+  font-size: 13px;
+}
+
+.ai-history-empty {
+  margin: 16px 0 32px;
+}
