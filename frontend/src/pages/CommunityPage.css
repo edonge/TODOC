@@ -86,3 +86,36 @@
   flex-direction: column;
   gap: 16px;
 }
+
+/* 로딩/빈 상태 */
+.loading-message,
+.empty-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888888;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 더보기 버튼 */
+.load-more-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 8px;
+  border: 1px solid #E5E5E5;
+  background-color: #FFFFFF;
+  color: #5C5C5C;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.load-more-btn:hover {
+  background-color: #F5F5F5;
+}
+
+.load-more-btn:active {
+  transform: scale(0.98);
+}

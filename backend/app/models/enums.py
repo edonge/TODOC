@@ -104,7 +104,6 @@ class ActivityEnum(str, Enum):
 # ===== Community Related =====
 class CommunityCategoryEnum(str, Enum):
     """커뮤니티 카테고리"""
-    FREE = "free"           # 자유게시판
-    QNA = "qna"             # Q&A
-    TIP = "tip"             # 육아 팁
-    REVIEW = "review"       # 후기
+    GENERAL = "general"     # 일반
+    CONCERN = "concern"     # 고민
+    MARKET = "market"       # 장터
