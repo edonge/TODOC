@@ -87,7 +87,7 @@ def get_home_data(
     kid_data = {
         "id": first_kid.id,
         "name": first_kid.name,
-        "birthday": first_kid.birthday.isoformat() if first_kid.birthday else None,
+        "birthday": first_kid.birth_date.isoformat() if first_kid.birth_date else None,
         "gender": first_kid.gender.value if first_kid.gender else None,
         "profile_image_url": first_kid.profile_image_url,
     }
