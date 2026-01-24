@@ -132,7 +132,7 @@ CREATE TABLE kids (
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,  -- 근거: kid.py:51
     name VARCHAR(50) NOT NULL,                               -- 근거: kid.py:21-25
     birth_date DATE NOT NULL,                                -- 근거: kid.py:27
-    gender gender_enum NOT NULL,                             -- 근거: kid.py:28
+    gender gender_enum,                                      -- 근거: kid.py:28
     profile_image_url TEXT,                                  -- 근거: kid.py:29, 55
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),           -- 근거: kid.py:57
     updated_at TIMESTAMPTZ                                   -- 근거: kid.py:58

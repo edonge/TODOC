@@ -62,7 +62,7 @@ function CommunityPage() {
           category: enumToCategory[post.category] || post.category,
           title: post.title,
           content: post.content,
-          author: formatMomName(post.kid_name) || post.author?.nickname || post.author?.username || '익명',
+          author: formatMomName(post.kid_name) || post.author?.nickname || '익명',
           authorImage: post.author?.profile_image_url,
           authorId: post.author?.id || null,
           createdAt: post.created_at,

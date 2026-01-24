@@ -61,10 +61,53 @@ function OnboardingPage() {
       localStorage.setItem('childBirthday', childData.birthday.toISOString());
     }
 
-    // 온보딩 완료 API 호출 (is_first_login을 false로 변경)
+    const formatBirthDate = (value) => {
+      if (!value) return null;
+      const date = value instanceof Date ? value : new Date(value);
+      if (Number.isNaN(date.getTime())) return null;
+      return date.toISOString().split('T')[0];
+    };
+
+    // 아이 정보 저장 + 온보딩 완료 처리
     try {
       const token = localStorage.getItem('access_token');
       if (token) {
+        const birthDate = formatBirthDate(childData.birthday);
+        if (!childData.name || !birthDate) {
+          alert('아이 이름과 생년월일을 입력해야 저장할 수 있어요.');
+          return;
+        }
+
+        const kidsResponse = await apiFetch('/api/kids', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (kidsResponse.ok) {
+          const kidsData = await kidsResponse.json();
+          if (!kidsData.kids || kidsData.kids.length === 0) {
+            const createKidResponse = await apiFetch('/api/kids', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                name: childData.name,
+                birth_date: birthDate,
+                ...(childData.gender ? { gender: childData.gender } : {}),
+              }),
+            });
+
+            if (!createKidResponse.ok) {
+              const error = await createKidResponse.json();
+              alert(error.detail || '아이 정보 저장에 실패했습니다.');
+              return;
+            }
+          }
+        }
+
         await apiFetch('/api/auth/complete-onboarding', {
           method: 'POST',
           headers: {

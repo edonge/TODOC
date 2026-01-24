@@ -26,14 +26,14 @@ class Kid(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     birth_date: Mapped[date] = mapped_column(Date, nullable=False)
-    gender: Mapped[GenderEnum] = mapped_column(
+    gender: Mapped[Optional[GenderEnum]] = mapped_column(
         SQLEnum(
             GenderEnum,
             name="gender_enum",
             create_type=False,
             values_callable=enum_values,
         ),
-        nullable=False,
+        nullable=True,
     )
     profile_image_url: Mapped[Optional[str]] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)

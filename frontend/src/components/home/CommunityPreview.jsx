@@ -38,7 +38,6 @@ function CommunityPreview({ popularPost }) {
 
   const authorName = formatMomName(popularPost.kid_name)
     || popularPost.author?.nickname
-    || popularPost.author?.username
     || '익명';
 
   return (

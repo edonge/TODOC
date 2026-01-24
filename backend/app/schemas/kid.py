@@ -25,7 +25,7 @@ class KidCreate(BaseModel):
         description="아이 이름"
     )
     birth_date: date = Field(..., description="생년월일")
-    gender: GenderEnum = Field(..., description="성별 (male/female)")
+    gender: Optional[GenderEnum] = Field(None, description="성별 (male/female)")
     profile_image_url: Optional[str] = Field(None, description="프로필 이미지 URL")
 
 
@@ -51,7 +51,7 @@ class KidResponse(BaseModel):
     user_id: int
     name: str
     birth_date: date
-    gender: GenderEnum
+    gender: Optional[GenderEnum] = None
     profile_image_url: Optional[str] = None
     age_in_months: Optional[int] = Field(None, description="개월 수 (계산값)")
     created_at: datetime

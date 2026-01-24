@@ -99,7 +99,7 @@ JWT 리프레시 토큰 저장 테이블
 | `user_id` | INTEGER | NOT NULL, FK → users(id) | 부모(사용자) ID | `kid.py:51` |
 | `name` | VARCHAR(50) | NOT NULL | 이름 | `kid.py:21-25` |
 | `birth_date` | DATE | NOT NULL | 생년월일 | `kid.py:27` |
-| `gender` | gender_enum | NOT NULL | 성별 | `kid.py:28` |
+| `gender` | gender_enum | - | 성별 | `kid.py:28` |
 | `profile_image_url` | TEXT | - | 프로필 이미지 URL | `kid.py:29, 55` |
 | `created_at` | TIMESTAMPTZ | NOT NULL, DEFAULT NOW() | 생성일시 | `kid.py:57` |
 | `updated_at` | TIMESTAMPTZ | - | 수정일시 | `kid.py:58` |
