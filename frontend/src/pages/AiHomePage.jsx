@@ -6,7 +6,7 @@ import momImg from '../assets/WJ/MomAI.png';
 import doctorImg from '../assets/WJ/DoctorAI.png';
 import nutritionImg from '../assets/WJ/NutrientAI.png';
 import { AI_MODES } from '../data/aiChats';
-import ChatHistoryItem from '../components/ai/ChatHistoryItem';
+import ChatHistoryCard from '../components/ai/ChatHistoryCard';
 import { listSessions } from '../utils/aiSessionStore';
 import './AiHomePage.css';
 
@@ -49,14 +49,12 @@ function AiHomePage() {
           </div>
         ) : (
           <div className="ai-history-list">
-            {sessions.map((item) => (
-              <button
-                key={item.id}
-                className="ai-history-btn"
-                onClick={() => navigate(`/ai/${item.mode}?session=${item.id}`)}
-              >
-                <ChatHistoryItem item={item} />
-              </button>
+            {sessions.map((session) => (
+              <ChatHistoryCard
+                key={session.id}
+                session={session}
+                onClick={() => navigate(`/ai/${session.mode}?session=${session.id}`)}
+              />
             ))}
           </div>
         )}
