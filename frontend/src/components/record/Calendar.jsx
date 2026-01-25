@@ -1,42 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { apiFetch } from '../../api/base';
 import './Calendar.css';
 
-// 더미 기록 데이터 생성 함수
-const generateDummyRecords = (year, month, today) => {
-  const records = {};
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month, day);
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-    // 미래 날짜는 기록 없음
-    if (date > today) {
-      continue;
-    }
-
-    // 과거 날짜는 고정된 8:2 비율로 파란/빨간 설정 (날짜 기반)
-    let hash = 0;
-    for (let i = 0; i < dateStr.length; i++) {
-      hash = (hash * 31 + dateStr.charCodeAt(i)) % 1000;
-    }
-    records[dateStr] = hash % 10 < 2 ? false : true;
-  }
-
-  return records;
-};
-
-function Calendar({ onDateSelect, selectedDate: externalSelectedDate }) {
-  const today = new Date(2026, 0, 26);
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 1)); // 2026년 1월
+function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [selectedDate, setSelectedDate] = useState(externalSelectedDate || null);
+  const [recordedDates, setRecordedDates] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  // 현재 월의 더미 기록 데이터
-  const recordedDates = generateDummyRecords(
-    currentMonth.getFullYear(),
-    currentMonth.getMonth(),
-    today
-  );
+  // 월별 기록 데이터 가져오기
+  const fetchMonthlyRecords = useCallback(async () => {
+    if (!kidId) {
+      setRecordedDates({});
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth() + 1;
+
+      const response = await apiFetch(
+        `/api/kids/${kidId}/records/monthly/${year}/${month}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setRecordedDates(data.dates || {});
+      }
+    } catch (error) {
+      console.error('월별 기록 조회 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [kidId, currentMonth]);
+
+  useEffect(() => {
+    fetchMonthlyRecords();
+  }, [fetchMonthlyRecords]);
+
+  // 외부에서 selectedDate가 변경되면 동기화
+  useEffect(() => {
+    if (externalSelectedDate && externalSelectedDate !== selectedDate) {
+      setSelectedDate(externalSelectedDate);
+    }
+  }, [externalSelectedDate]);
 
   // 월 이동
   const goToPrevMonth = () => {
@@ -90,12 +106,16 @@ function Calendar({ onDateSelect, selectedDate: externalSelectedDate }) {
       let statusClass = '';
       if (isFuture) {
         statusClass = 'future';
+      } else if (!kidId) {
+        // kid가 없으면 모든 날짜를 기록 없음으로 표시
+        statusClass = 'no-record';
       } else if (hasRecord === true) {
         statusClass = 'recorded';
       } else if (hasRecord === false) {
         statusClass = 'no-record';
       } else {
-        statusClass = 'future'; // 기록 정보 없으면 미래처럼 처리
+        // 로딩 중이거나 데이터 없음
+        statusClass = loading ? '' : 'no-record';
       }
 
       cells.push(

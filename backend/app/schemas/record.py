@@ -61,6 +61,14 @@ class SleepRecordCreate(RecordBase, SleepRecordBase):
     pass
 
 
+class SleepRecordUpdate(RecordBase):
+    """수면 기록 수정"""
+    sleep_type: Optional[SleepTypeEnum] = Field(None, description="수면 종류 (낮잠/밤잠)")
+    start_datetime: Optional[datetime] = Field(None, description="시작 시간")
+    end_datetime: Optional[datetime] = Field(None, description="종료 시간")
+    sleep_quality: Optional[SleepQualityEnum] = Field(None, description="수면 품질")
+
+
 class SleepRecordResponse(BaseModel):
     """수면 기록 응답"""
     id: int
@@ -107,6 +115,14 @@ class GrowthRecordBase(BaseModel):
 class GrowthRecordCreate(RecordBase, GrowthRecordBase):
     """성장 기록 생성"""
     pass
+
+
+class GrowthRecordUpdate(RecordBase):
+    """성장 기록 수정"""
+    height_cm: Optional[Decimal] = Field(None, ge=30, le=140, description="키 (cm)")
+    weight_kg: Optional[Decimal] = Field(None, ge=1, le=45, description="몸무게 (kg)")
+    head_circumference_cm: Optional[Decimal] = Field(None, ge=20, le=62, description="머리 둘레 (cm)")
+    activities: Optional[List[ActivityEnum]] = Field(None, description="활동 목록")
 
 
 class GrowthRecordResponse(BaseModel):
@@ -158,6 +174,18 @@ class MealRecordCreate(RecordBase, MealRecordBase):
     pass
 
 
+class MealRecordUpdate(RecordBase):
+    """식사 기록 수정"""
+    meal_datetime: Optional[datetime] = Field(None, description="식사 일시")
+    unknown_time: Optional[bool] = Field(None, description="시간 모름 여부")
+    duration_minutes: Optional[int] = Field(None, ge=0, le=60, description="식사 시간 (분)")
+    meal_type: Optional[MealTypeEnum] = Field(None, description="음식 유형")
+    meal_detail: Optional[str] = Field(None, max_length=200, description="음식 종류 상세")
+    amount_ml: Optional[int] = Field(None, ge=0, le=500, description="양 (ml)")
+    amount_text: Optional[str] = Field(None, max_length=100, description="양 (텍스트)")
+    burp: Optional[bool] = Field(None, description="트림 여부")
+
+
 class MealRecordResponse(BaseModel):
     """식사 기록 응답"""
     id: int
@@ -192,6 +220,15 @@ class HealthRecordCreate(RecordBase, HealthRecordBase):
     pass
 
 
+class HealthRecordUpdate(RecordBase):
+    """건강 기록 수정"""
+    health_datetime: Optional[datetime] = Field(None, description="건강 기록 일시")
+    unknown_time: Optional[bool] = Field(None, description="시간 모름 여부")
+    title: Optional[str] = Field(None, max_length=200, description="제목")
+    symptoms: Optional[List[SymptomEnum]] = Field(None, description="증상 목록")
+    medicines: Optional[List[MedicineEnum]] = Field(None, description="투약 현황 목록")
+
+
 class HealthRecordResponse(BaseModel):
     """건강 기록 응답"""
     id: int
@@ -224,6 +261,16 @@ class DiaperRecordCreate(RecordBase, DiaperRecordBase):
     pass
 
 
+class DiaperRecordUpdate(RecordBase):
+    """배변 기록 수정"""
+    diaper_datetime: Optional[datetime] = Field(None, description="배변 일시")
+    unknown_time: Optional[bool] = Field(None, description="시간 모름 여부")
+    diaper_type: Optional[DiaperTypeEnum] = Field(None, description="배변 종류")
+    amount: Optional[StoolAmountEnum] = Field(None, description="양")
+    condition: Optional[StoolConditionEnum] = Field(None, description="상태")
+    color: Optional[StoolColorEnum] = Field(None, description="색깔")
+
+
 class DiaperRecordResponse(BaseModel):
     """배변 기록 응답"""
     id: int
@@ -250,6 +297,11 @@ class EtcRecordBase(BaseModel):
 class EtcRecordCreate(RecordBase, EtcRecordBase):
     """기타 기록 생성"""
     pass
+
+
+class EtcRecordUpdate(RecordBase):
+    """기타 기록 수정"""
+    title: Optional[str] = Field(None, max_length=200, description="제목")
 
 
 class EtcRecordResponse(BaseModel):

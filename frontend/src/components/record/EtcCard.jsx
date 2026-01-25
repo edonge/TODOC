@@ -3,12 +3,12 @@ import moreIcon from '../../assets/icons/more.png';
 import CardStack from '../common/CardStack';
 import './EtcCard.css';
 
-function EtcCard({ data }) {
+function EtcCard({ data, onEdit, onDelete }) {
   const [openRecordMenu, setOpenRecordMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const cardRef = useRef(null);
 
-  if (!data) return null;
+  const hasRecords = data && data.records && data.records.length > 0;
 
   const handleRecordMenuToggle = (e, index) => {
     e.stopPropagation();
@@ -17,8 +17,13 @@ function EtcCard({ data }) {
     setOpenRecordMenu(openRecordMenu === index ? null : index);
   };
 
-  const handleRecordMenuAction = (action) => {
-    alert(`기타 ${action}`);
+  const handleRecordMenuAction = (action, record) => {
+    if (action === '수정하기' && onEdit) {
+      onEdit(record);
+    }
+    if (action === '삭제하기' && onDelete) {
+      onDelete(record);
+    }
     setOpenRecordMenu(null);
   };
 
@@ -40,42 +45,50 @@ function EtcCard({ data }) {
         <div className="record-card-header">
           <div className="header-inline">
             <span className="header-text-plain">최근 기타 기록</span>
-            <span className="header-sub">마지막 기록 : {data.lastRecord || '없음'}</span>
+            <span className="header-sub">마지막 기록 : {data?.lastRecord || '-'}</span>
           </div>
         </div>
         <div className="etc-records-wrapper">
-          <div className="etc-records">
-            {data.records.map((record, idx) => (
-              <div key={idx} className="etc-record-item">
-                <span className="etc-time">{record.date}</span>
-                <span className="etc-text">{record.text}</span>
-                <div className="record-item-menu">
-                  <button
-                    type="button"
-                    className="etc-menu-btn"
-                    onClick={(e) => handleRecordMenuToggle(e, idx)}
-                  >
-                    <img src={moreIcon} alt="더보기" className="menu-icon" />
-                  </button>
-                  {openRecordMenu === idx && (
-                    <div
-                      className="menu-dropdown"
-                      style={{
-                        position: 'fixed',
-                        top: menuPosition.top,
-                        left: menuPosition.left,
-                        transform: 'translateX(-100%)',
-                        zIndex: 1000,
-                      }}
+          {hasRecords ? (
+            <div className="etc-records">
+              {data.records.map((record, idx) => (
+                <div key={record.id || idx} className="etc-record-item">
+                  <span className="etc-time">{record.date}</span>
+                  <span className="etc-text">{record.text}</span>
+                  <div className="record-item-menu">
+                    <button
+                      type="button"
+                      className="etc-menu-btn"
+                      onClick={(e) => handleRecordMenuToggle(e, idx)}
                     >
-                      <button onClick={() => handleRecordMenuAction('수정하기')}>수정하기</button>
-                      <button onClick={() => handleRecordMenuAction('삭제하기')}>삭제하기</button>
-                    </div>
-                  )}
+                      <img src={moreIcon} alt="더보기" className="menu-icon" />
+                    </button>
+                    {openRecordMenu === idx && (
+                      <div
+                        className="menu-dropdown"
+                        style={{
+                          position: 'fixed',
+                          top: menuPosition.top,
+                          left: menuPosition.left,
+                          transform: 'translateX(-100%)',
+                          zIndex: 1000,
+                        }}
+                      >
+                        <button onClick={() => handleRecordMenuAction('수정하기', record.raw)}>수정하기</button>
+                        <button onClick={() => handleRecordMenuAction('삭제하기', record.raw)}>삭제하기</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="etc-empty">
+              <p>아직 기록된 내용이 없어요.</p>
+              <p>특별한 순간이나 메모를</p>
+              <p>자유롭게 기록해 보세요.</p>
+            </div>
+          )}
         </div>
       </CardStack>
     </div>

@@ -1,15 +1,68 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { apiFetch } from '../api/base';
 import BottomTabBar from '../components/home/BottomTabBar';
 import healthMock from '../assets/categories/건강.png';
 import './HealthRecordAddPage.css';
 
 function HealthRecordAddPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const editRecord = location.state?.record || null;
+  const isEdit = Boolean(editRecord);
+  const dateParam = searchParams.get('date');
+  const [kidId, setKidId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const getDisplayDate = () => {
+    if (dateParam) {
+      const parts = dateParam.split('-');
+      if (parts.length === 3) {
+        return `${parts[0].slice(2)}.${parts[1]}.${parts[2]}`;
+      }
+    }
+    const today = new Date();
+    const yy = String(today.getFullYear()).slice(2);
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yy}.${mm}.${dd}`;
+  };
+
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    if (dateStr.includes('-')) {
+      return dateStr;
+    }
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      const year = parts[0].length === 2 ? `20${parts[0]}` : parts[0];
+      return `${year}-${parts[1]}-${parts[2]}`;
+    }
+    return dateStr;
+  };
+
+  const toDisplayDate = (dateStr) => {
+    if (!dateStr) return getDisplayDate();
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[0].slice(2)}.${parts[1]}.${parts[2]}`;
+    }
+    return dateStr;
+  };
+
+  const getTimeParts = (datetime) => {
+    if (!datetime) return { hour: '00', minute: '00' };
+    const date = new Date(datetime);
+    return {
+      hour: String(date.getHours()).padStart(2, '0'),
+      minute: String(date.getMinutes()).padStart(2, '0'),
+    };
+  };
 
   // 폼 상태
   const [formData, setFormData] = useState({
-    date: '26.01.26',
+    date: getDisplayDate(),
     hour: '00',
     minute: '00',
     unknownTime: false,
@@ -61,6 +114,61 @@ function HealthRecordAddPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const fetchKidInfo = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+        const response = await apiFetch('/api/kids', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.kids && data.kids.length > 0) {
+            setKidId(data.kids[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('아이 정보 조회 실패:', error);
+      }
+    };
+
+    fetchKidInfo();
+  }, []);
+
+  useEffect(() => {
+    if (!editRecord) return;
+    const symptomLabelMap = {
+      fever: '열',
+      runny_nose: '콧물',
+      cough: '기침',
+      vomit: '구토',
+      diarrhea: '설사',
+      rash: '발진',
+      headache: '두통',
+    };
+    const medicineLabelMap = {
+      antipyretic: '해열제',
+      painkiller: '진통제',
+      cold_medicine: '감기약',
+      antibiotic: '항생제',
+      ointment: '연고',
+      eye_drops: '안약',
+    };
+    const timeParts = getTimeParts(editRecord.health_datetime);
+
+    setFormData({
+      date: toDisplayDate(editRecord.record_date),
+      hour: timeParts.hour,
+      minute: timeParts.minute,
+      unknownTime: editRecord.unknown_time || false,
+      title: editRecord.title || '',
+      memo: editRecord.memo || '',
+    });
+    setSymptoms((editRecord.symptoms || []).map((s) => symptomLabelMap[s] || s));
+    setMedicines((editRecord.medicines || []).map((m) => medicineLabelMap[m] || m));
+  }, [editRecord]);
+
   // 입력 핸들러
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -105,18 +213,87 @@ function HealthRecordAddPage() {
   };
 
   // 등록하기
-  const handleSubmit = () => {
-    const recordData = {
-      ...formData,
-      time: `${formData.hour}:${formData.minute}`,
-      symptoms,
-      medicines,
-      category: '건강',
-      createdAt: new Date().toISOString(),
-    };
-    console.log('건강 기록 데이터:', recordData);
-    alert('건강 기록이 등록되었습니다');
-    navigate('/record');
+  const handleSubmit = async () => {
+    if (!kidId) {
+      alert('아이 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    if (!formData.title.trim()) {
+      alert('제목을 입력해주세요.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+      }
+
+      const recordDate = parseDate(formData.date);
+      const healthDatetime = formData.unknownTime
+        ? `${recordDate}T12:00:00`
+        : `${recordDate}T${formData.hour}:${formData.minute}:00`;
+
+      const symptomMap = {
+        열: 'fever',
+        콧물: 'runny_nose',
+        기침: 'cough',
+        구토: 'vomit',
+        설사: 'diarrhea',
+        발진: 'rash',
+        두통: 'headache',
+      };
+
+      const medicineMap = {
+        해열제: 'antipyretic',
+        진통제: 'painkiller',
+        감기약: 'cold_medicine',
+        항생제: 'antibiotic',
+        연고: 'ointment',
+        안약: 'eye_drops',
+      };
+
+      const requestBody = {
+        record_date: recordDate,
+        health_datetime: healthDatetime,
+        unknown_time: formData.unknownTime,
+        title: formData.title,
+        symptoms: symptoms.map((symptom) => symptomMap[symptom]).filter(Boolean),
+        medicines: medicines.map((medicine) => medicineMap[medicine]).filter(Boolean),
+        memo: formData.memo || null,
+      };
+
+      const endpoint = isEdit
+        ? `/api/kids/${kidId}/records/health/${editRecord.id}`
+        : `/api/kids/${kidId}/records/health`;
+
+      const response = await apiFetch(endpoint, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        alert(isEdit ? '건강 기록이 수정되었습니다' : '건강 기록이 등록되었습니다');
+        navigate('/record', { state: { refresh: Date.now() } });
+      } else {
+        const error = await response.json();
+        alert(error.detail || '건강 기록 등록에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('건강 기록 등록 실패:', error);
+      alert('건강 기록 등록에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // 취소
@@ -282,7 +459,7 @@ function HealthRecordAddPage() {
         {/* 투약 현황 */}
         <div className="health-form-section">
           <label className="health-form-label">투약 현황</label>
-          <div className="health-tags">
+          <div className="health-tags medicine">
             {medicines.map((medicine, index) => (
               <span
                 key={index}

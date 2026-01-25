@@ -1,15 +1,59 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { apiFetch } from '../api/base';
 import BottomTabBar from '../components/home/BottomTabBar';
 import growthMock from '../assets/categories/성장.png';
 import './GrowthRecordAddPage.css';
 
 function GrowthRecordAddPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const editRecord = location.state?.record || null;
+  const isEdit = Boolean(editRecord);
+  const dateParam = searchParams.get('date');
+  const [kidId, setKidId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const getDisplayDate = () => {
+    if (dateParam) {
+      const parts = dateParam.split('-');
+      if (parts.length === 3) {
+        return `${parts[0].slice(2)}.${parts[1]}.${parts[2]}`;
+      }
+    }
+    const today = new Date();
+    const yy = String(today.getFullYear()).slice(2);
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yy}.${mm}.${dd}`;
+  };
+
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    if (dateStr.includes('-')) {
+      return dateStr;
+    }
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      const year = parts[0].length === 2 ? `20${parts[0]}` : parts[0];
+      return `${year}-${parts[1]}-${parts[2]}`;
+    }
+    return dateStr;
+  };
+
+  const toDisplayDate = (dateStr) => {
+    if (!dateStr) return getDisplayDate();
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[0].slice(2)}.${parts[1]}.${parts[2]}`;
+    }
+    return dateStr;
+  };
 
   // 폼 상태
   const [formData, setFormData] = useState({
-    date: '26.01.26',
+    date: getDisplayDate(),
     height: '',
     weight: '',
     headCircumference: '',
@@ -34,6 +78,50 @@ function GrowthRecordAddPage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const fetchKidInfo = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+        const response = await apiFetch('/api/kids', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.kids && data.kids.length > 0) {
+            setKidId(data.kids[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('아이 정보 조회 실패:', error);
+      }
+    };
+
+    fetchKidInfo();
+  }, []);
+
+  useEffect(() => {
+    if (!editRecord) return;
+    const activityLabelMap = {
+      reading: '독서',
+      walking: '산책',
+      bathing: '목욕',
+      playing: '놀이',
+      music: '음악',
+      exercise: '체조',
+      swimming: '수영',
+    };
+
+    setFormData({
+      date: toDisplayDate(editRecord.record_date),
+      height: editRecord.height_cm?.toString() || '',
+      weight: editRecord.weight_kg?.toString() || '',
+      headCircumference: editRecord.head_circumference_cm?.toString() || '',
+      memo: editRecord.memo || '',
+    });
+    setActivities((editRecord.activities || []).map((a) => activityLabelMap[a] || a));
+  }, [editRecord]);
 
   // 입력값 제한 및 유효성 검사
   const validateAndFormatInput = (value, type) => {
@@ -113,7 +201,12 @@ function GrowthRecordAddPage() {
   const remainingActivities = availableActivities.filter(a => !activities.includes(a));
 
   // 등록하기
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!kidId) {
+      alert('아이 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
     // 유효성 검사
     const errors = [];
 
@@ -132,18 +225,62 @@ function GrowthRecordAddPage() {
       return;
     }
 
-    const recordData = {
-      ...formData,
-      height: formData.height || null,
-      weight: formData.weight || null,
-      headCircumference: formData.headCircumference || null,
-      activities,
-      category: '성장',
-      createdAt: new Date().toISOString(),
-    };
-    console.log('성장 기록 데이터:', recordData);
-    alert('성장 기록이 등록되었습니다');
-    navigate('/record');
+    setSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+      }
+
+      const recordDate = parseDate(formData.date);
+      const activityMap = {
+        독서: 'reading',
+        산책: 'walking',
+        목욕: 'bathing',
+        놀이: 'playing',
+        음악: 'music',
+        체조: 'exercise',
+        수영: 'swimming',
+      };
+
+      const requestBody = {
+        record_date: recordDate,
+        height_cm: formData.height ? parseFloat(formData.height) : null,
+        weight_kg: formData.weight ? parseFloat(formData.weight) : null,
+        head_circumference_cm: formData.headCircumference ? parseFloat(formData.headCircumference) : null,
+        activities: activities.map((activity) => activityMap[activity]).filter(Boolean),
+        memo: formData.memo || null,
+      };
+
+      const endpoint = isEdit
+        ? `/api/kids/${kidId}/records/growth/${editRecord.id}`
+        : `/api/kids/${kidId}/records/growth`;
+
+      const response = await apiFetch(endpoint, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        alert(isEdit ? '성장 기록이 수정되었습니다' : '성장 기록이 등록되었습니다');
+        navigate('/record', { state: { refresh: Date.now() } });
+      } else {
+        const error = await response.json();
+        alert(error.detail || '성장 기록 등록에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('성장 기록 등록 실패:', error);
+      alert('성장 기록 등록에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // 취소

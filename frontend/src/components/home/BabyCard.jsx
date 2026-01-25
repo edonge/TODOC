@@ -49,11 +49,12 @@ function BabyCard({ childData, recentRecord }) {
     // 수유/식사
     if (recordType === 'meal') {
       const mealTypeLabels = {
-        breast: '모유',
+        breast_milk: '모유',
         formula: '분유',
-        mixed: '혼합',
+        bottle: '젖병',
         baby_food: '이유식',
         snack: '간식',
+        other: '기타',
       };
       const label = mealTypeLabels[record.meal_type] || '수유';
       let value = '';
@@ -96,8 +97,8 @@ function BabyCard({ childData, recentRecord }) {
     // 배변
     if (recordType === 'diaper') {
       const diaperTypeLabels = {
-        pee: '소변',
-        poo: '대변',
+        urine: '소변',
+        stool: '대변',
         both: '소변+대변',
       };
       const label = diaperTypeLabels[record.diaper_type] || '배변';
@@ -197,8 +198,8 @@ function BabyCard({ childData, recentRecord }) {
             <span className="record-label">최근 기록</span>
             {recentRecord ? (
               <div className="record-box">
-                <span className="record-type">{getRecordTypeLabel(recentRecord.record_type)}</span>
-                <span className="record-value">{getRecordValue(recentRecord)}</span>
+                <span className="record-type">{recordInfo?.type || '-'}</span>
+                <span className="record-value">{recordInfo?.value || ''}</span>
                 <span className="record-time">{getRelativeTime(recentRecord.created_at)}</span>
               </div>
             ) : (

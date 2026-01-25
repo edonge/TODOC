@@ -11,8 +11,12 @@ from app.crud import record as record_crud
 from app.models.user import User
 from app.models.enums import RecordTypeEnum
 from app.schemas.record import (
-    SleepRecordCreate, GrowthRecordCreate, MealRecordCreate,
-    HealthRecordCreate, DiaperRecordCreate, EtcRecordCreate,
+    SleepRecordCreate, SleepRecordUpdate,
+    GrowthRecordCreate, GrowthRecordUpdate,
+    MealRecordCreate, MealRecordUpdate,
+    HealthRecordCreate, HealthRecordUpdate,
+    DiaperRecordCreate, DiaperRecordUpdate,
+    EtcRecordCreate, EtcRecordUpdate,
     RecordListResponse, RecordWithDetailsResponse, DailySummaryResponse
 )
 
@@ -83,6 +87,31 @@ def get_records_by_date(
     }
 
 
+@router.get("/monthly/{year}/{month}")
+def get_monthly_record_dates(
+    kid_id: int,
+    year: int,
+    month: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """월별 기록 날짜 조회 (캘린더 표시용)"""
+    get_kid_or_404(db, kid_id, current_user.id)
+
+    if not (1 <= month <= 12):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="월은 1~12 사이여야 합니다"
+        )
+
+    record_dates = record_crud.get_monthly_record_dates(db, kid_id, year, month)
+    return {
+        "year": year,
+        "month": month,
+        "dates": record_dates
+    }
+
+
 @router.get("/{record_id}", response_model=RecordWithDetailsResponse)
 def get_record(
     kid_id: int,
@@ -150,6 +179,30 @@ def create_sleep_record(
     return _record_to_response(record)
 
 
+@router.patch("/sleep/{record_id}", response_model=RecordWithDetailsResponse)
+def update_sleep_record(
+    kid_id: int,
+    record_id: int,
+    record_in: SleepRecordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """수면 기록 수정"""
+    get_kid_or_404(db, kid_id, current_user.id)
+    record = record_crud.get_record_with_details(db, record_id)
+    if not record or record.kid_id != kid_id or record.record_type != RecordTypeEnum.SLEEP:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="기록을 찾을 수 없습니다")
+
+    data = record_in.model_dump(exclude_unset=True) if hasattr(record_in, "model_dump") else record_in.dict(exclude_unset=True)
+    if "sleep_type" in data and data["sleep_type"] is not None:
+        data["sleep_type"] = data["sleep_type"].value
+    if "sleep_quality" in data and data["sleep_quality"] is not None:
+        data["sleep_quality"] = data["sleep_quality"].value
+
+    record = record_crud.update_sleep_record(db, record, data)
+    return _record_to_response(record)
+
+
 # =============================================================================
 # 성장 기록
 # =============================================================================
@@ -173,6 +226,28 @@ def create_growth_record(
         memo=record_in.memo,
         image_url=record_in.image_url
     )
+    return _record_to_response(record)
+
+
+@router.patch("/growth/{record_id}", response_model=RecordWithDetailsResponse)
+def update_growth_record(
+    kid_id: int,
+    record_id: int,
+    record_in: GrowthRecordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """성장 기록 수정"""
+    get_kid_or_404(db, kid_id, current_user.id)
+    record = record_crud.get_record_with_details(db, record_id)
+    if not record or record.kid_id != kid_id or record.record_type != RecordTypeEnum.GROWTH:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="기록을 찾을 수 없습니다")
+
+    data = record_in.model_dump(exclude_unset=True) if hasattr(record_in, "model_dump") else record_in.dict(exclude_unset=True)
+    if "activities" in data and data["activities"] is not None:
+        data["activities"] = [a.value for a in data["activities"]]
+
+    record = record_crud.update_growth_record(db, record, data)
     return _record_to_response(record)
 
 
@@ -206,6 +281,28 @@ def create_meal_record(
     return _record_to_response(record)
 
 
+@router.patch("/meal/{record_id}", response_model=RecordWithDetailsResponse)
+def update_meal_record(
+    kid_id: int,
+    record_id: int,
+    record_in: MealRecordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """식사 기록 수정"""
+    get_kid_or_404(db, kid_id, current_user.id)
+    record = record_crud.get_record_with_details(db, record_id)
+    if not record or record.kid_id != kid_id or record.record_type != RecordTypeEnum.MEAL:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="기록을 찾을 수 없습니다")
+
+    data = record_in.model_dump(exclude_unset=True) if hasattr(record_in, "model_dump") else record_in.dict(exclude_unset=True)
+    if "meal_type" in data and data["meal_type"] is not None:
+        data["meal_type"] = data["meal_type"].value
+
+    record = record_crud.update_meal_record(db, record, data)
+    return _record_to_response(record)
+
+
 # =============================================================================
 # 건강 기록
 # =============================================================================
@@ -230,6 +327,30 @@ def create_health_record(
         memo=record_in.memo,
         image_url=record_in.image_url
     )
+    return _record_to_response(record)
+
+
+@router.patch("/health/{record_id}", response_model=RecordWithDetailsResponse)
+def update_health_record(
+    kid_id: int,
+    record_id: int,
+    record_in: HealthRecordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """건강 기록 수정"""
+    get_kid_or_404(db, kid_id, current_user.id)
+    record = record_crud.get_record_with_details(db, record_id)
+    if not record or record.kid_id != kid_id or record.record_type != RecordTypeEnum.HEALTH:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="기록을 찾을 수 없습니다")
+
+    data = record_in.model_dump(exclude_unset=True) if hasattr(record_in, "model_dump") else record_in.dict(exclude_unset=True)
+    if "symptoms" in data and data["symptoms"] is not None:
+        data["symptoms"] = [s.value for s in data["symptoms"]]
+    if "medicines" in data and data["medicines"] is not None:
+        data["medicines"] = [m.value for m in data["medicines"]]
+
+    record = record_crud.update_health_record(db, record, data)
     return _record_to_response(record)
 
 
@@ -261,6 +382,34 @@ def create_diaper_record(
     return _record_to_response(record)
 
 
+@router.patch("/diaper/{record_id}", response_model=RecordWithDetailsResponse)
+def update_diaper_record(
+    kid_id: int,
+    record_id: int,
+    record_in: DiaperRecordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """배변 기록 수정"""
+    get_kid_or_404(db, kid_id, current_user.id)
+    record = record_crud.get_record_with_details(db, record_id)
+    if not record or record.kid_id != kid_id or record.record_type != RecordTypeEnum.DIAPER:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="기록을 찾을 수 없습니다")
+
+    data = record_in.model_dump(exclude_unset=True) if hasattr(record_in, "model_dump") else record_in.dict(exclude_unset=True)
+    if "diaper_type" in data and data["diaper_type"] is not None:
+        data["diaper_type"] = data["diaper_type"].value
+    if "amount" in data and data["amount"] is not None:
+        data["amount"] = data["amount"].value
+    if "condition" in data and data["condition"] is not None:
+        data["condition"] = data["condition"].value
+    if "color" in data and data["color"] is not None:
+        data["color"] = data["color"].value
+
+    record = record_crud.update_diaper_record(db, record, data)
+    return _record_to_response(record)
+
+
 # =============================================================================
 # 기타 기록
 # =============================================================================
@@ -281,6 +430,25 @@ def create_etc_record(
         memo=record_in.memo,
         image_url=record_in.image_url
     )
+    return _record_to_response(record)
+
+
+@router.patch("/etc/{record_id}", response_model=RecordWithDetailsResponse)
+def update_etc_record(
+    kid_id: int,
+    record_id: int,
+    record_in: EtcRecordUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """기타 기록 수정"""
+    get_kid_or_404(db, kid_id, current_user.id)
+    record = record_crud.get_record_with_details(db, record_id)
+    if not record or record.kid_id != kid_id or record.record_type != RecordTypeEnum.ETC:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="기록을 찾을 수 없습니다")
+
+    data = record_in.model_dump(exclude_unset=True) if hasattr(record_in, "model_dump") else record_in.dict(exclude_unset=True)
+    record = record_crud.update_etc_record(db, record, data)
     return _record_to_response(record)
 
 

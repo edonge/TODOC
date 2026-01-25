@@ -1,25 +1,69 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { apiFetch } from '../api/base';
 import BottomTabBar from '../components/home/BottomTabBar';
 import mealMock from '../assets/categories/식사.png';
 import './MealRecordAddPage.css';
 
+// 프론트엔드 -> 백엔드 음식 유형 매핑
+const foodTypeToEnum = {
+  '모유': 'breast_milk',
+  '분유': 'formula',
+  '젖병': 'bottle',
+  '이유식': 'baby_food',
+  '간식': 'snack',
+  '기타': 'other',
+};
+
 function MealRecordAddPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const editRecord = location.state?.record || null;
+  const isEdit = Boolean(editRecord);
+  const dateParam = searchParams.get('date');
+
+  // 오늘 날짜 기본값
+  const getDefaultDate = () => {
+    if (dateParam) {
+      const parts = dateParam.split('-');
+      if (parts.length === 3) {
+        return `${parts[0].slice(2)}.${parts[1]}.${parts[2]}`;
+      }
+    }
+    const today = new Date();
+    const yy = String(today.getFullYear()).slice(2);
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yy}.${mm}.${dd}`;
+  };
+
+  const getDefaultTime = () => {
+    const now = new Date();
+    return {
+      hour: String(now.getHours()).padStart(2, '0'),
+      minute: String(now.getMinutes()).padStart(2, '0'),
+    };
+  };
+
+  const defaultTime = getDefaultTime();
 
   // 폼 상태
   const [formData, setFormData] = useState({
-    date: '26.01.26',
-    hour: '00',
-    minute: '00',
+    date: getDefaultDate(),
+    hour: defaultTime.hour,
+    minute: defaultTime.minute,
     unknownTime: false,
     duration: '15',
     foodType: null,
     foodDetail: '',
     amount: '',
     amountMl: '100',
-    burpinh: false,
+    burping: false,
   });
+
+  const [kidId, setKidId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   // 드롭다운 상태
   const [showHourDropdown, setShowHourDropdown] = useState(false);
@@ -47,6 +91,65 @@ function MealRecordAddPage() {
   const needsMlAmount = ['젖병', '이유식', '분유'].includes(formData.foodType);
   const needsTextAmount = ['간식', '기타'].includes(formData.foodType);
   const isBreastMilk = formData.foodType === '모유';
+
+  // 아이 정보 가져오기
+  useEffect(() => {
+    const fetchKidInfo = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+
+        const response = await apiFetch('/api/kids', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.kids && data.kids.length > 0) {
+            setKidId(data.kids[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('아이 정보 조회 실패:', error);
+      }
+    };
+
+    fetchKidInfo();
+  }, []);
+
+  useEffect(() => {
+    if (!editRecord) return;
+    const typeLabelMap = {
+      breast_milk: '모유',
+      formula: '분유',
+      bottle: '젖병',
+      baby_food: '이유식',
+      snack: '간식',
+      other: '기타',
+    };
+    const dateParts = editRecord.record_date?.split('-');
+    const displayDate = dateParts?.length === 3
+      ? `${dateParts[0].slice(2)}.${dateParts[1]}.${dateParts[2]}`
+      : getDefaultDate();
+    const mealTime = editRecord.meal_datetime ? new Date(editRecord.meal_datetime) : null;
+    const hour = mealTime ? String(mealTime.getHours()).padStart(2, '0') : '00';
+    const minute = mealTime ? String(mealTime.getMinutes()).padStart(2, '0') : '00';
+
+    setFormData((prev) => ({
+      ...prev,
+      date: displayDate,
+      hour,
+      minute,
+      unknownTime: editRecord.unknown_time || false,
+      duration: editRecord.duration_minutes != null ? String(editRecord.duration_minutes) : '15',
+      foodType: typeLabelMap[editRecord.meal_type] || null,
+      foodDetail: editRecord.meal_detail || '',
+      amountMl: editRecord.amount_ml != null ? String(editRecord.amount_ml) : '',
+      amount: editRecord.amount_text || '',
+      burping: editRecord.burp || false,
+      memo: editRecord.memo || '',
+    }));
+  }, [editRecord]);
 
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
@@ -88,17 +191,84 @@ function MealRecordAddPage() {
     setShowFoodTypeDropdown(false);
   };
 
+  // 날짜 파싱 (YY.MM.DD -> YYYY-MM-DD)
+  const parseDate = (dateStr) => {
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      const year = parts[0].length === 2 ? `20${parts[0]}` : parts[0];
+      return `${year}-${parts[1]}-${parts[2]}`;
+    }
+    return dateStr;
+  };
+
   // 등록하기
-  const handleSubmit = () => {
-    const recordData = {
-      ...formData,
-      time: `${formData.hour}:${formData.minute}`,
-      category: '식사',
-      createdAt: new Date().toISOString(),
-    };
-    console.log('식사 기록 데이터:', recordData);
-    alert('식사 기록이 등록되었습니다');
-    navigate('/record');
+  const handleSubmit = async () => {
+    if (!kidId) {
+      alert('아이 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    if (!formData.foodType) {
+      alert('음식 유형을 선택해주세요.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+      }
+
+      const recordDate = parseDate(formData.date);
+      const mealDatetime = formData.unknownTime
+        ? `${recordDate}T12:00:00`
+        : `${recordDate}T${formData.hour}:${formData.minute}:00`;
+
+      const mealType = foodTypeToEnum[formData.foodType] || 'other';
+
+      const requestBody = {
+        record_date: recordDate,
+        meal_datetime: mealDatetime,
+        unknown_time: formData.unknownTime,
+        duration_minutes: parseInt(formData.duration) || null,
+        meal_type: mealType,
+        meal_detail: needsDetailInput ? formData.foodDetail : null,
+        amount_ml: needsMlAmount ? parseInt(formData.amountMl) : null,
+        amount_text: needsTextAmount ? formData.amount : null,
+        burp: formData.burping,
+        memo: null,
+      };
+
+      const endpoint = isEdit
+        ? `/api/kids/${kidId}/records/meal/${editRecord.id}`
+        : `/api/kids/${kidId}/records/meal`;
+
+      const response = await apiFetch(endpoint, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        alert(isEdit ? '식사 기록이 수정되었습니다.' : '식사 기록이 등록되었습니다.');
+        navigate('/record', { state: { refresh: Date.now() } });
+      } else {
+        const error = await response.json();
+        alert(error.detail || '식사 기록 등록에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('식사 기록 등록 실패:', error);
+      alert('식사 기록 등록에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // 취소
@@ -338,11 +508,11 @@ function MealRecordAddPage() {
           <label className="meal-checkbox-row">
             <input
               type="checkbox"
-              checked={formData.burpinh}
-              onChange={(e) => handleInputChange('burpinh', e.target.checked)}
+              checked={formData.burping}
+              onChange={(e) => handleInputChange('burping', e.target.checked)}
             />
             <span className="meal-checkbox-custom large">
-              {formData.burpinh && (
+              {formData.burping && (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path d="M5 12L10 17L19 8" stroke="#A89680" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -358,8 +528,9 @@ function MealRecordAddPage() {
             type="button"
             className="meal-submit-btn"
             onClick={handleSubmit}
+            disabled={submitting}
           >
-            등록하기
+            {submitting ? '등록 중...' : '등록하기'}
           </button>
           <button
             type="button"

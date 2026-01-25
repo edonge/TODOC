@@ -1,3 +1,6 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { apiFetch } from '../../api/base';
 import DiaperCard from './DiaperCard';
 import EtcCard from './EtcCard';
 import SleepCard from './SleepCard';
@@ -6,157 +9,494 @@ import MealCard from './MealCard';
 import HealthCard from './HealthCard';
 import './RecordCards.css';
 
-// 날짜별 더미 데이터
-const dummyData = {
-  '2026-01-26': {
-    sleep: {
-      totalHours: 11,
-      records: [
-        { type: '밤잠', start: '22:00', end: '05:00', duration: '7h', color: '#328B6D' },
-        { type: '낮잠', start: '12:00', end: '04:00', duration: '4h', color: '#E8D5A3' },
-      ],
-    },
-    growth: {
-      lastRecord: '2일 전',
-      height: { value: 65.2, change: '+0.8' },
-      weight: { value: 7.4, change: '-0.3' },
-      headCircumference: { value: 42.5, change: '+0.3' },
-      activities: ['독서', '걷기'],
-    },
-    meal: {
-      totalCount: 5,
-      records: [
-        { time: '18:30', type: '모유', amount: '15분', burp: '트림 O' },
-        { time: '15:00', type: '모유', amount: '15분', burp: '트림 X' },
-        { time: '10:00', type: '수유', amount: '120ml', burp: '트림 O' },
-        { time: '06:30', type: '모유', amount: '15분', burp: '트림 X' },
-        { time: '03:00', type: '이유식', amount: '50g', burp: '트림 O' },
-      ],
-    },
-    health: {
-      lastRecord: '2일 전',
-      note: '감기 걸려서 병원 갔다옴 ㅠㅠ',
-      date: '26.01.24',
-      symptoms: ['열', '기침', '콧물'],
-      medicine: ['이부프로펜'],
-      records: [
-        {
-          title: '감기 걸려서 병원 갔다옴 ㅠㅠ',
-          date: '26.01.24',
-          tags: ['열', '기침', '콧물', '이부프로펜'],
-        },
-        {
-          title: '밤새 열이 올라 해열제 복용',
-          date: '26.01.23',
-          tags: ['열', '해열제'],
-        },
-      ],
-    },
-    diaper: {
-      lastRecord: '2시간 전',
-      records: [
-        { time: '18:00', type: '대변', condition: '설사', color: '#328B6D' },
-        { time: '14:00', type: '대소변', condition: '정상', color: '#4B3131' },
-      ],
-    },
-    etc: {
-      records: [
-        { date: '01.23', text: '처음으로 걸은 날!' },
-        { date: '01.19', text: '젖몸살 때문에 쉬는날..' },
-      ],
-    },
-  },
-  '2026-01-22': {
-    sleep: {
-      totalHours: 9,
-      records: [
-        { type: '밤잠', start: '21:00', end: '06:00', duration: '9h', color: '#328B6D' },
-      ],
-    },
-    growth: null,
-    meal: {
-      totalCount: 3,
-      records: [
-        { time: '17:00', type: '모유', amount: '20분', burp: '트림 O' },
-        { time: '12:00', type: '수유', amount: '100ml', burp: '트림 X' },
-        { time: '07:00', type: '모유', amount: '15분', burp: '트림 O' },
-      ],
-    },
-    health: null,
-    diaper: {
-      lastRecord: '5시간 전',
-      records: [
-        { time: '15:00', type: '소변', condition: '정상', color: '#E8D5A3' },
-      ],
-    },
-    etc: null,
-  },
-  '2026-01-01': {
-    sleep: {
-      totalHours: 12,
-      records: [
-        { type: '밤잠', start: '20:00', end: '07:00', duration: '11h', color: '#328B6D' },
-        { type: '낮잠', start: '13:00', end: '14:00', duration: '1h', color: '#E8D5A3' },
-      ],
-    },
-    growth: {
-      lastRecord: '오늘',
-      height: { value: 64.4, change: '+0.5' },
-      weight: { value: 7.7, change: '+0.2' },
-      headCircumference: { value: 42.2, change: '+0.2' },
-      activities: ['목욕', '음악'],
-    },
-    meal: {
-      totalCount: 5,
-      records: [
-        { time: '20:00', type: '모유', amount: '15분', burp: '트림 O' },
-        { time: '16:00', type: '모유', amount: '20분', burp: '트림 X' },
-        { time: '12:00', type: '수유', amount: '150ml', burp: '트림 O' },
-        { time: '08:00', type: '모유', amount: '15분', burp: '트림 X' },
-        { time: '04:00', type: '모유', amount: '10분', burp: '트림 O' },
-      ],
-    },
-    health: null,
-    diaper: {
-      lastRecord: '1시간 전',
-      records: [
-        { time: '19:00', type: '대변', condition: '정상', color: '#4B3131' },
-        { time: '14:00', type: '소변', condition: '정상', color: '#E8D5A3' },
-        { time: '09:00', type: '대소변', condition: '정상', color: '#4B3131' },
-      ],
-    },
-    etc: {
-      records: [
-        { date: '01.01', text: '새해 첫날! 🎉' },
-      ],
-    },
-  },
+// 식사 타입 매핑
+const mealTypeLabels = {
+  breast_milk: '모유',
+  formula: '분유',
+  bottle: '젖병',
+  baby_food: '이유식',
+  snack: '간식',
+  other: '기타',
 };
 
-function RecordCards({ selectedDate }) {
-  const data = dummyData[selectedDate] || dummyData['2026-01-26'];
+// 배변 타입 매핑
+const diaperTypeLabels = {
+  urine: '소변',
+  stool: '대변',
+  both: '대소변',
+};
+
+// 배변 상태 매핑
+const conditionLabels = {
+  normal: '정상',
+  diarrhea: '설사',
+  constipation: '변비',
+};
+
+// 수면 타입 매핑
+const sleepTypeLabels = {
+  night: '밤잠',
+  nap: '낮잠',
+};
+
+// 시간 포맷팅 (datetime -> HH:MM)
+const formatTime = (datetime) => {
+  if (!datetime) return '';
+  const d = new Date(datetime);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+};
+
+// 날짜 포맷팅 (YYYY-MM-DD -> MM.DD)
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[1]}.${parts[2]}`;
+  }
+  return dateStr;
+};
+
+// 수면 시간 계산 (duration_hours 사용 또는 직접 계산)
+const formatDuration = (durationHours) => {
+  if (!durationHours) return '0h';
+  const hours = Math.floor(durationHours);
+  const minutes = Math.round((durationHours - hours) * 60);
+  if (minutes > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${hours}h`;
+};
+
+// 상대 시간 계산
+const getRelativeTime = (datetime) => {
+  if (!datetime) return '';
+  const now = new Date();
+  const target = new Date(datetime);
+  const diffMs = now - target;
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMinutes < 60) return `${diffMinutes}분 전`;
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  if (diffDays === 0) return '오늘';
+  if (diffDays === 1) return '어제';
+  return `${diffDays}일 전`;
+};
+
+const asDateTime = (value) => {
+  if (!value) return '';
+  if (typeof value === 'string' && value.length === 10 && value.includes('-')) {
+    return `${value}T00:00:00`;
+  }
+  return value;
+};
+
+function RecordCards({ selectedDate, kidId, refreshKey }) {
+  const [records, setRecords] = useState([]);
+  const [growthHistory, setGrowthHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // 기록 데이터 가져오기
+  const fetchRecords = useCallback(async () => {
+    if (!kidId || !selectedDate) {
+      setRecords([]);
+      setGrowthHistory([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+
+      const [dailyResponse, growthResponse] = await Promise.all([
+        apiFetch(`/api/kids/${kidId}/records/date/${selectedDate}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        apiFetch(`/api/kids/${kidId}/records?record_type=growth&limit=2&page=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      if (dailyResponse.ok) {
+        const data = await dailyResponse.json();
+        setRecords(data.records || []);
+      }
+
+      if (growthResponse.ok) {
+        const data = await growthResponse.json();
+        setGrowthHistory(data.records || []);
+      }
+    } catch (error) {
+      console.error('기록 조회 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [kidId, selectedDate, refreshKey]);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [fetchRecords]);
+
+  // 기록을 타입별로 분류
+  const categorizeRecords = () => {
+    const categorized = {
+      sleep: [],
+      growth: [],
+      meal: [],
+      health: [],
+      diaper: [],
+      etc: [],
+    };
+
+    records.forEach((record) => {
+      switch (record.record_type) {
+        case 'sleep':
+          categorized.sleep.push(record);
+          break;
+        case 'growth':
+          categorized.growth.push(record);
+          break;
+        case 'meal':
+          categorized.meal.push(record);
+          break;
+        case 'health':
+          categorized.health.push(record);
+          break;
+        case 'diaper':
+          categorized.diaper.push(record);
+          break;
+        case 'etc':
+          categorized.etc.push(record);
+          break;
+        default:
+          break;
+      }
+    });
+
+    return categorized;
+  };
+
+  // 수면 카드용 데이터 변환
+  const transformSleepData = (sleepRecords) => {
+    if (!sleepRecords || sleepRecords.length === 0) return [];
+
+    return sleepRecords.map((record) => ({
+      id: record.id,
+      type: sleepTypeLabels[record.sleep_type] || record.sleep_type,
+      start: formatTime(record.start_datetime),
+      end: formatTime(record.end_datetime),
+      duration: formatDuration(record.duration_hours),
+      color: record.sleep_type === 'night' ? '#328B6D' : '#E8D5A3',
+      raw: record,
+    }));
+  };
+
+  // 성장 카드용 데이터 변환
+  const buildGrowthData = (latest, previous) => {
+    if (!latest) return null;
+
+    // 활동 목록 변환
+    const activityLabels = {
+      reading: '독서',
+      walking: '산책',
+      bathing: '목욕',
+      playing: '놀이',
+      music: '음악',
+      exercise: '체조',
+      swimming: '수영',
+    };
+
+    const formatDelta = (current, prev) => {
+      if (current == null || prev == null) return null;
+      const diff = parseFloat(current) - parseFloat(prev);
+      const sign = diff > 0 ? '+' : diff < 0 ? '-' : '';
+      return `${sign}${Math.abs(diff).toFixed(1)}`;
+    };
+
+    return {
+      recordId: latest.id,
+      raw: latest,
+      lastRecord: getRelativeTime(asDateTime(latest.record_date || latest.created_at)),
+      height: latest.height_cm != null
+        ? {
+            value: parseFloat(latest.height_cm),
+            change: formatDelta(latest.height_cm, previous?.height_cm),
+          }
+        : null,
+      weight: latest.weight_kg != null
+        ? {
+            value: parseFloat(latest.weight_kg),
+            change: formatDelta(latest.weight_kg, previous?.weight_kg),
+          }
+        : null,
+      headCircumference: latest.head_circumference_cm != null
+        ? {
+            value: parseFloat(latest.head_circumference_cm),
+            change: formatDelta(latest.head_circumference_cm, previous?.head_circumference_cm),
+          }
+        : null,
+      activities: (latest.activities || []).map((a) => activityLabels[a] || a),
+    };
+  };
+
+  const transformGrowthData = (growthRecords) => {
+    if (!growthRecords || growthRecords.length === 0) return null;
+
+    const sortedRecords = [...growthRecords].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+    const latest = sortedRecords[0];
+    const previous = sortedRecords[1];
+
+    return buildGrowthData(latest, previous);
+  };
+
+  // 식사 카드용 데이터 변환
+  const transformMealData = (mealRecords) => {
+    if (!mealRecords || mealRecords.length === 0) return [];
+
+    return mealRecords
+      .sort((a, b) => new Date(b.meal_datetime) - new Date(a.meal_datetime))
+      .map((record) => {
+        let amount = '';
+        if (record.amount_ml) {
+          amount = `${record.amount_ml}ml`;
+        } else if (record.duration_minutes) {
+          amount = `${record.duration_minutes}분`;
+        } else if (record.amount_text) {
+          amount = record.amount_text;
+        }
+
+        return {
+          id: record.id,
+          time: formatTime(record.meal_datetime),
+          type: mealTypeLabels[record.meal_type] || record.meal_type,
+          amount,
+          burp: record.burp ? '트림 O' : '트림 X',
+          raw: record,
+        };
+      });
+  };
+
+  // 건강 카드용 데이터 변환
+  const transformHealthData = (healthRecords) => {
+    if (!healthRecords || healthRecords.length === 0) return null;
+
+    const sortedRecords = [...healthRecords].sort(
+      (a, b) => new Date(b.health_datetime) - new Date(a.health_datetime)
+    );
+
+    const symptomLabels = {
+      fever: '열',
+      runny_nose: '콧물',
+      cough: '기침',
+      vomit: '구토',
+      diarrhea: '설사',
+      rash: '발진',
+      headache: '두통',
+    };
+
+    const medicineLabels = {
+      antipyretic: '해열제',
+      painkiller: '진통제',
+      cold_medicine: '감기약',
+      antibiotic: '항생제',
+      ointment: '연고',
+      eye_drops: '안약',
+    };
+
+    return {
+      lastRecord: getRelativeTime(sortedRecords[0].health_datetime),
+      records: sortedRecords.map((record) => {
+        const tags = [
+          ...(record.symptoms || []).map((s) => symptomLabels[s] || s),
+          ...(record.medicines || []).map((m) => medicineLabels[m] || m),
+        ];
+
+        return {
+          id: record.id,
+          title: record.title || record.memo || '건강 기록',
+          date: formatDate(record.record_date),
+          tags,
+          raw: record,
+        };
+      }),
+    };
+  };
+
+  // 배변 카드용 데이터 변환
+  const transformDiaperData = (diaperRecords) => {
+    if (!diaperRecords || diaperRecords.length === 0) return null;
+
+    const sortedRecords = [...diaperRecords].sort(
+      (a, b) => new Date(b.diaper_datetime) - new Date(a.diaper_datetime)
+    );
+
+    return {
+      lastRecord: getRelativeTime(sortedRecords[0].diaper_datetime),
+      records: sortedRecords.map((record) => ({
+        id: record.id,
+        time: formatTime(record.diaper_datetime),
+        type: diaperTypeLabels[record.diaper_type] || record.diaper_type,
+        condition: conditionLabels[record.condition] || record.condition || '정상',
+        color: record.diaper_type === 'urine' ? '#E8D5A3' : '#4B3131',
+        raw: record,
+      })),
+    };
+  };
+
+  // 기타 카드용 데이터 변환
+  const transformEtcData = (etcRecords) => {
+    if (!etcRecords || etcRecords.length === 0) return null;
+
+    const sortedRecords = [...etcRecords].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
+    return {
+      lastRecord: getRelativeTime(asDateTime(sortedRecords[0].record_date || sortedRecords[0].created_at)),
+      records: sortedRecords.map((record) => ({
+        id: record.id,
+        date: formatDate(record.record_date),
+        text: record.title || record.memo || '',
+        raw: record,
+      })),
+    };
+  };
+
+  const categorized = categorizeRecords();
+
+  const sleepData = transformSleepData(categorized.sleep);
+  const growthSource = growthHistory.length > 0 ? growthHistory : categorized.growth;
+  let growthData = transformGrowthData(growthSource);
+  const dailyGrowthRecord = categorized.growth.length > 0
+    ? [...categorized.growth].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0]
+    : null;
+  if (!dailyGrowthRecord) {
+    growthData = null;
+  } else {
+    let previousRecord = null;
+    if (growthHistory.length > 0 && growthHistory[0]?.id === dailyGrowthRecord.id) {
+      previousRecord = growthHistory[1] || null;
+    }
+    if (!growthData || growthData.raw?.id !== dailyGrowthRecord.id) {
+      growthData = buildGrowthData(dailyGrowthRecord, previousRecord);
+    }
+    if (growthData) {
+      growthData.editRecord = dailyGrowthRecord;
+    }
+  }
+  const mealData = transformMealData(categorized.meal);
+  const healthData = transformHealthData(categorized.health);
+  const diaperData = transformDiaperData(categorized.diaper);
+  const etcData = transformEtcData(categorized.etc);
+
+  if (loading) {
+    return (
+      <div className="record-cards-container">
+        <div className="loading-message">기록을 불러오는 중...</div>
+      </div>
+    );
+  }
+
+  const handleEditRecord = (record) => {
+    if (!record) return;
+    const recordType = record.record_type?.value || record.record_type;
+    const dateParam = record.record_date ? `?date=${record.record_date}` : '';
+    switch (recordType) {
+      case 'sleep':
+        navigate(`/record/sleep/add${dateParam}`, { state: { record } });
+        break;
+      case 'growth':
+        navigate(`/record/growth/add${dateParam}`, { state: { record } });
+        break;
+      case 'meal':
+        navigate(`/record/meal/add${dateParam}`, { state: { record } });
+        break;
+      case 'health':
+        navigate(`/record/health/add${dateParam}`, { state: { record } });
+        break;
+      case 'diaper':
+        navigate(`/record/diaper/add${dateParam}`, { state: { record } });
+        break;
+      case 'etc':
+        navigate(`/record/etc/add${dateParam}`, { state: { record } });
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleDeleteRecord = async (record) => {
+    if (!record || !kidId) return;
+    const confirmed = window.confirm('기록을 삭제할까요?');
+    if (!confirmed) return;
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+      const response = await apiFetch(`/api/kids/${kidId}/records/${record.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.ok) {
+        fetchRecords();
+      } else {
+        const error = await response.json();
+        alert(error.detail || '기록 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('기록 삭제 실패:', error);
+      alert('기록 삭제에 실패했습니다.');
+    }
+  };
 
   return (
     <div className="record-cards-container">
-      {/* 수면 카드 */}
-      {data.sleep && (
-        <SleepCard records={data.sleep.records} />
-      )}
+      {/* 수면 카드 - 항상 표시 */}
+      <SleepCard
+        records={sleepData}
+        onEdit={(record) => handleEditRecord(record)}
+        onDelete={(record) => handleDeleteRecord(record)}
+      />
 
-      {/* 성장 카드 */}
-      <GrowthCard data={data.growth} />
+      {/* 성장 카드 - 항상 표시 */}
+      <GrowthCard
+        data={growthData}
+        onEdit={(record) => handleEditRecord(record)}
+        onDelete={(record) => handleDeleteRecord(record)}
+      />
 
-      {/* 식사 카드 */}
-      <MealCard records={data.meal?.records || []} />
+      {/* 식사 카드 - 항상 표시 */}
+      <MealCard
+        records={mealData}
+        onEdit={(record) => handleEditRecord(record)}
+        onDelete={(record) => handleDeleteRecord(record)}
+      />
 
-      {/* 건강 카드 */}
-      <HealthCard data={data.health} />
+      {/* 건강 카드 - 항상 표시 */}
+      <HealthCard
+        data={healthData}
+        onEdit={(record) => handleEditRecord(record)}
+        onDelete={(record) => handleDeleteRecord(record)}
+      />
 
-      {/* 배변 카드 */}
-      <DiaperCard data={data.diaper} />
+      {/* 배변 카드 - 항상 표시 */}
+      <DiaperCard
+        data={diaperData}
+        onEdit={(record) => handleEditRecord(record)}
+        onDelete={(record) => handleDeleteRecord(record)}
+      />
 
-      {/* 기타 카드 */}
-      <EtcCard data={data.etc} />
+      {/* 기타 카드 - 항상 표시 */}
+      <EtcCard
+        data={etcData}
+        onEdit={(record) => handleEditRecord(record)}
+        onDelete={(record) => handleDeleteRecord(record)}
+      />
     </div>
   );
 }

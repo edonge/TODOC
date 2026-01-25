@@ -1,11 +1,32 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { apiFetch } from '../api/base';
 import BottomTabBar from '../components/home/BottomTabBar';
 import etcMock from '../assets/categories/기타.png';
 import './EtcRecordAddPage.css';
 
 function EtcRecordAddPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const editRecord = location.state?.record || null;
+  const isEdit = Boolean(editRecord);
+  const dateParam = searchParams.get('date');
+  const [kidId, setKidId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    if (dateStr.includes('-')) {
+      return dateStr;
+    }
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      const year = parts[0].length === 2 ? `20${parts[0]}` : parts[0];
+      return `${year}-${parts[1]}-${parts[2]}`;
+    }
+    return dateStr;
+  };
 
   // 폼 상태
   const [formData, setFormData] = useState({
@@ -13,21 +34,99 @@ function EtcRecordAddPage() {
     memo: '',
   });
 
+  useEffect(() => {
+    const fetchKidInfo = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+        const response = await apiFetch('/api/kids', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.kids && data.kids.length > 0) {
+            setKidId(data.kids[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('아이 정보 조회 실패:', error);
+      }
+    };
+
+    fetchKidInfo();
+  }, []);
+
+  useEffect(() => {
+    if (!editRecord) return;
+    setFormData({
+      title: editRecord.title || '',
+      memo: editRecord.memo || '',
+    });
+  }, [editRecord]);
+
   // 입력 핸들러
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   // 등록하기
-  const handleSubmit = () => {
-    const recordData = {
-      ...formData,
-      category: '기타',
-      createdAt: new Date().toISOString(),
-    };
-    console.log('기타 기록 데이터:', recordData);
-    alert('기타 기록이 등록되었습니다');
-    navigate('/record');
+  const handleSubmit = async () => {
+    if (!kidId) {
+      alert('아이 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    if (!formData.title.trim()) {
+      alert('제목을 입력해주세요.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+      }
+
+      const recordDate = editRecord?.record_date
+        ? parseDate(editRecord.record_date)
+        : (parseDate(dateParam) || new Date().toISOString().split('T')[0]);
+
+      const requestBody = {
+        record_date: recordDate,
+        title: formData.title,
+        memo: formData.memo || null,
+      };
+
+      const endpoint = isEdit
+        ? `/api/kids/${kidId}/records/etc/${editRecord.id}`
+        : `/api/kids/${kidId}/records/etc`;
+
+      const response = await apiFetch(endpoint, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        alert(isEdit ? '기타 기록이 수정되었습니다' : '기타 기록이 등록되었습니다');
+        navigate('/record', { state: { refresh: Date.now() } });
+      } else {
+        const error = await response.json();
+        alert(error.detail || '기타 기록 등록에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('기타 기록 등록 실패:', error);
+      alert('기타 기록 등록에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // 취소

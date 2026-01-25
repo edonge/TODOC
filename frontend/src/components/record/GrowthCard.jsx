@@ -3,7 +3,7 @@ import moreIcon from '../../assets/icons/more.png';
 import CardStack from '../common/CardStack';
 import './GrowthCard.css';
 
-function GrowthCard({ data = null }) {
+function GrowthCard({ data = null, onEdit, onDelete }) {
   const [openMenu, setOpenMenu] = useState(false);
   const cardRef = useRef(null);
 
@@ -13,7 +13,13 @@ function GrowthCard({ data = null }) {
   };
 
   const handleMenuAction = (action) => {
-    alert(`성장 ${action}`);
+    const targetRecord = data?.editRecord || data?.raw;
+    if (action === '수정하기' && onEdit) {
+      onEdit(targetRecord);
+    }
+    if (action === '삭제하기' && onDelete) {
+      onDelete(targetRecord);
+    }
     setOpenMenu(false);
   };
 
@@ -29,6 +35,8 @@ function GrowthCard({ data = null }) {
   }, [openMenu]);
 
   const hasData = data !== null;
+  const formatValue = (value, unit) => (value == null ? '-' : `${value} ${unit}`);
+  const changeClass = (change) => (change && change.startsWith('+') ? 'positive' : 'negative');
 
   return (
     <div className="record-card" onClick={() => setOpenMenu(false)} ref={cardRef}>
@@ -61,37 +69,43 @@ function GrowthCard({ data = null }) {
                 <div className="growth-stat-box">
                   <span className="growth-stat-label">키</span>
                   <span className="growth-stat-num">
-                    {data.height.value} cm
+                    {formatValue(data.height?.value, 'cm')}
                   </span>
-                  <span className={`growth-stat-change ${data.height.change.startsWith('+') ? 'positive' : 'negative'}`}>
-                    ({data.height.change})
-                  </span>
+                  {data.height?.change && (
+                    <span className={`growth-stat-change ${changeClass(data.height.change)}`}>
+                      ({data.height.change})
+                    </span>
+                  )}
                 </div>
                 <div className="growth-stat-box">
                   <span className="growth-stat-label">몸무게</span>
                   <span className="growth-stat-num">
-                    {data.weight.value} kg
+                    {formatValue(data.weight?.value, 'kg')}
                   </span>
-                  <span className={`growth-stat-change ${data.weight.change.startsWith('+') ? 'positive' : 'negative'}`}>
-                    ({data.weight.change})
-                  </span>
+                  {data.weight?.change && (
+                    <span className={`growth-stat-change ${changeClass(data.weight.change)}`}>
+                      ({data.weight.change})
+                    </span>
+                  )}
                 </div>
-                {data.headCircumference && (
+                {(data.headCircumference || data.headCircumference?.value != null) && (
                   <div className="growth-stat-box">
                     <span className="growth-stat-label">머리둘레</span>
                     <span className="growth-stat-num">
-                      {data.headCircumference.value} cm
+                      {formatValue(data.headCircumference?.value, 'cm')}
                     </span>
-                    <span className={`growth-stat-change ${data.headCircumference.change.startsWith('+') ? 'positive' : 'negative'}`}>
-                      ({data.headCircumference.change})
-                    </span>
+                    {data.headCircumference?.change && (
+                      <span className={`growth-stat-change ${changeClass(data.headCircumference.change)}`}>
+                        ({data.headCircumference.change})
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
               <div className="growth-activities-box">
                 <span className="growth-activities-label">활동</span>
                 <div className="growth-activity-tags">
-                  {data.activities.map((activity, idx) => (
+                  {(data.activities || []).map((activity, idx) => (
                     <span key={idx} className="growth-activity-tag">{activity}</span>
                   ))}
                 </div>

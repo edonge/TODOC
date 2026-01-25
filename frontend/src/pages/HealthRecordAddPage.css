@@ -176,6 +176,19 @@
   background-color: #FDF2F2;
 }
 
+.health-tags.medicine .health-tag.active {
+  background-color: #6F99F4;
+}
+
+.health-tags.medicine .health-add-tag-btn {
+  border-color: #6F99F4;
+  color: #6F99F4;
+}
+
+.health-tags.medicine .health-add-tag-btn:hover {
+  background-color: #EEF3FF;
+}
+
 /* 메모 */
 .memo-section {
   align-items: stretch;

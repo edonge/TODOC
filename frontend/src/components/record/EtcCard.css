@@ -73,3 +73,20 @@
   background-color: #D9D9D9;
   border-radius: 2px;
 }
+
+/* 빈 상태 */
+.etc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+
+.etc-empty p {
+  margin: 2px 0;
+  font-size: 13px;
+  color: #8F8F8F;
+  line-height: 1.4;
+}

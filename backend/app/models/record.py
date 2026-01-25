@@ -14,6 +14,9 @@ from app.models.enums import (
     SleepTypeEnum,
     SleepQualityEnum,
     MealTypeEnum,
+    ActivityEnum,
+    SymptomEnum,
+    MedicineEnum,
     DiaperTypeEnum,
     StoolAmountEnum,
     StoolConditionEnum,
@@ -102,7 +105,16 @@ class GrowthRecord(Base):
     height_cm: Mapped[Optional[Decimal]] = mapped_column(Numeric(5, 2))
     weight_kg: Mapped[Optional[Decimal]] = mapped_column(Numeric(4, 2))
     head_circumference_cm: Mapped[Optional[Decimal]] = mapped_column(Numeric(4, 2))
-    activities: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(50)))
+    activities: Mapped[Optional[List[ActivityEnum]]] = mapped_column(
+        ARRAY(
+            SQLEnum(
+                ActivityEnum,
+                name="activity_enum",
+                create_type=False,
+                values_callable=enum_values,
+            )
+        )
+    )
 
     # Relationship
     record: Mapped["Record"] = relationship("Record", back_populates="growth_record")
@@ -144,8 +156,26 @@ class HealthRecord(Base):
     health_datetime: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     unknown_time: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
-    symptoms: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(50)))
-    medicines: Mapped[Optional[List[str]]] = mapped_column(ARRAY(String(50)))
+    symptoms: Mapped[Optional[List[SymptomEnum]]] = mapped_column(
+        ARRAY(
+            SQLEnum(
+                SymptomEnum,
+                name="symptom_enum",
+                create_type=False,
+                values_callable=enum_values,
+            )
+        )
+    )
+    medicines: Mapped[Optional[List[MedicineEnum]]] = mapped_column(
+        ARRAY(
+            SQLEnum(
+                MedicineEnum,
+                name="medicine_enum",
+                create_type=False,
+                values_callable=enum_values,
+            )
+        )
+    )
 
     # Relationship
     record: Mapped["Record"] = relationship("Record", back_populates="health_record")

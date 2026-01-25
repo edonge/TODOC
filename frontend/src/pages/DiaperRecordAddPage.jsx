@@ -1,15 +1,59 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { apiFetch } from '../api/base';
 import BottomTabBar from '../components/home/BottomTabBar';
 import diaperMock from '../assets/categories/배변.png';
 import './DiaperRecordAddPage.css';
 
 function DiaperRecordAddPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const editRecord = location.state?.record || null;
+  const isEdit = Boolean(editRecord);
+  const dateParam = searchParams.get('date');
+  const [kidId, setKidId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const getDisplayDate = () => {
+    if (dateParam) {
+      const parts = dateParam.split('-');
+      if (parts.length === 3) {
+        return `${parts[0].slice(2)}.${parts[1]}.${parts[2]}`;
+      }
+    }
+    const today = new Date();
+    const yy = String(today.getFullYear()).slice(2);
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yy}.${mm}.${dd}`;
+  };
+
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    if (dateStr.includes('-')) {
+      return dateStr;
+    }
+    const parts = dateStr.split('.');
+    if (parts.length === 3) {
+      const year = parts[0].length === 2 ? `20${parts[0]}` : parts[0];
+      return `${year}-${parts[1]}-${parts[2]}`;
+    }
+    return dateStr;
+  };
+
+  const toDisplayDate = (dateStr) => {
+    if (!dateStr) return getDisplayDate();
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[0].slice(2)}.${parts[1]}.${parts[2]}`;
+    }
+    return dateStr;
+  };
 
   // 폼 상태
   const [formData, setFormData] = useState({
-    date: '26.01.26',
+    date: getDisplayDate(),
     time: '00:00',
     unknownTime: false,
     type: null, // '소변', '대변', '둘다'
@@ -19,21 +63,125 @@ function DiaperRecordAddPage() {
     memo: '',
   });
 
+  useEffect(() => {
+    const fetchKidInfo = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) return;
+        const response = await apiFetch('/api/kids', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.kids && data.kids.length > 0) {
+            setKidId(data.kids[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('아이 정보 조회 실패:', error);
+      }
+    };
+
+    fetchKidInfo();
+  }, []);
+
+  useEffect(() => {
+    if (!editRecord) return;
+    const typeLabelMap = { urine: '소변', stool: '대변', both: '둘다' };
+    const amountLabelMap = { much: '많음', normal: '보통', little: '적음' };
+    const conditionLabelMap = { normal: '정상', diarrhea: '설사', constipation: '변비' };
+    const colorLabelMap = { yellow: '노랑', brown: '갈색', green: '초록', other: '이외' };
+    const time = editRecord.diaper_datetime ? new Date(editRecord.diaper_datetime) : null;
+    const timeLabel = time
+      ? `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}`
+      : '00:00';
+
+    setFormData({
+      date: toDisplayDate(editRecord.record_date),
+      time: timeLabel,
+      unknownTime: editRecord.unknown_time || false,
+      type: typeLabelMap[editRecord.diaper_type] || null,
+      amount: amountLabelMap[editRecord.amount] || null,
+      condition: conditionLabelMap[editRecord.condition] || null,
+      color: colorLabelMap[editRecord.color] || null,
+      memo: editRecord.memo || '',
+    });
+  }, [editRecord]);
+
   // 입력 핸들러
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   // 등록하기
-  const handleSubmit = () => {
-    const recordData = {
-      ...formData,
-      category: '배변',
-      createdAt: new Date().toISOString(),
-    };
-    console.log('배변 기록 데이터:', recordData);
-    alert('배변 기록이 등록되었습니다');
-    navigate('/record');
+  const handleSubmit = async () => {
+    if (!kidId) {
+      alert('아이 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    if (!formData.type) {
+      alert('종류를 선택해주세요.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        navigate('/login');
+        return;
+      }
+
+      const recordDate = parseDate(formData.date);
+      const diaperDatetime = formData.unknownTime
+        ? `${recordDate}T12:00:00`
+        : `${recordDate}T${formData.time}:00`;
+
+      const typeMap = { 소변: 'urine', 대변: 'stool', 둘다: 'both' };
+      const amountMap = { 많음: 'much', 보통: 'normal', 적음: 'little' };
+      const conditionMap = { 정상: 'normal', 설사: 'diarrhea', 변비: 'constipation' };
+      const colorMap = { 노랑: 'yellow', 갈색: 'brown', 초록: 'green', 이외: 'other' };
+
+      const requestBody = {
+        record_date: recordDate,
+        diaper_datetime: diaperDatetime,
+        unknown_time: formData.unknownTime,
+        diaper_type: typeMap[formData.type],
+        amount: formData.amount ? amountMap[formData.amount] : null,
+        condition: formData.condition ? conditionMap[formData.condition] : null,
+        color: formData.color ? colorMap[formData.color] : null,
+        memo: formData.memo || null,
+      };
+
+      const endpoint = isEdit
+        ? `/api/kids/${kidId}/records/diaper/${editRecord.id}`
+        : `/api/kids/${kidId}/records/diaper`;
+
+      const response = await apiFetch(endpoint, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        alert(isEdit ? '배변 기록이 수정되었습니다' : '배변 기록이 등록되었습니다');
+        navigate('/record', { state: { refresh: Date.now() } });
+      } else {
+        const error = await response.json();
+        alert(error.detail || '배변 기록 등록에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('배변 기록 등록 실패:', error);
+      alert('배변 기록 등록에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // 취소

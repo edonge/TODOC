@@ -483,3 +483,44 @@ def update_etc_record(
     db.commit()
     db.refresh(record)
     return record
+
+
+# =============================================================================
+# Monthly Records Summary (캘린더용)
+# =============================================================================
+def get_monthly_record_dates(
+    db: Session,
+    kid_id: int,
+    year: int,
+    month: int
+) -> Dict[str, bool]:
+    """
+    월별 기록 날짜 조회 (캘린더 표시용)
+    각 날짜에 기록이 있는지 여부를 반환
+    """
+    from calendar import monthrange
+
+    _, days_in_month = monthrange(year, month)
+    start_date = date(year, month, 1)
+    end_date = date(year, month, days_in_month)
+
+    stmt = (
+        select(Record.record_date)
+        .where(
+            and_(
+                Record.kid_id == kid_id,
+                Record.record_date >= start_date,
+                Record.record_date <= end_date
+            )
+        )
+        .distinct()
+    )
+    recorded_dates = {row[0] for row in db.execute(stmt).all()}
+
+    result = {}
+    for day in range(1, days_in_month + 1):
+        d = date(year, month, day)
+        date_str = d.isoformat()
+        result[date_str] = d in recorded_dates
+
+    return result

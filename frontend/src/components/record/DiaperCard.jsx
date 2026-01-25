@@ -3,12 +3,12 @@ import moreIcon from '../../assets/icons/more.png';
 import CardStack from '../common/CardStack';
 import './DiaperCard.css';
 
-function DiaperCard({ data }) {
+function DiaperCard({ data, onEdit, onDelete }) {
   const [openRecordMenu, setOpenRecordMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const cardRef = useRef(null);
 
-  if (!data) return null;
+  const hasRecords = data && data.records && data.records.length > 0;
 
   const handleRecordMenuToggle = (e, index) => {
     e.stopPropagation();
@@ -17,8 +17,13 @@ function DiaperCard({ data }) {
     setOpenRecordMenu(openRecordMenu === index ? null : index);
   };
 
-  const handleRecordMenuAction = (action) => {
-    alert(`배변 ${action}`);
+  const handleRecordMenuAction = (action, record) => {
+    if (action === '수정하기' && onEdit) {
+      onEdit(record);
+    }
+    if (action === '삭제하기' && onDelete) {
+      onDelete(record);
+    }
     setOpenRecordMenu(null);
   };
 
@@ -40,44 +45,52 @@ function DiaperCard({ data }) {
         <div className="record-card-header">
           <div className="header-inline">
             <span className="header-text-plain">최근 배변 기록</span>
-            <span className="header-sub">마지막 기록 : {data.lastRecord}</span>
+            <span className="header-sub">마지막 기록 : {data?.lastRecord || '-'}</span>
           </div>
         </div>
         <div className="diaper-records-wrapper">
-          <div className="diaper-records">
-            {data.records.map((record, idx) => (
-              <div key={idx} className="diaper-record-item">
-                <span className="diaper-time">{record.time}</span>
-                <span className="diaper-type">{record.type}</span>
-                <span className="diaper-condition">{record.condition}</span>
-                <span className="diaper-dot" style={{ backgroundColor: record.color }}></span>
-                <div className="record-item-menu">
-                  <button
-                    type="button"
-                    className="diaper-menu-btn"
-                    onClick={(e) => handleRecordMenuToggle(e, idx)}
-                  >
-                    <img src={moreIcon} alt="더보기" className="menu-icon" />
-                  </button>
-                  {openRecordMenu === idx && (
-                    <div
-                      className="menu-dropdown"
-                      style={{
-                        position: 'fixed',
-                        top: menuPosition.top,
-                        left: menuPosition.left,
-                        transform: 'translateX(-100%)',
-                        zIndex: 1000,
-                      }}
+          {hasRecords ? (
+            <div className="diaper-records">
+              {data.records.map((record, idx) => (
+                <div key={record.id || idx} className="diaper-record-item">
+                  <span className="diaper-time">{record.time}</span>
+                  <span className="diaper-type">{record.type}</span>
+                  <span className="diaper-condition">{record.condition}</span>
+                  <span className="diaper-dot" style={{ backgroundColor: record.color }}></span>
+                  <div className="record-item-menu">
+                    <button
+                      type="button"
+                      className="diaper-menu-btn"
+                      onClick={(e) => handleRecordMenuToggle(e, idx)}
                     >
-                      <button onClick={() => handleRecordMenuAction('수정하기')}>수정하기</button>
-                      <button onClick={() => handleRecordMenuAction('삭제하기')}>삭제하기</button>
-                    </div>
-                  )}
+                      <img src={moreIcon} alt="더보기" className="menu-icon" />
+                    </button>
+                    {openRecordMenu === idx && (
+                      <div
+                        className="menu-dropdown"
+                        style={{
+                          position: 'fixed',
+                          top: menuPosition.top,
+                          left: menuPosition.left,
+                          transform: 'translateX(-100%)',
+                          zIndex: 1000,
+                        }}
+                      >
+                        <button onClick={() => handleRecordMenuAction('수정하기', record.raw)}>수정하기</button>
+                        <button onClick={() => handleRecordMenuAction('삭제하기', record.raw)}>삭제하기</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="diaper-empty">
+              <p>아직 기록된 배변이 없어요.</p>
+              <p>기저귀 교체 시 기록해 두면</p>
+              <p>패턴을 파악하는 데 도움이 돼요.</p>
+            </div>
+          )}
         </div>
       </CardStack>
     </div>

@@ -3,7 +3,7 @@ import CardStack from '../common/CardStack';
 import moreIcon from '../../assets/icons/more.png';
 import './SleepCard.css';
 
-function SleepCard({ records = [] }) {
+function SleepCard({ records = [], onEdit, onDelete }) {
   const [openRecordMenu, setOpenRecordMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const cardRef = useRef(null);
@@ -34,8 +34,13 @@ function SleepCard({ records = [] }) {
     setOpenRecordMenu(openRecordMenu === index ? null : index);
   };
 
-  const handleRecordMenuAction = (action) => {
-    alert(`수면 ${action}`);
+  const handleRecordMenuAction = (action, record) => {
+    if (action === '수정하기' && onEdit) {
+      onEdit(record);
+    }
+    if (action === '삭제하기' && onDelete) {
+      onDelete(record);
+    }
     setOpenRecordMenu(null);
   };
 
@@ -86,8 +91,8 @@ function SleepCard({ records = [] }) {
                           zIndex: 1000,
                         }}
                       >
-                        <button onClick={() => handleRecordMenuAction('수정하기')}>수정하기</button>
-                        <button onClick={() => handleRecordMenuAction('삭제하기')}>삭제하기</button>
+                        <button onClick={() => handleRecordMenuAction('수정하기', record.raw)}>수정하기</button>
+                        <button onClick={() => handleRecordMenuAction('삭제하기', record.raw)}>삭제하기</button>
                       </div>
                     )}
                   </div>
