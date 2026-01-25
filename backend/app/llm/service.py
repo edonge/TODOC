@@ -1,9 +1,13 @@
 from datetime import datetime, timedelta
+import json
+import re
 from typing import List, Optional
 
 from sqlalchemy.orm import Session, joinedload
 
 from app.models import Kid, Record
+from app.core.config import settings
+from langchain_openai import ChatOpenAI
 from .tools import (
     build_rag_tool,
     build_diary_tools,
@@ -59,18 +63,6 @@ class DiaryContextBuilder:
             f"- 생후: {age_text}\n"
             f"- 성별: {gender}"
         )
-
-
-def _needs_personalization(message: str, mode: str) -> bool:
-    if not message:
-        return False
-    keywords = [
-        "수유", "모유", "분유", "이유식", "식단", "영양", "간식",
-        "수면", "잠", "낮잠", "밤잠", "루틴",
-        "성장", "키", "몸무게", "체중", "머리둘레", "발달",
-        "배변", "기저귀", "설사", "변비",
-    ]
-    return any(k in message for k in keywords) or mode in {"mom", "nutrition"}
 
     def _describe(self, record: Record) -> str:
         """기록을 문자열로 변환"""
@@ -138,6 +130,108 @@ def _needs_personalization(message: str, mode: str) -> bool:
         return "\n".join(self._describe(r) for r in recs)
 
 
+def _needs_personalization(message: str, mode: str) -> bool:
+    if not message:
+        return False
+    keywords = [
+        "수유", "모유", "분유", "이유식", "식단", "영양", "간식",
+        "수면", "잠", "낮잠", "밤잠", "루틴",
+        "성장", "키", "몸무게", "체중", "머리둘레", "발달",
+        "배변", "기저귀", "설사", "변비",
+    ]
+    return any(k in message for k in keywords) or mode in {"mom", "nutrition"}
+
+
+def _needs_doctor_handoff(message: str, mode: str) -> bool:
+    if mode not in {"mom", "nutrition"}:
+        return False
+    if not message:
+        return False
+    keywords = [
+        "증상", "진단", "치료", "병", "질환", "의학", "의료",
+        "백내장", "감기", "열", "고열", "구토", "설사", "발진",
+        "경련", "호흡곤란", "통증", "통증이", "상처", "염증",
+        "눈", "시력", "안과",
+    ]
+    return any(k in message for k in keywords)
+
+
+def _is_medical_question(message: str) -> bool:
+    if not message:
+        return False
+    keywords = [
+        "증상", "진단", "치료", "병", "질환", "의학", "의료",
+        "백내장", "감기", "열", "고열", "구토", "설사", "발진",
+        "경련", "호흡곤란", "통증", "상처", "염증",
+        "눈", "시력", "안과", "검사", "처방", "약",
+    ]
+    return any(k in message for k in keywords)
+
+
+def _is_emotional_support(message: str) -> bool:
+    if not message:
+        return False
+    keywords = [
+        "우울", "불안", "스트레스", "불면", "무기력", "번아웃",
+        "힘들", "지쳐", "외롭", "위로", "공감", "감정", "마음",
+        "산후", "산후우울", "산후우울증", "육아우울",
+    ]
+    return any(k in message for k in keywords)
+
+
+async def _classify_question(message: str, mode: str) -> dict:
+    if not message:
+        return {"decision": "ambiguous", "target": mode, "reason": "empty message"}
+
+    system = (
+        "You are a router for a childcare assistant. "
+        "Classify the user's question for routing.\n\n"
+        "Categories:\n"
+        "- mom: 육아 일상(수면, 루틴, 놀이, 습관, 생활 팁)\n"
+        "- doctor: 의료/진단/치료/질환/증상/안과/응급\n"
+        "- nutrition: 식단/영양/수유/이유식/알러지/레시피\n"
+        "- other: 위 범주 외\n\n"
+        "Given current_mode, choose the best target category and decision:\n"
+        "- in_scope: clearly fits current_mode\n"
+        "- ambiguous: overlaps current_mode and another category\n"
+        "- off_topic: clearly not current_mode\n\n"
+        "Hard rules:\n"
+        "- If current_mode is mom or nutrition and the question is medical/diagnosis/treatment, "
+        "decision must be off_topic and target must be doctor.\n"
+        "- If current_mode is doctor and question is clearly nutrition/recipe, target nutrition.\n\n"
+        "Return ONLY JSON with keys: decision, target, reason."
+    )
+    prompt = (
+        f"{system}\n\n"
+        f"current_mode: {mode}\n"
+        f"question: {message}"
+    )
+
+    llm = ChatOpenAI(
+        api_key=settings.openai_api_key,
+        model=settings.openai_model,
+        temperature=0.0,
+        max_tokens=200,
+    )
+    try:
+        result = await llm.ainvoke(prompt)
+        content = result.content if hasattr(result, "content") else str(result)
+        try:
+            data = json.loads(content)
+        except json.JSONDecodeError:
+            match = re.search(r"\{.*\}", content, re.DOTALL)
+            if not match:
+                raise
+            data = json.loads(match.group(0))
+        return {
+            "decision": data.get("decision", "ambiguous"),
+            "target": data.get("target", mode),
+            "reason": data.get("reason", ""),
+        }
+    except Exception:
+        return {"decision": "ambiguous", "target": mode, "reason": "fallback"}
+
+
 async def generate_response(
     message: str,
     mode: str,
@@ -156,6 +250,42 @@ async def generate_response(
         }
     """
     diary = DiaryContextBuilder(kid, db)
+    routing = await _classify_question(message, mode)
+    decision = routing.get("decision")
+    target = routing.get("target")
+    reason = routing.get("reason", "")
+
+    if mode in {"mom", "nutrition"} and _is_medical_question(message):
+        decision = "off_topic"
+        target = "doctor"
+        reason = f"{reason}|keyword_override"
+
+    if mode == "mom" and _is_emotional_support(message):
+        decision = "in_scope"
+        target = "mom"
+        reason = f"{reason}|emotional_override"
+
+    print(f"[AI Routing] mode={mode} decision={decision} target={target} reason={reason}")
+
+    if decision == "off_topic" and target != mode:
+        target_label = {"mom": "맘 AI", "doctor": "닥터 AI", "nutrition": "영양 AI"}.get(target)
+        if target_label:
+            return {
+                "output": (
+                    f"이 질문은 {target_label}가 더 정확하고 자세히 도와줄 수 있어요. "
+                    f"{target_label}로 전환해서 상담해보는 걸 추천드려요."
+                ),
+                "tools_called": [],
+                "rag_used": False,
+                "kid_info_used": kid is not None,
+            }
+        return {
+            "output": "이 질문은 현재 카테고리와 조금 거리가 있어요. 다른 카테고리에서 질문해볼까요?",
+            "tools_called": [],
+            "rag_used": False,
+            "kid_info_used": kid is not None,
+        }
+
     tools = [build_rag_tool(mode), *build_diary_tools(diary)]
     if mode == "nutrition":
         tools.append(build_web_tool())
@@ -194,6 +324,13 @@ async def generate_response(
     output = result.get("output") if isinstance(result, dict) else str(result)
     if rag_used and "문서 기반" not in output:
         output = f"{output}\n\n이 답변은 신뢰도 있는 문서 기반으로 생성되었어요!"
+    if decision == "ambiguous" and target and target != mode:
+        target_label = {"mom": "맘 AI", "doctor": "닥터 AI", "nutrition": "영양 AI"}.get(target, "다른 AI")
+        output = (
+            f"{output}\n\n"
+            f"혹시 이 질문은 {target_label}에서도 더 자세히 다룰 수 있어요. "
+            f"{target_label}로도 질문해보실래요?"
+        )
 
     # 콘솔 로그 (디버깅용)
     print(f"\n{'='*50}")
