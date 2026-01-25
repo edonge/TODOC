@@ -4,8 +4,6 @@ from typing import Optional
 
 from .vector_loader import load_mode_stores
 from app.core.config import settings
-from app.models import Post
-from app.models.enums import CommunityCategoryEnum
 
 
 def build_rag_tool(mode: str):
@@ -21,7 +19,7 @@ def build_rag_tool(mode: str):
         for d in docs:
             source = d.metadata.get("source") if hasattr(d, "metadata") else None
             formatted.append(f"[{source or 'doc'}] {d.page_content}")
-        return "\n\n".join(formatted) or "No RAG hits."
+        return "RAG_SNIPPETS:\n" + "\n\n".join(formatted) if formatted else "No RAG hits."
 
     return Tool.from_function(
         name="rag_search",
@@ -41,26 +39,6 @@ def build_diary_tools(diary_builder):
         Tool.from_function(name="diary_recent", func=recent, description="최근 7일 일지 요약"),
         Tool.from_function(name="diary_latest", func=latest, description="가장 최근 일지 1건"),
     ]
-
-
-def build_recipe_tool(db: Optional[object]):
-    def recipe_search(q: str) -> str:
-        if not db:
-            return "Recipe search unavailable (no DB)."
-        query = db.query(Post).filter(Post.category == CommunityCategoryEnum.recipe.value)
-        if q:
-            like = f"%{q}%"
-            query = query.filter(Post.title.ilike(like) | Post.content.ilike(like))
-        posts = query.order_by(Post.created_at.desc()).limit(5).all()
-        if not posts:
-            return "No recipes found."
-        return "\n".join(f"- [{p.id}] {p.title}: {p.content[:240]}..." for p in posts)
-
-    return Tool.from_function(
-        name="recipe_search",
-        func=recipe_search,
-        description="커뮤니티 레시피 게시글 검색",
-    )
 
 
 def build_web_tool():

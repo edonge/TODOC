@@ -7,7 +7,6 @@ from app.models import Kid, Record
 from .tools import (
     build_rag_tool,
     build_diary_tools,
-    build_recipe_tool,
     build_web_tool,
 )
 from .agent import build_agent
@@ -71,7 +70,6 @@ async def generate_response(
     diary = DiaryContextBuilder(kid, db)
     tools = [build_rag_tool(mode), *build_diary_tools(diary)]
     if mode == "nutrition":
-        tools.append(build_recipe_tool(db))
         tools.append(build_web_tool())
 
     executor, chat_history = build_agent(

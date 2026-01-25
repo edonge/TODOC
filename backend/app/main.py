@@ -106,9 +106,6 @@ def create_app() -> FastAPI:
             ]
         )
         session.updated_at = datetime.utcnow()
-        # 최신 사용자 메시지 기준으로 제목/스니펫 갱신
-        session.title = await _summarize_title(req.message, req.mode)
-        session.question_snippet = req.message[:80]
         db.commit()
         db.refresh(session)
 
