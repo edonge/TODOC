@@ -6,6 +6,7 @@ const TITLE_MAP = {
   '/community': '커뮤니티',
   '/record': '일지',
   '/ai': '토닥 AI',
+  '/support': '고객센터',
 };
 
 function AppLayout() {

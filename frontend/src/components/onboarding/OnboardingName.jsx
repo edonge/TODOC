@@ -23,9 +23,9 @@ function OnboardingName({ onNext, onBack, initialName = '' }) {
       <div className="name-header">
         <h1 className="name-title">
           반가워요!<br />
-          아이를 어떻게 불러드리면 될까요?
+          아이 이름을 알려주세요
         </h1>
-        <p className="name-subtitle">아이 태명이나 애칭도 좋아요</p>
+        <p className="name-subtitle">예) 김태우, 이현동</p>
       </div>
 
       <div className="name-input-area">
@@ -35,7 +35,7 @@ function OnboardingName({ onNext, onBack, initialName = '' }) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="이름 또는 애칭"
+            placeholder="아이 이름"
             className="name-input"
             autoFocus
           />
