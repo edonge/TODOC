@@ -34,18 +34,43 @@ class DiaryContextBuilder:
             return name[1:]
         return name
 
+    def _age_months(self) -> Optional[int]:
+        if not self.kid or not getattr(self.kid, "birth_date", None):
+            return None
+        today = datetime.utcnow().date()
+        birth = self.kid.birth_date
+        months = (today.year - birth.year) * 12 + (today.month - birth.month)
+        if today.day < birth.day:
+            months -= 1
+        return max(months, 0)
+
     def kid_snapshot(self) -> str:
         if not self.kid:
             return "No kid selected."
         gender = "남아" if getattr(self.kid, "gender", "") == "male" else "여아"
         short_name = self._short_name(self.kid.name)
         subject_name = self._korean_subject(short_name)
+        age_months = self._age_months()
+        age_text = f"{age_months}개월" if age_months is not None else "알 수 없음"
         return (
             f"- 이름: {short_name}\n"
             f"- 호칭: {subject_name}\n"
             f"- 생년월일: {self.kid.birth_date}\n"
+            f"- 생후: {age_text}\n"
             f"- 성별: {gender}"
         )
+
+
+def _needs_personalization(message: str, mode: str) -> bool:
+    if not message:
+        return False
+    keywords = [
+        "수유", "모유", "분유", "이유식", "식단", "영양", "간식",
+        "수면", "잠", "낮잠", "밤잠", "루틴",
+        "성장", "키", "몸무게", "체중", "머리둘레", "발달",
+        "배변", "기저귀", "설사", "변비",
+    ]
+    return any(k in message for k in keywords) or mode in {"mom", "nutrition"}
 
     def _describe(self, record: Record) -> str:
         """기록을 문자열로 변환"""
@@ -137,6 +162,7 @@ async def generate_response(
 
     kid_snapshot = diary.kid_snapshot()
 
+    personalize = _needs_personalization(message, mode)
     executor, chat_history = build_agent(
         mode=mode,
         tools=tools,
@@ -144,6 +170,7 @@ async def generate_response(
         latest_record=diary.latest_record(),
         recent_digest=diary.recent_digest(),
         history=history,
+        personalize=personalize,
     )
     result = await executor.ainvoke({"input": message, "chat_history": chat_history})
 
