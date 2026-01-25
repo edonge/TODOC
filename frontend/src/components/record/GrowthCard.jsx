@@ -3,7 +3,7 @@ import moreIcon from '../../assets/icons/more.png';
 import CardStack from '../common/CardStack';
 import './GrowthCard.css';
 
-function GrowthCard({ data = null, onEdit, onDelete }) {
+function GrowthCard({ data = null, headerTitle, headerSub, emptyLines, onEdit, onDelete }) {
   const [openMenu, setOpenMenu] = useState(false);
   const cardRef = useRef(null);
 
@@ -35,6 +35,12 @@ function GrowthCard({ data = null, onEdit, onDelete }) {
   }, [openMenu]);
 
   const hasData = data !== null;
+  const titleText = headerTitle || '최근 성장 기록';
+  const subText = headerSub || `마지막 기록 : ${hasData ? data.lastRecord : '-'}`;
+  const emptyTextLines = emptyLines || [
+    '아직 기록된 성장 정보가 없어요.',
+    '키, 몸무게, 머리둘레를 기록해 보세요.',
+  ];
   const formatValue = (value, unit) => (value == null ? '-' : `${value} ${unit}`);
   const changeClass = (change) => (change && change.startsWith('+') ? 'positive' : 'negative');
 
@@ -44,10 +50,8 @@ function GrowthCard({ data = null, onEdit, onDelete }) {
       <CardStack backColor="#328B6D">
         <div className="growth-card-header">
           <div className="growth-header-left">
-            <span className="growth-header-title">최근 성장 기록</span>
-            <span className="growth-header-sub">
-              마지막 기록 : {hasData ? data.lastRecord : '-'}
-            </span>
+            <span className="growth-header-title">{titleText}</span>
+            <span className="growth-header-sub">{subText}</span>
           </div>
           <div className="growth-card-menu">
             <button className="menu-trigger" onClick={handleMenuToggle}>
@@ -113,8 +117,9 @@ function GrowthCard({ data = null, onEdit, onDelete }) {
             </div>
           ) : (
             <div className="growth-empty">
-              <p>아직 기록된 성장 정보가 없어요.</p>
-              <p>키, 몸무게, 머리둘레를 기록해 보세요.</p>
+              {emptyTextLines.map((line, idx) => (
+                <p key={idx}>{line}</p>
+              ))}
             </div>
           )}
         </div>

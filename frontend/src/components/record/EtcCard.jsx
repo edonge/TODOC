@@ -3,12 +3,19 @@ import moreIcon from '../../assets/icons/more.png';
 import CardStack from '../common/CardStack';
 import './EtcCard.css';
 
-function EtcCard({ data, onEdit, onDelete }) {
+function EtcCard({ data, headerTitle, headerSub, emptyLines, onEdit, onDelete }) {
   const [openRecordMenu, setOpenRecordMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const cardRef = useRef(null);
 
   const hasRecords = data && data.records && data.records.length > 0;
+  const titleText = headerTitle || '최근 기타 기록';
+  const subText = headerSub || `마지막 기록 : ${data?.lastRecord || '-'}`;
+  const emptyTextLines = emptyLines || [
+    '아직 기록된 내용이 없어요.',
+    '특별한 순간이나 메모를',
+    '자유롭게 기록해 보세요.',
+  ];
 
   const handleRecordMenuToggle = (e, index) => {
     e.stopPropagation();
@@ -44,8 +51,8 @@ function EtcCard({ data, onEdit, onDelete }) {
       <CardStack backColor="#8F8F8F">
         <div className="record-card-header">
           <div className="header-inline">
-            <span className="header-text-plain">최근 기타 기록</span>
-            <span className="header-sub">마지막 기록 : {data?.lastRecord || '-'}</span>
+            <span className="header-text-plain">{titleText}</span>
+            <span className="header-sub">{subText}</span>
           </div>
         </div>
         <div className="etc-records-wrapper">
@@ -84,9 +91,9 @@ function EtcCard({ data, onEdit, onDelete }) {
             </div>
           ) : (
             <div className="etc-empty">
-              <p>아직 기록된 내용이 없어요.</p>
-              <p>특별한 순간이나 메모를</p>
-              <p>자유롭게 기록해 보세요.</p>
+              {emptyTextLines.map((line, idx) => (
+                <p key={idx}>{line}</p>
+              ))}
             </div>
           )}
         </div>

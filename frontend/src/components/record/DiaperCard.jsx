@@ -3,12 +3,19 @@ import moreIcon from '../../assets/icons/more.png';
 import CardStack from '../common/CardStack';
 import './DiaperCard.css';
 
-function DiaperCard({ data, onEdit, onDelete }) {
+function DiaperCard({ data, headerTitle, headerSub, emptyLines, onEdit, onDelete }) {
   const [openRecordMenu, setOpenRecordMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const cardRef = useRef(null);
 
   const hasRecords = data && data.records && data.records.length > 0;
+  const titleText = headerTitle || '최근 배변 기록';
+  const subText = headerSub || `마지막 기록 : ${data?.lastRecord || '-'}`;
+  const emptyTextLines = emptyLines || [
+    '아직 기록된 배변이 없어요.',
+    '기저귀 교체 시 기록해 두면',
+    '패턴을 파악하는 데 도움이 돼요.',
+  ];
 
   const handleRecordMenuToggle = (e, index) => {
     e.stopPropagation();
@@ -44,8 +51,8 @@ function DiaperCard({ data, onEdit, onDelete }) {
       <CardStack backColor="#EFC3C8">
         <div className="record-card-header">
           <div className="header-inline">
-            <span className="header-text-plain">최근 배변 기록</span>
-            <span className="header-sub">마지막 기록 : {data?.lastRecord || '-'}</span>
+            <span className="header-text-plain">{titleText}</span>
+            <span className="header-sub">{subText}</span>
           </div>
         </div>
         <div className="diaper-records-wrapper">
@@ -86,9 +93,9 @@ function DiaperCard({ data, onEdit, onDelete }) {
             </div>
           ) : (
             <div className="diaper-empty">
-              <p>아직 기록된 배변이 없어요.</p>
-              <p>기저귀 교체 시 기록해 두면</p>
-              <p>패턴을 파악하는 데 도움이 돼요.</p>
+              {emptyTextLines.map((line, idx) => (
+                <p key={idx}>{line}</p>
+              ))}
             </div>
           )}
         </div>

@@ -3,7 +3,7 @@ import moreIcon from '../../assets/icons/more.png';
 import CardStack from '../common/CardStack';
 import './HealthCard.css';
 
-function HealthCard({ data, onEdit, onDelete }) {
+function HealthCard({ data, headerTitle, headerSub, emptyLines, onEdit, onDelete }) {
   const [openRecordMenu, setOpenRecordMenu] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const cardRef = useRef(null);
@@ -18,6 +18,12 @@ function HealthCard({ data, onEdit, onDelete }) {
     : [];
 
   const hasRecords = records && records.length > 0;
+  const titleText = headerTitle || '최근 건강 기록';
+  const subText = headerSub || (data ? `마지막 기록 : ${data.lastRecord}` : '마지막 기록 : -');
+  const emptyTextLines = emptyLines || [
+    '최근 건강 기록이 없어요.',
+    '아이 컨디션이 변하면 가볍게 메모해두세요.',
+  ];
 
   const handleRecordMenuToggle = (e, index) => {
     e.stopPropagation();
@@ -53,8 +59,8 @@ function HealthCard({ data, onEdit, onDelete }) {
       <CardStack backColor="#8D0000">
         <div className="health-card-header">
           <div className="health-header-left">
-            <span className="health-header-text">최근 건강 기록</span>
-            {data && <span className="health-header-sub">마지막 기록 : {data.lastRecord}</span>}
+            <span className="health-header-text">{titleText}</span>
+            <span className="health-header-sub">{subText}</span>
           </div>
         </div>
 
@@ -103,8 +109,9 @@ function HealthCard({ data, onEdit, onDelete }) {
             </div>
           ) : (
             <div className="health-empty">
-              <p>최근 건강 기록이 없어요.</p>
-              <p>아이 컨디션이 변하면 가볍게 메모해두세요.</p>
+              {emptyTextLines.map((line, idx) => (
+                <p key={idx}>{line}</p>
+              ))}
             </div>
           )}
         </div>

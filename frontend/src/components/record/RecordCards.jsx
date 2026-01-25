@@ -92,9 +92,22 @@ const asDateTime = (value) => {
   return value;
 };
 
+const isSameDate = (dateA, dateB) => {
+  if (!dateA || !dateB) return false;
+  return dateA === dateB;
+};
+
+const toDateString = (date) => date.toISOString().split('T')[0];
+
 function RecordCards({ selectedDate, kidId, refreshKey }) {
   const [records, setRecords] = useState([]);
   const [growthHistory, setGrowthHistory] = useState([]);
+  const [previousRecords, setPreviousRecords] = useState({
+    growth: null,
+    health: null,
+    diaper: null,
+    etc: null,
+  });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -111,11 +124,23 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
       const token = localStorage.getItem('access_token');
       if (!token) return;
 
-      const [dailyResponse, growthResponse] = await Promise.all([
+      const [dailyResponse, growthResponse, prevGrowth, prevHealth, prevDiaper, prevEtc] = await Promise.all([
         apiFetch(`/api/kids/${kidId}/records/date/${selectedDate}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         apiFetch(`/api/kids/${kidId}/records?record_type=growth&limit=2&page=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        apiFetch(`/api/kids/${kidId}/records?record_type=growth&end_date=${selectedDate}&limit=1&page=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        apiFetch(`/api/kids/${kidId}/records?record_type=health&end_date=${selectedDate}&limit=1&page=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        apiFetch(`/api/kids/${kidId}/records?record_type=diaper&end_date=${selectedDate}&limit=1&page=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        apiFetch(`/api/kids/${kidId}/records?record_type=etc&end_date=${selectedDate}&limit=1&page=1`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -129,6 +154,24 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
         const data = await growthResponse.json();
         setGrowthHistory(data.records || []);
       }
+      const nextPrevious = { growth: null, health: null, diaper: null, etc: null };
+      if (prevGrowth.ok) {
+        const data = await prevGrowth.json();
+        nextPrevious.growth = data.records?.[0] || null;
+      }
+      if (prevHealth.ok) {
+        const data = await prevHealth.json();
+        nextPrevious.health = data.records?.[0] || null;
+      }
+      if (prevDiaper.ok) {
+        const data = await prevDiaper.json();
+        nextPrevious.diaper = data.records?.[0] || null;
+      }
+      if (prevEtc.ok) {
+        const data = await prevEtc.json();
+        nextPrevious.etc = data.records?.[0] || null;
+      }
+      setPreviousRecords(nextPrevious);
     } catch (error) {
       console.error('기록 조회 실패:', error);
     } finally {
@@ -394,6 +437,55 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
   const diaperData = transformDiaperData(categorized.diaper);
   const etcData = transformEtcData(categorized.etc);
 
+  const today = toDateString(new Date());
+  const isToday = isSameDate(selectedDate, today);
+
+  const buildHeader = (label, hasRecords, lastRecord, previousDate) => {
+    if (isToday) {
+      return {
+        title: `최근 ${label} 기록`,
+        sub: hasRecords
+          ? `마지막 기록 : ${lastRecord || '-'}`
+          : previousDate
+            ? `이전 마지막 기록 : ${formatDate(previousDate)}`
+            : '이전 마지막 기록 없음',
+      };
+    }
+    return {
+      title: `${label} 기록`,
+      sub: hasRecords
+        ? `${formatDate(selectedDate)} 기록`
+        : previousDate
+          ? `이전 마지막 기록 : ${formatDate(previousDate)}`
+          : '이전 마지막 기록 없음',
+    };
+  };
+
+  const growthHeader = buildHeader(
+    '성장',
+    categorized.growth.length > 0,
+    growthData?.lastRecord,
+    previousRecords.growth?.record_date
+  );
+  const healthHeader = buildHeader(
+    '건강',
+    categorized.health.length > 0,
+    healthData?.lastRecord,
+    previousRecords.health?.record_date
+  );
+  const diaperHeader = buildHeader(
+    '배변',
+    categorized.diaper.length > 0,
+    diaperData?.lastRecord,
+    previousRecords.diaper?.record_date
+  );
+  const etcHeader = buildHeader(
+    '기타',
+    categorized.etc.length > 0,
+    etcData?.lastRecord,
+    previousRecords.etc?.record_date
+  );
+
   if (loading) {
     return (
       <div className="record-cards-container">
@@ -466,6 +558,12 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
       {/* 성장 카드 - 항상 표시 */}
       <GrowthCard
         data={growthData}
+        headerTitle={growthHeader.title}
+        headerSub={growthHeader.sub}
+        emptyLines={[
+          '해당 날짜에 성장 기록이 없어요.',
+          '키, 몸무게, 머리둘레를 기록해 보세요.',
+        ]}
         onEdit={(record) => handleEditRecord(record)}
         onDelete={(record) => handleDeleteRecord(record)}
       />
@@ -480,6 +578,12 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
       {/* 건강 카드 - 항상 표시 */}
       <HealthCard
         data={healthData}
+        headerTitle={healthHeader.title}
+        headerSub={healthHeader.sub}
+        emptyLines={[
+          '해당 날짜에 건강 기록이 없어요.',
+          '아이 컨디션이 변하면 가볍게 메모해두세요.',
+        ]}
         onEdit={(record) => handleEditRecord(record)}
         onDelete={(record) => handleDeleteRecord(record)}
       />
@@ -487,6 +591,13 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
       {/* 배변 카드 - 항상 표시 */}
       <DiaperCard
         data={diaperData}
+        headerTitle={diaperHeader.title}
+        headerSub={diaperHeader.sub}
+        emptyLines={[
+          '해당 날짜에 배변 기록이 없어요.',
+          '기저귀 교체 시 기록해 두면',
+          '패턴을 파악하는 데 도움이 돼요.',
+        ]}
         onEdit={(record) => handleEditRecord(record)}
         onDelete={(record) => handleDeleteRecord(record)}
       />
@@ -494,6 +605,13 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
       {/* 기타 카드 - 항상 표시 */}
       <EtcCard
         data={etcData}
+        headerTitle={etcHeader.title}
+        headerSub={etcHeader.sub}
+        emptyLines={[
+          '해당 날짜에 기록이 없어요.',
+          '특별한 순간이나 메모를',
+          '자유롭게 기록해 보세요.',
+        ]}
         onEdit={(record) => handleEditRecord(record)}
         onDelete={(record) => handleDeleteRecord(record)}
       />
