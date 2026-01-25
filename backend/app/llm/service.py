@@ -71,18 +71,44 @@ class DiaryContextBuilder:
         # 타입별 상세 정보 추가
         if record.sleep_record:
             sr = record.sleep_record
-            detail = f"수면 {sr.duration_hours}시간"
+            parts = [f"{sr.sleep_type.value}"]
+            parts.append(f"{sr.duration_hours}시간")
+            parts.append(f"{sr.start_datetime:%H:%M}~{sr.end_datetime:%H:%M}")
+            if sr.sleep_quality:
+                parts.append(f"수면질 {sr.sleep_quality.value}")
+            detail = "수면 " + ", ".join(parts)
         elif record.meal_record:
             mr = record.meal_record
-            detail = f"식사 {mr.meal_type.value}"
+            parts = [f"{mr.meal_type.value}"]
+            if mr.meal_detail:
+                parts.append(mr.meal_detail)
             if mr.amount_ml:
-                detail += f" {mr.amount_ml}ml"
+                parts.append(f"{mr.amount_ml}ml")
+            if mr.amount_text:
+                parts.append(mr.amount_text)
+            if mr.duration_minutes:
+                parts.append(f"{mr.duration_minutes}분")
+            if mr.burp:
+                parts.append("트림함")
+            detail = "식사 " + ", ".join(parts)
         elif record.diaper_record:
             dr = record.diaper_record
-            detail = f"배변 ({dr.diaper_type.value})"
+            parts = [dr.diaper_type.value]
+            if dr.amount:
+                parts.append(dr.amount.value)
+            if dr.condition:
+                parts.append(dr.condition.value)
+            if dr.color:
+                parts.append(dr.color.value)
+            detail = "배변 (" + ", ".join(parts) + ")"
         elif record.health_record:
             hr = record.health_record
-            detail = f"건강 {hr.title}"
+            parts = [hr.title]
+            if hr.symptoms:
+                parts.append("증상 " + ", ".join([s.value for s in hr.symptoms]))
+            if hr.medicines:
+                parts.append("투약 " + ", ".join([m.value for m in hr.medicines]))
+            detail = "건강 " + ", ".join(parts)
         elif record.growth_record:
             gr = record.growth_record
             parts = []
@@ -90,6 +116,8 @@ class DiaryContextBuilder:
                 parts.append(f"키 {gr.height_cm}cm")
             if gr.weight_kg:
                 parts.append(f"몸무게 {gr.weight_kg}kg")
+            if gr.head_circumference_cm:
+                parts.append(f"머리둘레 {gr.head_circumference_cm}cm")
             detail = "성장 " + ", ".join(parts) if parts else "성장 기록"
         elif record.etc_record:
             detail = f"기타: {record.etc_record.title}"
@@ -179,6 +207,27 @@ def _is_emotional_support(message: str) -> bool:
     return any(k in message for k in keywords)
 
 
+def _is_kid_info_question(message: str) -> bool:
+    if not message:
+        return False
+    keywords = [
+        "몇살", "나이", "개월", "생년월일", "성별", "이름", "아기 이름",
+        "우리애", "우리 아이", "아이 정보", "키", "몸무게",
+        "머리둘레", "두위", "성장", "큰편", "작은편", "평균", "비교",
+    ]
+    return any(k in message for k in keywords)
+
+
+def _is_growth_compare_question(message: str) -> bool:
+    if not message:
+        return False
+    keywords = [
+        "머리둘레", "두위", "성장", "큰편", "작은편", "평균", "비교",
+        "정상", "표준", "백분위",
+    ]
+    return any(k in message for k in keywords)
+
+
 async def _classify_question(message: str, mode: str) -> dict:
     if not message:
         return {"decision": "ambiguous", "target": mode, "reason": "empty message"}
@@ -250,41 +299,50 @@ async def generate_response(
         }
     """
     diary = DiaryContextBuilder(kid, db)
-    routing = await _classify_question(message, mode)
-    decision = routing.get("decision")
-    target = routing.get("target")
-    reason = routing.get("reason", "")
+    suggest_mom_note = False
 
-    if mode in {"mom", "nutrition"} and _is_medical_question(message):
-        decision = "off_topic"
-        target = "doctor"
-        reason = f"{reason}|keyword_override"
-
-    if mode == "mom" and _is_emotional_support(message):
+    if _is_kid_info_question(message):
         decision = "in_scope"
-        target = "mom"
-        reason = f"{reason}|emotional_override"
+        target = mode
+        reason = "kidinfo_override"
+    else:
+        routing = await _classify_question(message, mode)
+        decision = routing.get("decision")
+        target = routing.get("target")
+        reason = routing.get("reason", "")
+
+        if mode in {"mom", "nutrition"} and _is_medical_question(message):
+            decision = "off_topic"
+            target = "doctor"
+            reason = f"{reason}|keyword_override"
+
+        if mode == "mom" and _is_emotional_support(message):
+            decision = "in_scope"
+            target = "mom"
+            reason = f"{reason}|emotional_override"
 
     print(f"[AI Routing] mode={mode} decision={decision} target={target} reason={reason}")
 
-    if decision == "off_topic" and target != mode:
-        target_label = {"mom": "맘 AI", "doctor": "닥터 AI", "nutrition": "영양 AI"}.get(target)
-        if target_label:
+    if decision == "off_topic":
+        if mode == "mom":
+            decision = "in_scope"
+            target = "mom"
+            reason = f"{reason}|offtopic_mom_answer"
+        elif mode == "doctor":
+            decision = "in_scope"
+            target = "doctor"
+            suggest_mom_note = True
+            reason = f"{reason}|offtopic_doctor_answer"
+        elif mode == "nutrition":
             return {
                 "output": (
-                    f"이 질문은 {target_label}가 더 정확하고 자세히 도와줄 수 있어요. "
-                    f"{target_label}로 전환해서 상담해보는 걸 추천드려요."
+                    "이 질문은 맘 AI가 더 잘 도와줄 수 있어요. "
+                    "맘 AI로 전환해서 상담해보는 걸 추천드려요."
                 ),
                 "tools_called": [],
                 "rag_used": False,
                 "kid_info_used": kid is not None,
             }
-        return {
-            "output": "이 질문은 현재 카테고리와 조금 거리가 있어요. 다른 카테고리에서 질문해볼까요?",
-            "tools_called": [],
-            "rag_used": False,
-            "kid_info_used": kid is not None,
-        }
 
     tools = [build_rag_tool(mode), *build_diary_tools(diary)]
     if mode == "nutrition":
@@ -330,6 +388,11 @@ async def generate_response(
             f"{output}\n\n"
             f"혹시 이 질문은 {target_label}에서도 더 자세히 다룰 수 있어요. "
             f"{target_label}로도 질문해보실래요?"
+        )
+    if suggest_mom_note:
+        output = (
+            f"{output}\n\n"
+            "추가로, 맘 AI가 생활/감정적인 부분까지 더 섬세하게 도와줄 수 있어요."
         )
 
     # 콘솔 로그 (디버깅용)
