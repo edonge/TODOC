@@ -29,16 +29,7 @@ You can pull from docs, diary, community recipes, and optional web search.""",
 }
 
 
-def build_llm(prefer: str = "luxia") -> ChatOpenAI:
-    if prefer == "luxia" and settings.luxia_api_key:
-        return ChatOpenAI(
-            api_key=settings.luxia_api_key,
-            base_url=f"{settings.luxia_base_url}/chat/completions",
-            model=settings.luxia_model,
-            default_headers={"apikey": settings.luxia_api_key},
-            temperature=0.2,
-            max_tokens=800,
-        )
+def build_llm() -> ChatOpenAI:
     return ChatOpenAI(
         api_key=settings.openai_api_key,
         model=settings.openai_model,

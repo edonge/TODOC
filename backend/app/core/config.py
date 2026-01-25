@@ -67,11 +67,6 @@ class Settings(BaseSettings):
     openai_api_key: Optional[str] = None
     openai_model: str = "gpt-4o-mini"
 
-    # Luxia API (선택)
-    luxia_api_key: Optional[str] = None
-    luxia_base_url: str = "https://bridge.luxiacloud.com/llm/openai"
-    luxia_model: str = "gpt-4o-mini-2024-07-18"
-
     # -------------------------------------------------------------------------
     # Vector DB
     # -------------------------------------------------------------------------

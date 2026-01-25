@@ -1,17 +1,15 @@
 from typing import List
 
 from fastapi import FastAPI, Depends
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.api import api_router
 from app.llm.service import generate_response
 from app.schemas import ChatRequest, ChatResponse
-
-# TODO: DB 세션 연결 시 사용
-def get_db():
-    return None
+from app.core.database import get_db
+from app.models import Kid, ChatSession, ChatMessage
 
 
 def get_cors_origins() -> List[str]:
@@ -56,27 +54,53 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     @app.post("/api/ai/chat", response_model=ChatResponse)
-    async def ai_chat(req: ChatRequest, db=Depends(get_db)):
-        # DB 연결/아이 선택은 추후 주입 (현재 None).
+    async def ai_chat(req: ChatRequest, db: Session = Depends(get_db)):
+        kid = db.query(Kid).get(req.kid_id) if req.kid_id else None
+
         reply = await generate_response(
             message=req.message,
             mode=req.mode,
             history=req.history,
-            kid=None,
-            db=None,
+            kid=kid,
+            db=db,
         )
-        # 임시 session_id/date_label/title 생성 (DB 도입 후 교체)
+        # 세션/메시지 저장 (없으면 생성)
         from datetime import datetime
 
-        session_id = req.session_id or int(datetime.utcnow().timestamp())
-        date_label = datetime.utcnow().strftime("%m.%d")
+        session = None
+        if req.session_id:
+            session = db.query(ChatSession).get(req.session_id)
+        if session is None:
+            session = ChatSession(
+                mode=req.mode,
+                kid_id=req.kid_id,
+                title=req.message[:32],
+                question_snippet=req.message[:80],
+                date_label=datetime.utcnow().strftime("%m.%d"),
+            )
+            db.add(session)
+            db.flush()  # session.id 확보
+
+        # 메시지 기록 (user, ai)
+        db.add_all(
+            [
+                ChatMessage(session_id=session.id, sender="user", content=req.message),
+                ChatMessage(session_id=session.id, sender="ai", content=reply),
+            ]
+        )
+        session.updated_at = datetime.utcnow()
+        session.title = req.message[:32]
+        session.question_snippet = req.message[:80]
+        db.commit()
+        db.refresh(session)
+
         return {
             "reply": reply,
-            "session_id": session_id,
+            "session_id": session.id,
             "mode": req.mode,
-            "date_label": date_label,
-            "title": req.message[:32],
-            "question_snippet": req.message[:80],
+            "date_label": session.date_label or datetime.utcnow().strftime("%m.%d"),
+            "title": session.title,
+            "question_snippet": session.question_snippet,
         }
 
     return app

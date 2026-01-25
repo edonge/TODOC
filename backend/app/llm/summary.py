@@ -80,7 +80,8 @@ async def generate_weekly_summary(kid: Optional[Kid], db: Optional[Session]) -> 
                 "system",
                 "You are Summary AI for the home dashboard.\n"
                 "- Output: EXACTLY ONE Korean sentence (<=120자), 따뜻하고 상냥한 톤.\n"
-                "- 내용: 최근 7일 동안의 성장/건강/수면/식사/배변 신호를 짧게 묶어 전달.\n"
+                "- 내용: 최근 7일 데이터를 보되, 가장 최신(어제/오늘/이틀 전) 기록을 더 우선적으로 반영하여 성장/건강/수면/식사/배변 신호를 짧게 묶어 전달.\n"
+                "- 만약 7일 데이터가 적으면 있는 범위 내(1~6일치)에서 최신부터 반영.\n"
                 "- 이상 없으면 '건강하게 잘 지내고 있어요' 같은 긍정 멘트 포함.\n"
                 "- 이상 징후가 보이면 짧게 언급 + '지속되면 병원/전문가 상담' 정도의 부드러운 제안 한 번만.\n"
                 "- 과도한 조언이나 진단 금지, 수치는 간단히 언급할 때만 사용.\n"
@@ -93,7 +94,7 @@ async def generate_weekly_summary(kid: Optional[Kid], db: Optional[Session]) -> 
         ]
     )
 
-    llm = build_llm()  # Luxia 우선
+    llm = build_llm()  # OpenAI 단일 사용
     chain = prompt | llm
     result = await chain.ainvoke(
         {"kid_profile": kid_profile, "records": record_lines, "rag": rag_context}
