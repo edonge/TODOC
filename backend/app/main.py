@@ -56,7 +56,12 @@ def create_app() -> FastAPI:
 
     @app.post("/api/ai/chat", response_model=ChatResponse)
     async def ai_chat(req: ChatRequest, db: Session = Depends(get_db)):
-        kid = db.query(Kid).get(req.kid_id) if req.kid_id else None
+        # kid_id가 주어지지 않았거나 잘못된 경우에도 반드시 가장 최근 등록된 아이 정보를 사용
+        kid = None
+        if req.kid_id:
+            kid = db.query(Kid).get(req.kid_id)
+        if kid is None:
+            kid = db.query(Kid).order_by(Kid.created_at.desc()).first()
 
         async def _summarize_title(msg: str, mode: str) -> str:
             """LLM으로 주제 한 줄(<=20자) 요약."""
@@ -90,7 +95,7 @@ def create_app() -> FastAPI:
             title_text = await _summarize_title(req.message, req.mode)
             session = ChatSession(
                 mode=req.mode,
-                kid_id=req.kid_id,
+                kid_id=(kid.id if kid else req.kid_id),
                 title=title_text,
                 question_snippet=req.message[:80],
                 date_label=datetime.utcnow().strftime("%m.%d"),
