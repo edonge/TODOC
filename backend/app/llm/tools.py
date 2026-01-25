@@ -17,7 +17,11 @@ def build_rag_tool(mode: str):
         if not retriever:
             return "Vector DB unavailable."
         docs = retriever.invoke(q)
-        return "\n\n".join(d.page_content for d in docs) or "No RAG hits."
+        formatted = []
+        for d in docs:
+            source = d.metadata.get("source") if hasattr(d, "metadata") else None
+            formatted.append(f"[{source or 'doc'}] {d.page_content}")
+        return "\n\n".join(formatted) or "No RAG hits."
 
     return Tool.from_function(
         name="rag_search",

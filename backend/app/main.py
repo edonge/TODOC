@@ -10,6 +10,7 @@ from app.llm.service import generate_response
 from app.schemas import ChatRequest, ChatResponse
 from app.core.database import get_db
 from app.models import Kid, ChatSession, ChatMessage
+from app.llm.agent import build_llm
 
 
 def get_cors_origins() -> List[str]:
@@ -57,6 +58,21 @@ def create_app() -> FastAPI:
     async def ai_chat(req: ChatRequest, db: Session = Depends(get_db)):
         kid = db.query(Kid).get(req.kid_id) if req.kid_id else None
 
+        async def _summarize_title(msg: str, mode: str) -> str:
+            """LLM으로 주제 한 줄(<=20자) 요약."""
+            try:
+                llm = build_llm()
+                prompt = (
+                    "다음 사용자의 질문을 20자 이하의 간단한 주제 한글 명사구로 요약하세요.\n"
+                    f"[모드: {mode}]\n"
+                    f"[질문]: {msg}"
+                )
+                res = await llm.ainvoke(prompt)
+                text = res.content if hasattr(res, "content") else str(res)
+                return (text or "").strip()[:40]
+            except Exception:
+                return msg[:32]
+
         reply = await generate_response(
             message=req.message,
             mode=req.mode,
@@ -71,10 +87,11 @@ def create_app() -> FastAPI:
         if req.session_id:
             session = db.query(ChatSession).get(req.session_id)
         if session is None:
+            title_text = await _summarize_title(req.message, req.mode)
             session = ChatSession(
                 mode=req.mode,
                 kid_id=req.kid_id,
-                title=req.message[:32],
+                title=title_text,
                 question_snippet=req.message[:80],
                 date_label=datetime.utcnow().strftime("%m.%d"),
             )
@@ -89,7 +106,8 @@ def create_app() -> FastAPI:
             ]
         )
         session.updated_at = datetime.utcnow()
-        session.title = req.message[:32]
+        # 최신 사용자 메시지 기준으로 제목/스니펫 갱신
+        session.title = await _summarize_title(req.message, req.mode)
         session.question_snippet = req.message[:80]
         db.commit()
         db.refresh(session)
