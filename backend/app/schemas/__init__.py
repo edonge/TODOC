@@ -75,6 +75,10 @@ from app.schemas.chat import (
     ChatMessage,
     ChatSessionSummary,
 )
+from app.schemas.insight import (
+    InsightResponse,
+    InsightCreate,
+)
 
 __all__ = [
     # User
@@ -145,4 +149,7 @@ __all__ = [
     "ChatResponse",
     "ChatMessage",
     "ChatSessionSummary",
+    # Insight
+    "InsightResponse",
+    "InsightCreate",
 ]

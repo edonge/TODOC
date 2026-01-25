@@ -9,7 +9,9 @@ from app.crud import user as user_crud
 from app.crud import kid as kid_crud
 from app.crud import record as record_crud
 from app.schemas.user import UserResponse, UserUpdate, PasswordChange
+from app.schemas.insight import InsightResponse
 from app.models.user import User
+from app.llm.insight_service import get_or_create_insight, CATEGORY_LABELS
 
 router = APIRouter(prefix="/users", tags=["사용자"])
 
@@ -125,3 +127,33 @@ def get_home_data(
         "kid": kid_data,
         "recent_record": record_data
     }
+
+
+@router.get("/me/insight", response_model=Optional[InsightResponse])
+async def get_user_insight(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    사용자 인사이트 조회
+    - 최근 7일 기록 기반 AI 생성 인사이트
+    - 12시간 캐싱 (하루 2회 갱신)
+    """
+    kids = kid_crud.get_kids_by_user(db, current_user.id)
+
+    if not kids:
+        return None
+
+    first_kid = kids[0]
+    insight = await get_or_create_insight(db, current_user.id, first_kid)
+
+    if not insight:
+        return None
+
+    return InsightResponse(
+        category=insight.category,
+        category_label=CATEGORY_LABELS.get(insight.category, insight.category),
+        insight_text=insight.insight_text,
+        generated_at=insight.generated_at,
+        kid_name=first_kid.name,
+    )

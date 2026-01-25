@@ -26,6 +26,7 @@ from app.models.record import (
 )
 from app.models.community import Post, Comment, PostLike, CommentLike
 from app.models.chat import ChatSession, ChatMessage
+from app.models.insight import UserInsight
 
 __all__ = [
     # Base
@@ -65,4 +66,6 @@ __all__ = [
     # Chat
     "ChatSession",
     "ChatMessage",
+    # Insight
+    "UserInsight",
 ]
