@@ -1,3 +1,4 @@
+import os
 import requests
 from langchain_core.tools import Tool
 from typing import Optional
@@ -17,14 +18,17 @@ def build_rag_tool(mode: str):
         docs = retriever.invoke(q)
         formatted = []
         for d in docs:
-            source = d.metadata.get("source") if hasattr(d, "metadata") else None
-            formatted.append(f"[{source or 'doc'}] {d.page_content}")
+            source = None
+            if hasattr(d, "metadata"):
+                source = d.metadata.get("source") or d.metadata.get("file") or d.metadata.get("path")
+            label = os.path.basename(source) if source else "doc"
+            formatted.append(f"[{label}] {d.page_content}")
         return "RAG_SNIPPETS:\n" + "\n\n".join(formatted) if formatted else "No RAG hits."
 
     return Tool.from_function(
         name="rag_search",
         func=_rag,
-        description=f"{mode} 전용+공통 문서를 검색해 스니펫을 반환",
+        description=f"{mode} 전용+공통 문서를 검색해 스니펫·파일명을 반환",
     )
 
 
