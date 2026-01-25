@@ -84,6 +84,14 @@ function AiChatPage() {
               align={msg.sender === 'user' ? 'right' : 'left'}
             />
           ))}
+          {isSending && (
+            <ChatBubble
+              key="loading"
+              text="생각 중..."
+              background="#f0f0f0"
+              align="left"
+            />
+          )}
         </div>
       </div>
 
