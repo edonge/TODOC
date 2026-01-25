@@ -7,8 +7,9 @@ import doctorImg from '../assets/WJ/DoctorAI.png';
 import nutritionImg from '../assets/WJ/NutrientAI.png';
 import { AI_MODES } from '../data/aiChats';
 import ChatHistoryCard from '../components/ai/ChatHistoryCard';
-import { listSessions } from '../utils/aiSessionStore';
+import { listAiSessions } from '../api/aiClient';
 import './AiHomePage.css';
+import { useEffect, useState } from 'react';
 
 function AiHomePage() {
   const navigate = useNavigate();
@@ -19,7 +20,25 @@ function AiHomePage() {
     { ...AI_MODES.nutrition, image: nutritionImg },
   ];
 
-  const sessions = listSessions();
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      setLoading(true);
+      try {
+        const data = await listAiSessions();
+        setSessions(data || []);
+      } catch (error) {
+        console.error('채팅 내역 조회 실패:', error);
+        setSessions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, []);
 
   return (
     <div className="ai-home-page">
@@ -43,7 +62,11 @@ function AiHomePage() {
 
       <section className="ai-section">
         <h2 className="ai-section-title">지난 채팅 내역</h2>
-        {sessions.length === 0 ? (
+        {loading ? (
+          <div className="ai-history-list empty-placeholder">
+            <p className="ai-history-empty">채팅 내역을 불러오는 중이에요.</p>
+          </div>
+        ) : sessions.length === 0 ? (
           <div className="ai-history-list empty-placeholder">
             <p className="ai-history-empty">아직 저장된 채팅 기록이 없어요.</p>
           </div>

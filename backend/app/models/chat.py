@@ -17,6 +17,7 @@ class ChatSession(Base):
     __tablename__ = "chat_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     mode = Column(String(50), nullable=False, index=True)
     title = Column(String(255), nullable=True)
     question_snippet = Column(String(500), nullable=True)

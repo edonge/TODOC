@@ -51,6 +51,21 @@ function LoginPage() {
       // 토큰 저장
       localStorage.setItem('access_token', data.access_token);
       localStorage.setItem('refresh_token', data.refresh_token);
+      localStorage.removeItem('todoc_ai_sessions');
+
+      try {
+        const meRes = await fetch(withApiBase('/api/auth/me'), {
+          headers: { Authorization: `Bearer ${data.access_token}` },
+        });
+        if (meRes.ok) {
+          const me = await meRes.json();
+          if (me?.id) {
+            localStorage.setItem('user_id', String(me.id));
+          }
+        }
+      } catch (meError) {
+        console.warn('Failed to load user info', meError);
+      }
 
       // 첫 로그인 여부에 따라 분기
       if (data.is_first_login) {

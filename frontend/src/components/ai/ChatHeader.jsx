@@ -12,6 +12,8 @@ function ChatHeader() {
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('todoc_ai_sessions');
     setIsMenuOpen(false);
     navigate('/login');
   };

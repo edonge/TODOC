@@ -1,8 +1,13 @@
 const STORAGE_KEY = 'todoc_ai_sessions';
 
+function getUserKey() {
+  const userId = localStorage.getItem('user_id');
+  return userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY;
+}
+
 function loadAll() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getUserKey());
     return raw ? JSON.parse(raw) : [];
   } catch (e) {
     console.warn('Failed to load AI sessions', e);
@@ -12,7 +17,7 @@ function loadAll() {
 
 function saveAll(list) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    localStorage.setItem(getUserKey(), JSON.stringify(list));
   } catch (e) {
     console.warn('Failed to save AI sessions', e);
   }

@@ -9,7 +9,8 @@ from app.api import api_router
 from app.llm.service import generate_response
 from app.schemas import ChatRequest, ChatResponse
 from app.core.database import get_db
-from app.models import Kid, ChatSession, ChatMessage
+from app.core.security import get_current_user
+from app.models import Kid, ChatSession, ChatMessage, User
 from app.llm.agent import build_llm
 
 
@@ -55,13 +56,17 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     @app.post("/api/ai/chat", response_model=ChatResponse)
-    async def ai_chat(req: ChatRequest, db: Session = Depends(get_db)):
-        # kid_id가 주어지지 않았거나 잘못된 경우에도 반드시 가장 최근 등록된 아이 정보를 사용
+    async def ai_chat(
+        req: ChatRequest,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+    ):
+        # 반드시 현재 로그인 유저의 아이만 사용
         kid = None
         if req.kid_id:
-            kid = db.query(Kid).get(req.kid_id)
+            kid = db.query(Kid).filter(Kid.id == req.kid_id, Kid.user_id == current_user.id).first()
         if kid is None:
-            kid = db.query(Kid).order_by(Kid.created_at.desc()).first()
+            kid = db.query(Kid).filter(Kid.user_id == current_user.id).order_by(Kid.created_at.desc()).first()
 
         async def _summarize_title(msg: str, mode: str) -> str:
             """LLM으로 주제 한 줄(<=20자) 요약."""
@@ -100,6 +105,7 @@ def create_app() -> FastAPI:
         if session is None:
             title_text = await _summarize_title(req.message, req.mode)
             session = ChatSession(
+                user_id=current_user.id,
                 mode=req.mode,
                 kid_id=(kid.id if kid else req.kid_id),
                 title=title_text,

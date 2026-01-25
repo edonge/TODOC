@@ -5,8 +5,7 @@ import ChatBubble from '../components/ai/ChatBubble';
 import ChatInput from '../components/ai/ChatInput';
 import BottomTabBar from '../components/home/BottomTabBar';
 import { AI_MODES, introMessages } from '../data/aiChats';
-import { sendAiMessage } from '../api/aiClient';
-import { upsertSession, getSession } from '../utils/aiSessionStore';
+import { sendAiMessage, getAiSession } from '../api/aiClient';
 import './AiChatPage.css';
 
 function AiChatPage() {
@@ -23,16 +22,34 @@ function AiChatPage() {
   const [sessionId, setSessionId] = useState(sessionIdParam);
 
   useEffect(() => {
-    if (sessionIdParam) {
-      const saved = getSession(sessionIdParam);
-      if (saved && saved.messages) {
-        setMessages(saved.messages);
-        setSessionId(saved.id);
+    const loadSession = async () => {
+      if (!sessionIdParam) {
+        setMessages([{ id: `intro-${meta.id}`, sender: 'ai', text: introText, background: meta.bubble }]);
+        setSessionId(null);
         return;
       }
-    }
-    setMessages([{ id: `intro-${meta.id}`, sender: 'ai', text: introText, background: meta.bubble }]);
-    setSessionId(sessionIdParam);
+
+      try {
+        const data = await getAiSession(sessionIdParam);
+        const serverMessages = (data?.messages || []).map((msg) => ({
+          id: msg.id,
+          sender: msg.sender,
+          text: msg.content,
+          background: msg.sender === 'ai' ? meta.bubble : undefined,
+        }));
+        setMessages(serverMessages.length > 0
+          ? serverMessages
+          : [{ id: `intro-${meta.id}`, sender: 'ai', text: introText, background: meta.bubble }]
+        );
+        setSessionId(data?.session?.id ?? sessionIdParam);
+      } catch (error) {
+        console.error('채팅 세션 조회 실패:', error);
+        setMessages([{ id: `intro-${meta.id}`, sender: 'ai', text: introText, background: meta.bubble }]);
+        setSessionId(sessionIdParam);
+      }
+    };
+
+    loadSession();
   }, [meta.id, introText, meta.bubble, sessionIdParam]);
 
   const handleSend = async (text) => {
@@ -51,15 +68,6 @@ function AiChatPage() {
       ];
       setMessages(newMessages);
       setSessionId(nextSessionId);
-
-      upsertSession({
-        id: nextSessionId,
-        mode: meta.id,
-        title: res?.title || text.slice(0, 30),
-        question_snippet: res?.question_snippet || text.slice(0, 80),
-        date_label: res?.date_label || '',
-        messages: newMessages,
-      });
     } catch (err) {
       setMessages((prev) => [
         ...prev,
