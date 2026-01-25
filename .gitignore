@@ -3,6 +3,7 @@ node_modules/
 dist/
 build/
 .next/
+.vite/
 
 # Logs
 *.log
@@ -17,6 +18,12 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.python-version
+.tox/
+.nox/
+*.egg-info/
+.dmypy.json
+.pyright/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -33,10 +40,14 @@ coverage/
 .vscode/
 *.swp
 *.swo
+.direnv/
+.envrc
 
 # OS files
 .DS_Store
 Thumbs.db
+.Spotlight-V100
+.Trashes
 
 # Static uploads
 /static/uploads/

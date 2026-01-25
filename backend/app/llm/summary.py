@@ -27,8 +27,16 @@ def _format_record(rec: Record) -> str:
         detail = f"수면 {rec.sleep_record.start_datetime}~{rec.sleep_record.end_datetime} ({rec.sleep_record.sleep_quality.value})"
     elif rec.record_type == RecordTypeEnum.meal and rec.meal_record:
         detail = f"식사 {rec.meal_record.meal_type.value}: {rec.meal_record.meal_detail or ''}"
-    elif rec.record_type == RecordTypeEnum.stool and rec.stool_record:
-        detail = f"배변 {rec.stool_record.amount.value}, 상태 {rec.stool_record.condition.value}, 색 {rec.stool_record.color.value}"
+    elif rec.record_type == RecordTypeEnum.DIAPER and rec.diaper_record:
+        dr = rec.diaper_record
+        parts = [f"배변 ({dr.diaper_type.value})"]
+        if dr.amount:
+            parts.append(f"양: {dr.amount.value}")
+        if dr.condition:
+            parts.append(f"상태: {dr.condition.value}")
+        if dr.color:
+            parts.append(f"색: {dr.color.value}")
+        detail = ", ".join(parts)
     else:
         detail = rec.memo or rec.title or ""
     return f"{base} :: {detail}".strip()
@@ -43,7 +51,7 @@ def _recent_records(db: Session, kid: Kid, days: int = 7, limit: int = 80) -> Li
             joinedload(Record.health_record),
             joinedload(Record.sleep_record),
             joinedload(Record.meal_record),
-            joinedload(Record.stool_record),
+            joinedload(Record.diaper_record),
         )
         .filter(Record.kid_id == kid.id, Record.created_at >= since)
         .order_by(Record.created_at.desc())

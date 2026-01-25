@@ -78,13 +78,19 @@ def create_app() -> FastAPI:
             except Exception:
                 return msg[:32]
 
-        reply = await generate_response(
+        response_data = await generate_response(
             message=req.message,
             mode=req.mode,
             history=req.history,
             kid=kid,
             db=db,
         )
+
+        reply = response_data["output"]
+        tools_called = response_data.get("tools_called", [])
+        rag_used = response_data.get("rag_used", False)
+        kid_info_used = response_data.get("kid_info_used", False)
+
         # 세션/메시지 저장 (없으면 생성)
         from datetime import datetime
 
@@ -114,6 +120,14 @@ def create_app() -> FastAPI:
         db.commit()
         db.refresh(session)
 
+        # RAG 참조 문서 추출 (📚 참고: [문서명] 패턴)
+        import re
+        references = []
+        ref_pattern = r'📚\s*참고:\s*\[([^\]]+)\]'
+        matches = re.findall(ref_pattern, reply)
+        if matches:
+            references = list(set(matches))  # 중복 제거
+
         return {
             "reply": reply,
             "session_id": session.id,
@@ -121,6 +135,15 @@ def create_app() -> FastAPI:
             "date_label": session.date_label or datetime.utcnow().strftime("%m.%d"),
             "title": session.title,
             "question_snippet": session.question_snippet,
+            "kid_id": kid.id if kid else None,
+            "kid_name": kid.name if kid else None,
+            "references": references if references else None,
+            # 디버그 정보 (개발 중에만 사용, 나중에 제거 가능)
+            "_debug": {
+                "tools_called": tools_called,
+                "rag_used": rag_used,
+                "kid_info_used": kid_info_used,
+            }
         }
 
     return app

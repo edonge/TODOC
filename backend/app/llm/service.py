@@ -17,14 +17,67 @@ class DiaryContextBuilder:
         self.kid = kid
         self.db = db
 
+    def _korean_subject(self, name: str) -> str:
+        if not name:
+            return ""
+        last_char = name[-1]
+        code = ord(last_char) - 0xAC00
+        if code < 0 or code > 11171:
+            return f"{name}가"
+        jongseong = code % 28
+        return f"{name}이" if jongseong else f"{name}가"
+
+    def _short_name(self, name: str) -> str:
+        if not name:
+            return ""
+        if len(name) >= 3:
+            return name[1:]
+        return name
+
     def kid_snapshot(self) -> str:
         if not self.kid:
             return "No kid selected."
         gender = "남아" if getattr(self.kid, "gender", "") == "male" else "여아"
-        return f"- 이름: {self.kid.name}\n- 생년월일: {self.kid.birth_date}\n- 성별: {gender}"
+        short_name = self._short_name(self.kid.name)
+        subject_name = self._korean_subject(short_name)
+        return (
+            f"- 이름: {short_name}\n"
+            f"- 호칭: {subject_name}\n"
+            f"- 생년월일: {self.kid.birth_date}\n"
+            f"- 성별: {gender}"
+        )
 
     def _describe(self, record: Record) -> str:
-        return f"{record.created_at} [{record.record_type.value}] :: {record.memo or record.title or ''}"
+        """기록을 문자열로 변환"""
+        detail = record.memo or ""
+
+        # 타입별 상세 정보 추가
+        if record.sleep_record:
+            sr = record.sleep_record
+            detail = f"수면 {sr.duration_hours}시간"
+        elif record.meal_record:
+            mr = record.meal_record
+            detail = f"식사 {mr.meal_type.value}"
+            if mr.amount_ml:
+                detail += f" {mr.amount_ml}ml"
+        elif record.diaper_record:
+            dr = record.diaper_record
+            detail = f"배변 ({dr.diaper_type.value})"
+        elif record.health_record:
+            hr = record.health_record
+            detail = f"건강 {hr.title}"
+        elif record.growth_record:
+            gr = record.growth_record
+            parts = []
+            if gr.height_cm:
+                parts.append(f"키 {gr.height_cm}cm")
+            if gr.weight_kg:
+                parts.append(f"몸무게 {gr.weight_kg}kg")
+            detail = "성장 " + ", ".join(parts) if parts else "성장 기록"
+        elif record.etc_record:
+            detail = f"기타: {record.etc_record.title}"
+
+        return f"{record.created_at:%Y-%m-%d %H:%M} [{record.record_type.value}] {detail}"
 
     def latest_record(self) -> str:
         if not (self.db and self.kid):
@@ -36,7 +89,7 @@ class DiaryContextBuilder:
                 joinedload(Record.health_record),
                 joinedload(Record.sleep_record),
                 joinedload(Record.meal_record),
-                joinedload(Record.stool_record),
+                joinedload(Record.diaper_record),
             )
             .filter(Record.kid_id == self.kid.id)
             .order_by(Record.created_at.desc())
@@ -66,19 +119,67 @@ async def generate_response(
     history: List[dict],
     kid: Optional[Kid] = None,
     db: Optional[Session] = None,
-) -> str:
+) -> dict:
+    """
+    AI 응답 생성
+    Returns:
+        dict: {
+            "output": str,  # AI 응답
+            "tools_called": List[str],  # 호출된 도구 목록
+            "rag_used": bool,  # RAG 검색 여부
+            "kid_info_used": bool,  # 아이 정보 사용 여부
+        }
+    """
     diary = DiaryContextBuilder(kid, db)
     tools = [build_rag_tool(mode), *build_diary_tools(diary)]
     if mode == "nutrition":
         tools.append(build_web_tool())
 
+    kid_snapshot = diary.kid_snapshot()
+
     executor, chat_history = build_agent(
         mode=mode,
         tools=tools,
-        kid_snapshot=diary.kid_snapshot(),
+        kid_snapshot=kid_snapshot,
         latest_record=diary.latest_record(),
         recent_digest=diary.recent_digest(),
         history=history,
     )
     result = await executor.ainvoke({"input": message, "chat_history": chat_history})
-    return result.get("output") if isinstance(result, dict) else str(result)
+
+    # 도구 호출 내역 분석
+    tools_called = []
+    rag_used = False
+
+    if "intermediate_steps" in result:
+        for step in result["intermediate_steps"]:
+            if len(step) >= 1:
+                action = step[0]
+                tool_name = getattr(action, 'tool', None)
+                if tool_name:
+                    tools_called.append(tool_name)
+                    if tool_name == "rag_search":
+                        rag_used = True
+
+    # 아이 정보 사용 여부 (시스템 프롬프트에 포함됨)
+    kid_info_used = kid is not None and "No kid selected" not in kid_snapshot
+
+    output = result.get("output") if isinstance(result, dict) else str(result)
+    if rag_used and "문서 기반" not in output:
+        output = f"{output}\n\n이 답변은 신뢰도 있는 문서 기반으로 생성되었어요!"
+
+    # 콘솔 로그 (디버깅용)
+    print(f"\n{'='*50}")
+    print(f"[AI Chat Debug]")
+    print(f"Mode: {mode}")
+    print(f"Kid info used: {kid_info_used}")
+    print(f"Tools called: {tools_called}")
+    print(f"RAG used: {rag_used}")
+    print(f"{'='*50}\n")
+
+    return {
+        "output": output,
+        "tools_called": tools_called,
+        "rag_used": rag_used,
+        "kid_info_used": kid_info_used,
+    }
