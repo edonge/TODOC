@@ -368,6 +368,13 @@ def _comment_to_response(comment, current_user: Optional[User], db: Session) -> 
     if comment.replies:
         replies = [_comment_to_response(r, current_user, db) for r in comment.replies]
 
+    # 댓글 작성자의 첫 번째 아이 이름 가져오기
+    kid_name = None
+    if comment.user:
+        kids = kid_crud.get_kids_by_user(db, comment.user_id)
+        if kids:
+            kid_name = kids[0].name
+
     return CommentResponse(
         id=comment.id,
         post_id=comment.post_id,
@@ -377,6 +384,7 @@ def _comment_to_response(comment, current_user: Optional[User], db: Session) -> 
         created_at=comment.created_at,
         updated_at=comment.updated_at,
         author=_user_to_brief_response(comment.user) if comment.user else None,
+        kid_name=kid_name,
         replies=replies,
         likes_count=comment.likes_count,
         is_liked=is_liked

@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { getComments, createComment, deleteComment, togglePostLike } from '../../api/communityClient';
+import { formatMomName } from '../../data/communityData';
 import todocCharacter from '../../assets/characters/todoc_character.png';
 import './PostDetailModal.css';
 
-function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUpdate, currentUserId }) {
+function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUpdate, onCommentCountUpdate, currentUserId }) {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
@@ -83,6 +84,10 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
       const newComment = await createComment(post.id, commentText.trim());
       setComments(prev => [...prev, newComment]);
       setCommentText('');
+      // 부모 컴포넌트에 댓글 수 변경 알림
+      if (onCommentCountUpdate) {
+        onCommentCountUpdate(post.id, comments.length + 1);
+      }
     } catch (error) {
       console.error('댓글 작성 실패:', error);
       if (error.message.includes('401')) {
@@ -101,7 +106,12 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
 
     try {
       await deleteComment(commentId);
-      setComments(prev => prev.filter(c => c.id !== commentId));
+      const newComments = comments.filter(c => c.id !== commentId);
+      setComments(newComments);
+      // 부모 컴포넌트에 댓글 수 변경 알림
+      if (onCommentCountUpdate) {
+        onCommentCountUpdate(post.id, newComments.length);
+      }
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
       alert('댓글 삭제에 실패했습니다.');
@@ -191,7 +201,9 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
                   />
                   <div className="comment-body">
                     <div className="comment-header">
-                      <span className="comment-author">{comment.author?.nickname || '익명'}</span>
+                      <span className="comment-author">
+                        {formatMomName(comment.kid_name) || comment.author?.nickname || '익명'}
+                      </span>
                       <span className="comment-date">{formatCommentTime(comment.created_at)}</span>
                       {currentUserId && comment.user_id === currentUserId && (
                         <button

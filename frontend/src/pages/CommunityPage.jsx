@@ -271,6 +271,19 @@ function CommunityPage() {
     }
   };
 
+  // 모달에서 댓글 수 업데이트 시 목록에도 반영
+  const handleCommentCountUpdate = (postId, newCount) => {
+    setPosts(prev => prev.map(post =>
+      post.id === postId
+        ? { ...post, commentCount: newCount }
+        : post
+    ));
+    // 선택된 게시물도 업데이트
+    if (selectedPost && selectedPost.id === postId) {
+      setSelectedPost(prev => ({ ...prev, commentCount: newCount }));
+    }
+  };
+
   return (
     <div className="community-page">
       {/* 카테고리 탭 */}
@@ -367,6 +380,7 @@ function CommunityPage() {
           formatTimeAgo={formatTimeAgo}
           onClose={() => setSelectedPost(null)}
           onLikeUpdate={handleModalLikeUpdate}
+          onCommentCountUpdate={handleCommentCountUpdate}
           currentUserId={currentUserId}
         />
       )}

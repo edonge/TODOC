@@ -135,6 +135,7 @@ class CommentResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     author: Optional[UserBriefResponse] = None
+    kid_name: Optional[str] = Field(None, description="아이 이름 (댓글 작성자 표시용)")
     replies: Optional[List["CommentResponse"]] = Field(None, description="대댓글 목록")
     likes_count: int = 0
     is_liked: bool = False
