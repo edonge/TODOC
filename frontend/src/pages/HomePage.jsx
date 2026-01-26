@@ -16,15 +16,18 @@ function HomePage() {
   const [popularPost, setPopularPost] = useState(null);
 
   useEffect(() => {
-    // localStorage에서 아이 정보 가져오기 (온보딩에서 저장한 정보)
-    const savedName = localStorage.getItem('childName');
-    const savedBirthday = localStorage.getItem('childBirthday');
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      // localStorage에서 아이 정보 가져오기 (온보딩에서 저장한 정보)
+      const savedName = localStorage.getItem('childName');
+      const savedBirthday = localStorage.getItem('childBirthday');
 
-    if (savedName) {
-      setChildData({
-        name: savedName,
-        birthday: savedBirthday ? new Date(savedBirthday) : null,
-      });
+      if (savedName) {
+        setChildData({
+          name: savedName,
+          birthday: savedBirthday ? new Date(savedBirthday) : null,
+        });
+      }
     }
 
     // API에서 홈 데이터 가져오기 (DB에 등록된 아이 정보 및 최근 기록)
