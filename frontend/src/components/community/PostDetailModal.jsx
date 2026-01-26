@@ -6,6 +6,7 @@ import './PostDetailModal.css';
 
 function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUpdate, onCommentCountUpdate, currentUserId }) {
   const [comments, setComments] = useState([]);
+  const [commentCount, setCommentCount] = useState(post.commentCount);
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -22,6 +23,11 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
       try {
         const data = await getComments(post.id);
         setComments(data.comments || []);
+        setCommentCount(data.total || 0);
+        // 실제 댓글 수로 부모 컴포넌트 업데이트
+        if (onCommentCountUpdate && data.total !== post.commentCount) {
+          onCommentCountUpdate(post.id, data.total);
+        }
       } catch (error) {
         console.error('댓글 조회 실패:', error);
       } finally {
@@ -84,9 +90,11 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
       const newComment = await createComment(post.id, commentText.trim());
       setComments(prev => [...prev, newComment]);
       setCommentText('');
+      const newCount = commentCount + 1;
+      setCommentCount(newCount);
       // 부모 컴포넌트에 댓글 수 변경 알림
       if (onCommentCountUpdate) {
-        onCommentCountUpdate(post.id, comments.length + 1);
+        onCommentCountUpdate(post.id, newCount);
       }
     } catch (error) {
       console.error('댓글 작성 실패:', error);
@@ -108,9 +116,11 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
       await deleteComment(commentId);
       const newComments = comments.filter(c => c.id !== commentId);
       setComments(newComments);
+      const newCount = commentCount - 1;
+      setCommentCount(newCount);
       // 부모 컴포넌트에 댓글 수 변경 알림
       if (onCommentCountUpdate) {
-        onCommentCountUpdate(post.id, newComments.length);
+        onCommentCountUpdate(post.id, newCount);
       }
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
@@ -177,14 +187,14 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="#AAAAAA" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              {comments.length}
+              {commentCount}
             </span>
           </div>
         </div>
 
         {/* 댓글 영역 */}
         <div className="post-detail-comments">
-          <h3 className="comments-title">댓글 {comments.length}개</h3>
+          <h3 className="comments-title">댓글 {commentCount}개</h3>
 
           {loading ? (
             <div className="comments-loading">댓글을 불러오는 중...</div>
