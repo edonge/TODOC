@@ -14,6 +14,7 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const modalRef = useRef(null);
   const inputRef = useRef(null);
+  const commentsRef = useRef(null);
 
   const avatarSrc = post.authorImage || todocCharacter;
 
@@ -55,6 +56,11 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
       document.body.style.overflow = 'unset';
     };
   }, []);
+
+  useEffect(() => {
+    if (!commentsRef.current) return;
+    commentsRef.current.scrollTop = 0;
+  }, [loading, comments.length]);
 
   // 배경 클릭 시 모달 닫기
   const handleBackdropClick = (e) => {
@@ -151,7 +157,7 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
             <img
               src={avatarSrc}
               alt="프로필"
-              className={`post-detail-avatar ${post.authorImage ? '' : 'post-detail-avatar-gray'}`}
+              className="post-detail-avatar"
             />
             <div className="post-detail-info">
               <span className="post-detail-author">{post.author}</span>
@@ -193,7 +199,7 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
         </div>
 
         {/* 댓글 영역 */}
-        <div className="post-detail-comments">
+        <div className="post-detail-comments" ref={commentsRef}>
           <h3 className="comments-title">댓글 {commentCount}개</h3>
 
           {loading ? (
@@ -202,12 +208,12 @@ function PostDetailModal({ post, categoryColor, formatTimeAgo, onClose, onLikeUp
             <div className="comments-empty">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>
           ) : (
             <div className="comments-list">
-              {comments.map((comment) => (
+              {[...comments].reverse().map((comment) => (
                 <div key={comment.id} className="comment-item">
                   <img
                     src={comment.author?.profile_image_url || todocCharacter}
                     alt="프로필"
-                    className={`comment-avatar ${comment.author?.profile_image_url ? '' : 'comment-avatar-gray'}`}
+                    className="comment-avatar"
                   />
                   <div className="comment-body">
                     <div className="comment-header">

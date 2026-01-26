@@ -78,7 +78,7 @@ function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle, isOwn, onE
           <img
             src={avatarSrc}
             alt="프로필"
-            className={`post-card-avatar ${post.authorImage ? '' : 'post-card-avatar-gray'}`}
+            className="post-card-avatar"
           />
           <div className="post-card-info">
             <span className="post-card-author">{post.author}</span>
