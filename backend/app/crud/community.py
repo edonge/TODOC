@@ -161,6 +161,12 @@ def is_post_liked_by_user(db: Session, post_id: int, user_id: int) -> bool:
 # =============================================================================
 # Comment CRUD
 # =============================================================================
+def get_comment_count(db: Session, post_id: int) -> int:
+    """게시글의 실제 댓글 수 조회"""
+    count_stmt = select(func.count(Comment.id)).where(Comment.post_id == post_id)
+    return db.execute(count_stmt).scalar() or 0
+
+
 def get_comment(db: Session, comment_id: int) -> Optional[Comment]:
     """댓글 조회 (ID)"""
     return db.get(Comment, comment_id)

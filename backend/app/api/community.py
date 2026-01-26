@@ -316,6 +316,9 @@ def _post_to_response(post, current_user: Optional[User], db: Session) -> PostRe
         kid_name = post.kid.name
         kid_image_url = post.kid.profile_image_url
 
+    # 실제 댓글 수 조회 (DB 캐시값 대신)
+    actual_comment_count = community_crud.get_comment_count(db, post.id)
+
     return PostResponse(
         id=post.id,
         user_id=post.user_id,
@@ -327,7 +330,7 @@ def _post_to_response(post, current_user: Optional[User], db: Session) -> PostRe
         created_at=post.created_at,
         updated_at=post.updated_at,
         likes_count=post.likes_count,
-        comment_count=post.comment_count,
+        comment_count=actual_comment_count,
         is_liked=is_liked,
         author=_user_to_brief_response(post.user) if post.user else None,
         kid_name=kid_name,
@@ -344,6 +347,9 @@ def _post_to_brief_response(post, current_user: Optional[User], db: Session) -> 
         kid_name = post.kid.name
         kid_image_url = post.kid.profile_image_url
 
+    # 실제 댓글 수 조회 (DB 캐시값 대신)
+    actual_comment_count = community_crud.get_comment_count(db, post.id)
+
     return PostBriefResponse(
         id=post.id,
         category=post.category,
@@ -351,7 +357,7 @@ def _post_to_brief_response(post, current_user: Optional[User], db: Session) -> 
         content=content_preview,
         created_at=post.created_at,
         likes_count=post.likes_count,
-        comment_count=post.comment_count,
+        comment_count=actual_comment_count,
         author=_user_to_brief_response(post.user) if post.user else None,
         kid_name=kid_name,
         kid_image_url=kid_image_url
