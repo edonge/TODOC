@@ -76,3 +76,27 @@ def get_session(
             for m in messages
         ],
     }
+
+
+@router.delete("/sessions/{session_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_session(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """채팅 세션 삭제 (해당 세션의 모든 메시지도 함께 삭제)"""
+    session = (
+        db.query(ChatSession)
+        .filter(ChatSession.id == session_id, ChatSession.user_id == current_user.id)
+        .first()
+    )
+    if not session:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="세션을 찾을 수 없습니다")
+
+    # 메시지 먼저 삭제
+    db.query(ChatMessage).filter(ChatMessage.session_id == session_id).delete()
+    # 세션 삭제
+    db.delete(session)
+    db.commit()
+
+    return None

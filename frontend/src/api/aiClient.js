@@ -45,3 +45,15 @@ export async function getAiSession(sessionId) {
   }
   return res.json();
 }
+
+export async function deleteAiSession(sessionId) {
+  const res = await apiFetch(`/api/ai/sessions/${sessionId}`, {
+    method: 'DELETE',
+    headers: { ...getAuthHeaders() },
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || '세션 삭제 실패');
+  }
+  return true;
+}

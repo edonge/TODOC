@@ -3,33 +3,53 @@ import todocCharacter from '../../assets/characters/todoc_character.png';
 import moreIcon from '../../assets/icons/more.png';
 import './PostCard.css';
 
-function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle, isOwn, onEdit, onDelete }) {
+function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle, isOwn, onEdit, onDelete, onCardClick }) {
   const avatarSrc = post.authorImage || todocCharacter;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const handleLikeClick = () => {
+  const handleLikeClick = (e) => {
+    e.stopPropagation();
     if (onLikeToggle) {
       onLikeToggle(post.id);
     }
   };
 
-  const handleCommentClick = () => {
-    alert('준비중입니다');
+  const handleCommentClick = (e) => {
+    e.stopPropagation();
+    if (onCardClick) {
+      onCardClick(post);
+    }
   };
 
-  const handleMenuToggle = () => {
+  const handleCardClick = () => {
+    if (onCardClick) {
+      onCardClick(post);
+    }
+  };
+
+  const handleMoreClick = (e) => {
+    e.stopPropagation();
+    if (onCardClick) {
+      onCardClick(post);
+    }
+  };
+
+  const handleMenuToggle = (e) => {
+    e.stopPropagation();
     setIsMenuOpen((prev) => !prev);
   };
 
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    e.stopPropagation();
     if (onEdit) {
       onEdit();
     }
     setIsMenuOpen(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (e) => {
+    e.stopPropagation();
     if (onDelete) {
       onDelete();
     }
@@ -51,6 +71,7 @@ function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle, isOwn, onE
     <div
       className="post-card-stack"
       style={{ '--category-color': categoryColor }}
+      onClick={handleCardClick}
     >
       <article className="post-card">
         <div className="post-card-header">
@@ -98,7 +119,13 @@ function PostCard({ post, categoryColor, formatTimeAgo, onLikeToggle, isOwn, onE
               ? `${post.content.slice(0, 60)}...`
               : post.content}
             {post.content.length > 60 && (
-              <span className="post-card-more">더보기</span>
+              <button
+                type="button"
+                className="post-card-more"
+                onClick={handleMoreClick}
+              >
+                더보기
+              </button>
             )}
           </p>
         </div>

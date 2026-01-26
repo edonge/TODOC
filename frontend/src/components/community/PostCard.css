@@ -1,6 +1,16 @@
 .post-card-stack {
   position: relative;
   margin-bottom: 0;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.post-card-stack:hover {
+  transform: translateY(-2px);
+}
+
+.post-card-stack:active {
+  transform: scale(0.98);
 }
 
 .post-card-stack::before {
@@ -143,6 +153,16 @@
   color: #8F8F8F;
   font-weight: 600;
   margin-left: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.post-card-more:hover {
+  color: #666666;
+  text-decoration: underline;
 }
 
 .post-card-stats {

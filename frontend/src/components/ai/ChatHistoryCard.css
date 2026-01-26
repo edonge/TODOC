@@ -11,6 +11,13 @@
   transform: scale(0.98);
 }
 
+/* 메뉴 열렸을 때 카드 애니메이션 비활성화 */
+.chat-history-card-wrapper.menu-active,
+.chat-history-card-wrapper.menu-active:hover,
+.chat-history-card-wrapper.menu-active:active {
+  transform: none;
+}
+
 /* CardStack 높이 오버라이드 */
 .chat-history-card-stack .card-stack-content {
   height: auto;
@@ -83,4 +90,64 @@
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* 상단 액션 영역 */
+.chat-history-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 더보기 버튼 */
+.chat-history-menu-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.chat-history-menu-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.chat-history-menu-icon {
+  width: 16px;
+  height: 4px;
+  display: block;
+}
+
+/* 드롭다운 메뉴 */
+.chat-history-menu-dropdown {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  min-width: 100px;
+}
+
+.chat-history-menu-dropdown button {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.chat-history-menu-dropdown button:hover {
+  background-color: #f5f5f5;
+}
+
+.chat-history-menu-dropdown button:active {
+  background-color: #eee;
 }

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import ChatHeader from '../components/ai/ChatHeader';
 import ModeCard from '../components/ai/ModeCard';
 import BottomTabBar from '../components/home/BottomTabBar';
@@ -7,9 +8,8 @@ import doctorImg from '../assets/WJ/DoctorAI.png';
 import nutritionImg from '../assets/WJ/NutrientAI.png';
 import { AI_MODES } from '../data/aiChats';
 import ChatHistoryCard from '../components/ai/ChatHistoryCard';
-import { listAiSessions } from '../api/aiClient';
+import { listAiSessions, deleteAiSession } from '../api/aiClient';
 import './AiHomePage.css';
-import { useEffect, useState } from 'react';
 
 function AiHomePage() {
   const navigate = useNavigate();
@@ -39,6 +39,18 @@ function AiHomePage() {
 
     fetchSessions();
   }, []);
+
+  const handleDeleteSession = async (session) => {
+    if (!window.confirm('이 대화를 삭제할까요?')) return;
+
+    try {
+      await deleteAiSession(session.id);
+      setSessions((prev) => prev.filter((s) => s.id !== session.id));
+    } catch (error) {
+      console.error('채팅 삭제 실패:', error);
+      alert('삭제에 실패했어요. 다시 시도해주세요.');
+    }
+  };
 
   return (
     <div className="ai-home-page">
@@ -77,6 +89,7 @@ function AiHomePage() {
                 key={session.id}
                 session={session}
                 onClick={() => navigate(`/ai/${session.mode}?session=${session.id}`)}
+                onDelete={handleDeleteSession}
               />
             ))}
           </div>

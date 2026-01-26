@@ -3,6 +3,7 @@ import { apiFetch } from '../api/base';
 import { categories, categoryColors, formatTimeAgo, categoryToEnum, enumToCategory, formatMomName } from '../data/communityData';
 import PostCard from '../components/community/PostCard';
 import WritePostModal from '../components/community/WritePostModal';
+import PostDetailModal from '../components/community/PostDetailModal';
 import BottomTabBar from '../components/home/BottomTabBar';
 import './CommunityPage.css';
 
@@ -12,6 +13,7 @@ function CommunityPage() {
   const [sortBy, setSortBy] = useState('인기순');
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
@@ -256,6 +258,19 @@ function CommunityPage() {
     }
   };
 
+  // 모달에서 좋아요 업데이트 시 목록에도 반영
+  const handleModalLikeUpdate = (postId, isLiked, likesCount) => {
+    setPosts(prev => prev.map(post =>
+      post.id === postId
+        ? { ...post, isLiked, likeCount: likesCount }
+        : post
+    ));
+    // 선택된 게시물도 업데이트
+    if (selectedPost && selectedPost.id === postId) {
+      setSelectedPost(prev => ({ ...prev, isLiked, likeCount: likesCount }));
+    }
+  };
+
   return (
     <div className="community-page">
       {/* 카테고리 탭 */}
@@ -310,6 +325,7 @@ function CommunityPage() {
               isOwn={Boolean(currentUserId && post.authorId === currentUserId)}
               onEdit={() => setEditingPost(post)}
               onDelete={() => handleDeletePost(post.id)}
+              onCardClick={(p) => setSelectedPost(p)}
             />
           ))
         )}
@@ -340,6 +356,18 @@ function CommunityPage() {
           initialContent={editingPost?.content}
           headerTitle={editingPost ? '글 수정하기' : '글 작성하기'}
           submitLabel={editingPost ? '글 수정하기' : '글 추가하기'}
+        />
+      )}
+
+      {/* 게시글 상세 모달 */}
+      {selectedPost && (
+        <PostDetailModal
+          post={selectedPost}
+          categoryColor={categoryColors[selectedPost.category]}
+          formatTimeAgo={formatTimeAgo}
+          onClose={() => setSelectedPost(null)}
+          onLikeUpdate={handleModalLikeUpdate}
+          currentUserId={currentUserId}
         />
       )}
 
