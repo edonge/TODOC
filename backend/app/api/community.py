@@ -341,6 +341,9 @@ def _post_to_response(post, current_user: Optional[User], db: Session) -> PostRe
 def _post_to_brief_response(post, current_user: Optional[User], db: Session) -> PostBriefResponse:
     """Post를 간략 응답으로 변환"""
     content_preview = post.content[:100] + "..." if len(post.content) > 100 else post.content
+    is_liked = False
+    if current_user:
+        is_liked = community_crud.is_post_liked_by_user(db, post.id, current_user.id)
     kid_name = None
     kid_image_url = None
     if post.kid:
@@ -358,6 +361,7 @@ def _post_to_brief_response(post, current_user: Optional[User], db: Session) -> 
         created_at=post.created_at,
         likes_count=post.likes_count,
         comment_count=actual_comment_count,
+        is_liked=is_liked,
         author=_user_to_brief_response(post.user) if post.user else None,
         kid_name=kid_name,
         kid_image_url=kid_image_url
