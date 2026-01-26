@@ -228,6 +228,19 @@ def _is_growth_compare_question(message: str) -> bool:
     return any(k in message for k in keywords)
 
 
+def _strip_source_footer(text: str) -> str:
+    if not text:
+        return text
+    lines = text.splitlines()
+    filtered = []
+    for line in lines:
+        trimmed = line.strip()
+        if trimmed.startswith("📚 참고") or trimmed.startswith("참고:"):
+            continue
+        filtered.append(line)
+    return "\n".join(filtered).strip()
+
+
 async def _classify_question(message: str, mode: str) -> dict:
     if not message:
         return {"decision": "ambiguous", "target": mode, "reason": "empty message"}
@@ -380,6 +393,7 @@ async def generate_response(
     kid_info_used = kid is not None and "No kid selected" not in kid_snapshot
 
     output = result.get("output") if isinstance(result, dict) else str(result)
+    output = _strip_source_footer(output)
     if rag_used and "문서 기반" not in output:
         output = f"{output}\n\n이 답변은 신뢰도 있는 문서 기반으로 생성되었어요!"
     if decision == "ambiguous" and target and target != mode:
