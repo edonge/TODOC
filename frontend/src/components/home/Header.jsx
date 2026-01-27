@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 function Header({ title = '홈' }) {
-  const dateLabel = '01.26 월요일';
+  const dateLabel = '01.27 월요일';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ function Header({ title = '홈' }) {
         <div className="header-date-badge">
           <span className="date-text">{dateLabel}</span>
           <span className="weather-icon">☀️</span>
-          <span className="weather-temp">-1°</span>
+          <span className="weather-temp">-7°</span>
         </div>
 
         <div className="header-menu-wrapper" ref={menuRef}>
