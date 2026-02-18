@@ -2,7 +2,7 @@ import json
 import logging
 import re
 from datetime import date, datetime
-from typing import Any, Dict
+from typing import Any, Dict, List, Union
 
 from app.stt.models import llm_extract, load_models, transcribe
 from app.stt.prompt import RECORD_EXTRACTION_PROMPT
@@ -24,14 +24,24 @@ VALID_ENUMS = {
 }
 
 
-def _parse_json(raw: str) -> Dict[str, Any]:
-    """Extract JSON object from LLM output, handling markdown fences."""
+def _parse_json(raw: str) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    """Extract JSON object or array from LLM output, handling markdown fences."""
     cleaned = re.sub(r"```(?:json)?\s*", "", raw).strip()
     cleaned = re.sub(r"```\s*$", "", cleaned).strip()
+
+    # Try array first
+    arr_start = cleaned.find("[")
+    arr_end = cleaned.rfind("]")
+    if arr_start != -1 and arr_end != -1 and arr_start < cleaned.find("{"):
+        parsed = json.loads(cleaned[arr_start : arr_end + 1])
+        if isinstance(parsed, list) and len(parsed) > 0:
+            return parsed
+
+    # Fall back to single object
     start = cleaned.find("{")
     end = cleaned.rfind("}")
     if start == -1 or end == -1:
-        raise ValueError(f"No JSON object found in LLM output: {raw[:200]}")
+        raise ValueError(f"No JSON found in LLM output: {raw[:200]}")
     return json.loads(cleaned[start : end + 1])
 
 
@@ -134,7 +144,7 @@ def validate_record_data(data: Dict[str, Any]) -> Dict[str, Any]:
 async def process_speech_to_record(
     audio_bytes: bytes, audio_suffix: str = ".webm"
 ) -> Dict[str, Any]:
-    """Full pipeline: audio → transcript → structured JSON. No DB save."""
+    """Full pipeline: audio → transcript → structured JSON(s). No DB save."""
     # Step 0: Ensure models are loaded (lazy — first request only)
     load_models()
 
@@ -155,25 +165,33 @@ async def process_speech_to_record(
     logger.info("Step 2: Extracting structured data via LLM...")
     raw_output = llm_extract(prompt, transcript)
 
-    # Step 4: Parse JSON
+    # Step 4: Parse JSON (single object or array)
     logger.info("Step 3: Parsing JSON output...")
     try:
-        data = _parse_json(raw_output)
+        parsed = _parse_json(raw_output)
     except (ValueError, json.JSONDecodeError) as e:
         logger.warning(f"JSON parsing failed: {e}, falling back to etc record")
-        data = {
+        parsed = {
             "record_type": "etc",
             "record_date": now.strftime("%Y-%m-%d"),
             "title": transcript[:200],
             "memo": f"(음성 인식 원문) {transcript}",
         }
 
-    # Step 5: Validate
-    logger.info("Step 4: Validating extracted data...")
-    data = validate_record_data(data)
+    # Normalize to list
+    items = parsed if isinstance(parsed, list) else [parsed]
+
+    # Step 5: Validate each record
+    logger.info(f"Step 4: Validating {len(items)} record(s)...")
+    records = []
+    for item in items:
+        validated = validate_record_data(item)
+        records.append({
+            "record_type": validated["record_type"],
+            "record_data": validated,
+        })
 
     return {
         "transcript": transcript,
-        "record_type": data["record_type"],
-        "record_data": data,
+        "records": records,
     }

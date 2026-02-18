@@ -61,6 +61,5 @@ async def transcribe_speech(
 
     return {
         "transcript": result["transcript"],
-        "record_type": result["record_type"],
-        "record_data": result["record_data"],
+        "records": result["records"],
     }

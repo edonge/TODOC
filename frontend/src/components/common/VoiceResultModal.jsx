@@ -95,8 +95,10 @@ const DISPLAY_FIELDS = {
 };
 
 function VoiceResultModal({ data, kidId, onSaved, onClose }) {
-  const { transcript, record_type, record_data } = data;
+  const { transcript, records } = data;
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [savedCount, setSavedCount] = useState(0);
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -106,12 +108,17 @@ function VoiceResultModal({ data, kidId, onSaved, onClose }) {
     };
   }, []);
 
+  const current = records[currentIndex];
+  const record_type = current.record_type;
+  const record_data = current.record_data;
+  const isLast = currentIndex >= records.length - 1;
+  const totalCount = records.length;
+
   const handleSave = async () => {
     setSaving(true);
     try {
       const token = localStorage.getItem('access_token');
 
-      // Build request body: exclude record_type and unknown internal fields
       const body = { ...record_data };
       delete body.record_type;
 
@@ -129,12 +136,31 @@ function VoiceResultModal({ data, kidId, onSaved, onClose }) {
         throw new Error(err.detail || '기록 저장에 실패했습니다.');
       }
 
-      onSaved();
+      const newSavedCount = savedCount + 1;
+      setSavedCount(newSavedCount);
+
+      if (isLast) {
+        onSaved();
+      } else {
+        setCurrentIndex(currentIndex + 1);
+      }
     } catch (err) {
       console.error('Record save failed:', err);
       alert(err.message || '기록 저장 중 오류가 발생했습니다.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSkip = () => {
+    if (isLast) {
+      if (savedCount > 0) {
+        onSaved();
+      } else {
+        onClose();
+      }
+    } else {
+      setCurrentIndex(currentIndex + 1);
     }
   };
 
@@ -153,7 +179,9 @@ function VoiceResultModal({ data, kidId, onSaved, onClose }) {
           >
             {RECORD_TYPE_LABELS[record_type] || '기타'}
           </span>
-          <h3 className="voice-result-title">음성 기록 확인</h3>
+          <h3 className="voice-result-title">
+            음성 기록 확인{totalCount > 1 ? ` (${currentIndex + 1}/${totalCount})` : ''}
+          </h3>
         </div>
 
         <div className="voice-result-transcript">
@@ -179,17 +207,17 @@ function VoiceResultModal({ data, kidId, onSaved, onClose }) {
         <div className="voice-result-actions">
           <button
             className="voice-result-btn voice-result-btn--cancel"
-            onClick={onClose}
+            onClick={handleSkip}
             disabled={saving}
           >
-            취소
+            {totalCount > 1 && !isLast ? '건너뛰기' : '취소'}
           </button>
           <button
             className="voice-result-btn voice-result-btn--save"
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? '저장 중...' : '저장'}
+            {saving ? '저장 중...' : isLast ? '저장' : '저장 후 다음'}
           </button>
         </div>
       </div>
