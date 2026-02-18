@@ -1,19 +1,25 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../api/base';
 import HeroSection from '../components/home/HeroSection';
 import BabyCard from '../components/home/BabyCard';
 import InsightCard from '../components/home/InsightCard';
 import CommunityPreview from '../components/home/CommunityPreview';
+import VoiceRecordButton from '../components/common/VoiceRecordButton';
+import VoiceResultModal from '../components/common/VoiceResultModal';
 import BottomTabBar from '../components/home/BottomTabBar';
 import './HomePage.css';
 
 function HomePage() {
+  const navigate = useNavigate();
   const [childData, setChildData] = useState({
     name: '',
     birthday: null,
   });
+  const [kidId, setKidId] = useState(null);
   const [recentRecord, setRecentRecord] = useState(null);
   const [popularPost, setPopularPost] = useState(null);
+  const [voiceResult, setVoiceResult] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -52,6 +58,7 @@ function HomePage() {
 
         // DB에 등록된 아이 정보가 있으면 사용
         if (data.kid) {
+          setKidId(data.kid.id);
           setChildData({
             name: data.kid.name,
             birthday: data.kid.birthday ? new Date(data.kid.birthday) : null,
@@ -127,10 +134,26 @@ function HomePage() {
     <div className="home-container">
       <div className="home-content">
         <HeroSection childName={callName} />
+        {kidId && (
+          <VoiceRecordButton kidId={kidId} onResult={setVoiceResult} inline />
+        )}
         <BabyCard childData={childData} recentRecord={recentRecord} />
         <InsightCard />
         <CommunityPreview popularPost={popularPost} />
       </div>
+
+      {voiceResult && (
+        <VoiceResultModal
+          data={voiceResult}
+          kidId={kidId}
+          onSaved={() => {
+            setVoiceResult(null);
+            navigate('/record', { state: { refresh: Date.now() } });
+          }}
+          onClose={() => setVoiceResult(null)}
+        />
+      )}
+
       <BottomTabBar activeTab="홈" />
     </div>
   );

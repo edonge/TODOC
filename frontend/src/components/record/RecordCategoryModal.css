@@ -40,6 +40,12 @@
   gap: 12px;
 }
 
+.record-modal-voice-area {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
 .record-modal-item {
   display: flex;
   align-items: center;

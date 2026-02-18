@@ -1,0 +1,168 @@
+.voice-record-wrapper {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Inline mode — large centered button in page flow */
+.voice-record-wrapper--inline {
+  position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 58px 0;
+}
+
+.voice-record-wrapper--inline .voice-record-btn {
+  width: 140px;
+  height: 140px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.voice-record-wrapper--inline .voice-record-btn svg {
+  width: 56px;
+  height: 56px;
+}
+
+.voice-record-wrapper--inline .voice-record-spinner {
+  width: 48px;
+  height: 48px;
+}
+
+.voice-record-wrapper--inline .voice-record-timer {
+  font-size: 14px;
+  padding: 4px 12px;
+}
+
+.voice-record-wrapper--inline .voice-record-label {
+  font-size: 13px;
+  padding: 4px 12px;
+}
+
+/* Modal mode — place below category grid with compact size */
+.voice-record-wrapper--modal {
+  position: static;
+  padding: 8px 0 0 0;
+}
+
+.voice-record-wrapper--modal .voice-record-btn {
+  width: 56px;
+  height: 56px;
+  box-shadow: 0 10px 22px rgba(50, 44, 78, 0.28), 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+.voice-record-wrapper--modal .voice-record-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.voice-record-wrapper--modal .voice-record-spinner {
+  width: 22px;
+  height: 22px;
+}
+
+.voice-record-wrapper--modal .voice-record-timer,
+.voice-record-wrapper--modal .voice-record-label {
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.voice-record-timer {
+  font-size: 12px;
+  font-weight: 700;
+  color: #E53935;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2px 8px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.voice-record-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5C5C5C;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2px 8px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.voice-record-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.voice-record-btn:active {
+  transform: scale(0.95);
+}
+
+.voice-record-btn:disabled {
+  cursor: not-allowed;
+}
+
+/* Idle state */
+.voice-record-btn--idle {
+  background-color: #DDD6F3;
+  color: #3D3D3D;
+}
+
+.voice-record-btn--idle:hover {
+  background-color: #CFC6E8;
+}
+
+/* Recording state */
+.voice-record-btn--recording {
+  background-color: #E53935;
+  color: #FFFFFF;
+  animation: voice-pulse 1.5s ease-in-out infinite;
+}
+
+/* Processing state */
+.voice-record-btn--processing {
+  background-color: #DDD6F3;
+  color: #3D3D3D;
+  opacity: 0.8;
+}
+
+/* Pulse animation */
+@keyframes voice-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(229, 57, 53, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 57, 53, 0);
+  }
+}
+
+/* Spinner */
+.voice-record-spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(61, 61, 61, 0.2);
+  border-top-color: #3D3D3D;
+  border-radius: 50%;
+  animation: voice-spin 0.8s linear infinite;
+}
+
+@keyframes voice-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

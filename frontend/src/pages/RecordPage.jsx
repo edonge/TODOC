@@ -4,6 +4,7 @@ import { apiFetch } from '../api/base';
 import Calendar from '../components/record/Calendar';
 import RecordCards from '../components/record/RecordCards';
 import RecordCategoryModal from '../components/record/RecordCategoryModal';
+import VoiceResultModal from '../components/common/VoiceResultModal';
 import BottomTabBar from '../components/home/BottomTabBar';
 import './RecordPage.css';
 
@@ -18,6 +19,7 @@ function RecordPage() {
   const [kidId, setKidId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [voiceResult, setVoiceResult] = useState(null);
 
   // 아이 정보 가져오기
   useEffect(() => {
@@ -119,6 +121,20 @@ function RecordPage() {
         <RecordCategoryModal
           onClose={() => setShowCategoryModal(false)}
           onSelectCategory={handleCategorySelect}
+          kidId={kidId}
+          onVoiceResult={setVoiceResult}
+        />
+      )}
+
+      {voiceResult && (
+        <VoiceResultModal
+          data={voiceResult}
+          kidId={kidId}
+          onSaved={() => {
+            setVoiceResult(null);
+            setRefreshKey(Date.now());
+          }}
+          onClose={() => setVoiceResult(null)}
         />
       )}
 

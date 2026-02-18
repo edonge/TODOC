@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import VoiceRecordButton from '../common/VoiceRecordButton';
 import './RecordCategoryModal.css';
 
 // 카테고리 이미지 import
@@ -9,7 +10,7 @@ import healthImg from '../../assets/categories/건강.png';
 import diaperImg from '../../assets/categories/배변.png';
 import etcImg from '../../assets/categories/기타.png';
 
-function RecordCategoryModal({ onClose, onSelectCategory }) {
+function RecordCategoryModal({ onClose, onSelectCategory, kidId, onVoiceResult }) {
   // 스크롤 방지
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -50,6 +51,17 @@ function RecordCategoryModal({ onClose, onSelectCategory }) {
             </button>
           ))}
         </div>
+
+        {kidId && onVoiceResult && (
+          <div className="record-modal-voice-area">
+            <VoiceRecordButton
+              kidId={kidId}
+              onResult={onVoiceResult}
+              inline
+              className="voice-record-wrapper--modal"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
