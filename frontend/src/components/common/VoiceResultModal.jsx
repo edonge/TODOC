@@ -11,6 +11,15 @@ const RECORD_TYPE_LABELS = {
   etc: '기타',
 };
 
+const RECORD_TYPE_COLORS = {
+  sleep: { bg: '#F5E6C8', color: '#8B6914' },
+  growth: { bg: '#C8E6C9', color: '#2E7D32' },
+  meal: { bg: '#FFF8E1', color: '#F9A825' },
+  health: { bg: '#FFCDD2', color: '#8B1A1A' },
+  diaper: { bg: '#FCE4EC', color: '#AD1457' },
+  etc: { bg: '#F1F1F1', color: '#5C5C5C' },
+};
+
 const FIELD_LABELS = {
   // Meal
   meal_type: '식사 유형',
@@ -135,7 +144,13 @@ function VoiceResultModal({ data, kidId, onSaved, onClose }) {
     <div className="voice-result-overlay" onClick={onClose}>
       <div className="voice-result-modal" onClick={(e) => e.stopPropagation()}>
         <div className="voice-result-header">
-          <span className="voice-result-type-badge">
+          <span
+            className="voice-result-type-badge"
+            style={{
+              backgroundColor: (RECORD_TYPE_COLORS[record_type] || RECORD_TYPE_COLORS.etc).bg,
+              color: (RECORD_TYPE_COLORS[record_type] || RECORD_TYPE_COLORS.etc).color,
+            }}
+          >
             {RECORD_TYPE_LABELS[record_type] || '기타'}
           </span>
           <h3 className="voice-result-title">음성 기록 확인</h3>
