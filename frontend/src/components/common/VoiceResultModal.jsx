@@ -22,6 +22,7 @@ const RECORD_TYPE_COLORS = {
 
 const FIELD_LABELS = {
   // Meal
+  meal_datetime: '식사 시간',
   meal_type: '식사 유형',
   meal_detail: '상세',
   amount_ml: '양(ml)',
@@ -34,6 +35,7 @@ const FIELD_LABELS = {
   end_datetime: '종료',
   sleep_quality: '수면 품질',
   // Diaper
+  diaper_datetime: '배변 시간',
   diaper_type: '배변 유형',
   amount: '양',
   condition: '상태',
@@ -44,6 +46,7 @@ const FIELD_LABELS = {
   head_circumference_cm: '머리둘레(cm)',
   activities: '활동',
   // Health
+  health_datetime: '시간',
   title: '제목',
   symptoms: '증상',
   medicines: '투약',
@@ -86,11 +89,11 @@ function formatValue(key, value) {
 
 // Fields to show per record type (excluding internal fields)
 const DISPLAY_FIELDS = {
-  meal: ['record_date', 'meal_type', 'amount_ml', 'amount_text', 'meal_detail', 'duration_minutes', 'burp', 'memo'],
+  meal: ['record_date', 'meal_datetime', 'meal_type', 'amount_ml', 'amount_text', 'meal_detail', 'duration_minutes', 'burp', 'memo'],
   sleep: ['record_date', 'sleep_type', 'start_datetime', 'end_datetime', 'sleep_quality', 'memo'],
-  diaper: ['record_date', 'diaper_type', 'amount', 'condition', 'color', 'memo'],
+  diaper: ['record_date', 'diaper_datetime', 'diaper_type', 'amount', 'condition', 'color', 'memo'],
   growth: ['record_date', 'height_cm', 'weight_kg', 'head_circumference_cm', 'activities', 'memo'],
-  health: ['record_date', 'title', 'symptoms', 'medicines', 'memo'],
+  health: ['record_date', 'health_datetime', 'title', 'symptoms', 'medicines', 'memo'],
   etc: ['record_date', 'title', 'memo'],
 };
 
@@ -191,6 +194,10 @@ function VoiceResultModal({ data, kidId, onSaved, onClose }) {
 
         <div className="voice-result-fields">
           {fields.map((key) => {
+            // unknown_time이면 시간 필드 숨기기
+            if (record_data.unknown_time && ['meal_datetime', 'diaper_datetime', 'health_datetime'].includes(key)) {
+              return null;
+            }
             const val = formatValue(key, record_data[key]);
             if (val === null) return null;
             return (
