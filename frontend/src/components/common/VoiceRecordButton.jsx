@@ -4,7 +4,7 @@ import './VoiceRecordButton.css';
 
 const MAX_DURATION = 60; // seconds
 
-function VoiceRecordButton({ kidId, onResult, inline = false, className = '' }) {
+function VoiceRecordButton({ kidId, onResult, inline = false, className = '', onAiChat = null }) {
   const [status, setStatus] = useState('idle'); // idle | recording | processing
   const [elapsed, setElapsed] = useState(0);
   const mediaRecorderRef = useRef(null);
@@ -102,7 +102,11 @@ function VoiceRecordButton({ kidId, onResult, inline = false, className = '' }) 
 
     try {
       const token = localStorage.getItem('access_token');
-      const response = await apiFetch(`/api/speech/transcribe/${kidId}`, {
+      // onAiChat이 제공된 경우(홈 마이크)에만 ?classify=true 추가
+      const url = onAiChat
+        ? `/api/speech/transcribe/${kidId}?classify=true`
+        : `/api/speech/transcribe/${kidId}`;
+      const response = await apiFetch(url, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -114,7 +118,12 @@ function VoiceRecordButton({ kidId, onResult, inline = false, className = '' }) 
       }
 
       const result = await response.json();
-      onResult(result);
+      // 인텐트가 AI_CHAT이면 onAiChat 콜백으로 라우팅, 그 외는 기존 onResult
+      if (onAiChat && result.intent === 'AI_CHAT') {
+        onAiChat(result.transcript);
+      } else {
+        onResult(result);
+      }
     } catch (err) {
       console.error('Speech-to-record failed:', err);
       alert(err.message || '음성 처리 중 오류가 발생했습니다.');

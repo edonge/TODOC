@@ -14,8 +14,15 @@
   z-index: 90;
 }
 
-.chat-input-field {
+.chat-input-field-wrap {
   flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.chat-input-field {
+  width: 100%;
   height: 46px;
   border-radius: 20px;
   border: 1px solid #d5d5d5;
@@ -23,6 +30,11 @@
   font-size: 14px;
   color: #333;
   background: #ffffff;
+  box-sizing: border-box;
+}
+
+.chat-input-field--with-mic {
+  padding-right: 40px;
 }
 
 .chat-input-field::placeholder {
@@ -46,4 +58,50 @@
   height: 18px;
   object-fit: contain;
   transform: translateY(2px);
+}
+
+.chat-input-mic {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  color: #b0a8cc;
+  transition: color 0.15s;
+}
+
+.chat-input-mic--recording {
+  color: #e05c5c;
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+
+.chat-input-mic--processing {
+  color: #ccc;
+  cursor: default;
+}
+
+@keyframes mic-pulse {
+  0%, 100% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.1); }
+}
+
+.chat-input-mic-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top-color: #a89cd4;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

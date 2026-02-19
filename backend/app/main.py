@@ -80,13 +80,12 @@ def create_app() -> FastAPI:
         if kid is None:
             kid = db.query(Kid).filter(Kid.user_id == current_user.id).order_by(Kid.created_at.desc()).first()
 
-        async def _summarize_title(msg: str, mode: str) -> str:
+        async def _summarize_title(msg: str) -> str:
             """LLM으로 주제 한 줄(<=20자) 요약."""
             try:
                 llm = build_llm()
                 prompt = (
                     "다음 사용자의 질문을 20자 이하의 간단한 주제 한글 명사구로 요약하세요.\n"
-                    f"[모드: {mode}]\n"
                     f"[질문]: {msg}"
                 )
                 res = await llm.ainvoke(prompt)
@@ -107,6 +106,7 @@ def create_app() -> FastAPI:
         tools_called = response_data.get("tools_called", [])
         rag_used = response_data.get("rag_used", False)
         kid_info_used = response_data.get("kid_info_used", False)
+        docs_used = response_data.get("docs_used", [])
 
         # 세션/메시지 저장 (없으면 생성)
         from datetime import datetime
@@ -115,10 +115,10 @@ def create_app() -> FastAPI:
         if req.session_id:
             session = db.query(ChatSession).get(req.session_id)
         if session is None:
-            title_text = await _summarize_title(req.message, req.mode)
+            title_text = await _summarize_title(req.message)
             session = ChatSession(
                 user_id=current_user.id,
-                mode=req.mode,
+                mode="chat",  # 항상 통합 모드로 저장
                 kid_id=(kid.id if kid else req.kid_id),
                 title=title_text,
                 question_snippet=req.message[:80],
@@ -131,31 +131,23 @@ def create_app() -> FastAPI:
         db.add_all(
             [
                 ChatMessage(session_id=session.id, sender="user", content=req.message),
-                ChatMessage(session_id=session.id, sender="ai", content=reply),
+                ChatMessage(session_id=session.id, sender="ai", content=reply, doc_refs=docs_used or None),
             ]
         )
         session.updated_at = datetime.utcnow()
         db.commit()
         db.refresh(session)
 
-        # RAG 참조 문서 추출 (📚 참고: [문서명] 패턴)
-        import re
-        references = []
-        ref_pattern = r'📚\s*참고:\s*\[([^\]]+)\]'
-        matches = re.findall(ref_pattern, reply)
-        if matches:
-            references = list(set(matches))  # 중복 제거
-
         return {
             "reply": reply,
             "session_id": session.id,
-            "mode": req.mode,
+            "mode": "chat",
             "date_label": session.date_label or datetime.utcnow().strftime("%m.%d"),
             "title": session.title,
             "question_snippet": session.question_snippet,
             "kid_id": kid.id if kid else None,
             "kid_name": kid.name if kid else None,
-            "references": references if references else None,
+            "references": docs_used if docs_used else None,
             # 디버그 정보 (개발 중에만 사용, 나중에 제거 가능)
             "_debug": {
                 "tools_called": tools_called,

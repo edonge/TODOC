@@ -11,6 +11,7 @@ class ChatMessage(BaseModel):
   session_id: Optional[int] = None
   sender: str  # "user" | "ai"
   content: str
+  doc_refs: Optional[List[str]] = None
   created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -26,7 +27,7 @@ class ChatSessionSummary(BaseModel):
 
 
 class ChatRequest(BaseModel):
-  mode: str
+  mode: str = "chat"
   message: str
   history: List[dict] = []
   kid_id: Optional[int] = None

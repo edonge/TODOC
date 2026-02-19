@@ -75,8 +75,8 @@ async def generate_weekly_summary(kid: Optional[Kid], db: Optional[Session]) -> 
     record_lines = "\n".join(_format_record(r) for r in records)
     kid_profile = f"이름: {kid.name}, 생년월일: {kid.birth_date}, 성별: {'남아' if kid.gender == 'male' else '여아'}"
 
-    # RAG: 공통+맘 문서 우선 사용
-    retriever = load_mode_stores(settings.vector_base_dir, ["common_docs", "mom_docs"])
+    # RAG: 통합 문서 사용 (육아·건강·영양)
+    retriever = load_mode_stores(settings.vector_base_dir, ["mom_docs", "doctor_docs", "nutrient_docs"])
     rag_context = ""
     if retriever:
         docs = retriever.invoke("최근 7일 아기 건강/성장/식습관 점검 체크리스트")
