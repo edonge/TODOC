@@ -56,19 +56,6 @@ from app.schemas.record import (
     DailySummaryResponse,
 )
 
-from app.schemas.community import (
-    PostCreate,
-    PostUpdate,
-    PostResponse,
-    PostBriefResponse,
-    PostListResponse,
-    CommentCreate,
-    CommentUpdate,
-    CommentResponse,
-    CommentListResponse,
-    LikeResponse,
-    PostSearchParams,
-)
 from app.schemas.chat import (
     ChatRequest,
     ChatResponse,
@@ -132,18 +119,6 @@ __all__ = [
     "DiaperSummary",
     "EtcSummary",
     "DailySummaryResponse",
-    # Community
-    "PostCreate",
-    "PostUpdate",
-    "PostResponse",
-    "PostBriefResponse",
-    "PostListResponse",
-    "CommentCreate",
-    "CommentUpdate",
-    "CommentResponse",
-    "CommentListResponse",
-    "LikeResponse",
-    "PostSearchParams",
     # Chat
     "ChatRequest",
     "ChatResponse",

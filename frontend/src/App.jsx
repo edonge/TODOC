@@ -3,7 +3,6 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import OnboardingPage from './pages/OnboardingPage';
 import HomePage from './pages/HomePage';
-import CommunityPage from './pages/CommunityPage';
 import RecordPage from './pages/RecordPage';
 import GrowthRecordAddPage from './pages/GrowthRecordAddPage';
 import SleepRecordAddPage from './pages/SleepRecordAddPage';
@@ -28,7 +27,6 @@ function App() {
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route element={<AppLayout />}>
             <Route path="/home" element={<HomePage />} />
-            <Route path="/community" element={<CommunityPage />} />
             <Route path="/record" element={<RecordPage />} />
             <Route path="/record/growth/add" element={<GrowthRecordAddPage />} />
             <Route path="/record/sleep/add" element={<SleepRecordAddPage />} />

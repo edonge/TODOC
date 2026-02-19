@@ -45,7 +45,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Todoc API",
         version="0.1.0",
-        description="육아 기록 및 커뮤니티 API",
+        description="육아 기록 API",
         lifespan=lifespan,
     )
 

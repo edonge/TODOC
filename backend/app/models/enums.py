@@ -105,9 +105,3 @@ class ActivityEnum(str, Enum):
     SWIMMING = "swimming"   # 수영
 
 
-# ===== Community Related =====
-class CommunityCategoryEnum(str, Enum):
-    """커뮤니티 카테고리"""
-    GENERAL = "general"     # 일반
-    CONCERN = "concern"     # 고민
-    MARKET = "market"       # 장터

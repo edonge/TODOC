@@ -10,7 +10,6 @@ from app.models.enums import (
     StoolConditionEnum,
     StoolColorEnum,
     ActivityEnum,
-    CommunityCategoryEnum,
 )
 from app.models.base import Base
 from app.models.user import User, RefreshToken
@@ -24,7 +23,6 @@ from app.models.record import (
     DiaperRecord,
     EtcRecord,
 )
-from app.models.community import Post, Comment, PostLike, CommentLike
 from app.models.chat import ChatSession, ChatMessage
 from app.models.insight import UserInsight
 
@@ -43,7 +41,6 @@ __all__ = [
     "StoolConditionEnum",
     "StoolColorEnum",
     "ActivityEnum",
-    "CommunityCategoryEnum",
     "GenderEnum",
     # User
     "User",
@@ -58,11 +55,6 @@ __all__ = [
     "HealthRecord",
     "DiaperRecord",
     "EtcRecord",
-    # Community
-    "Post",
-    "Comment",
-    "PostLike",
-    "CommentLike",
     # Chat
     "ChatSession",
     "ChatMessage",

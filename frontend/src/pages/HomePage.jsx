@@ -4,7 +4,6 @@ import { apiFetch } from '../api/base';
 import HeroSection from '../components/home/HeroSection';
 import BabyCard from '../components/home/BabyCard';
 import InsightCard from '../components/home/InsightCard';
-import CommunityPreview from '../components/home/CommunityPreview';
 import VoiceRecordButton from '../components/common/VoiceRecordButton';
 import VoiceResultModal from '../components/common/VoiceResultModal';
 import BottomTabBar from '../components/home/BottomTabBar';
@@ -18,7 +17,6 @@ function HomePage() {
   });
   const [kidId, setKidId] = useState(null);
   const [recentRecord, setRecentRecord] = useState(null);
-  const [popularPost, setPopularPost] = useState(null);
   const [voiceResult, setVoiceResult] = useState(null);
 
   useEffect(() => {
@@ -38,8 +36,6 @@ function HomePage() {
 
     // API에서 홈 데이터 가져오기 (DB에 등록된 아이 정보 및 최근 기록)
     fetchHomeData();
-    // 인기글 가져오기
-    fetchPopularPost();
   }, []);
 
   const fetchHomeData = async () => {
@@ -72,18 +68,6 @@ function HomePage() {
       }
     } catch (error) {
       console.error('홈 데이터 조회 실패:', error);
-    }
-  };
-
-  const fetchPopularPost = async () => {
-    try {
-      const response = await apiFetch('/api/community/posts/popular');
-      if (response.ok) {
-        const data = await response.json();
-        setPopularPost(data);
-      }
-    } catch (error) {
-      console.error('인기글 조회 실패:', error);
     }
   };
 
@@ -139,7 +123,6 @@ function HomePage() {
         )}
         <BabyCard childData={childData} recentRecord={recentRecord} />
         <InsightCard />
-        <CommunityPreview popularPost={popularPost} />
       </div>
 
       {voiceResult && (

@@ -47,26 +47,6 @@ from app.crud.record import (
     update_etc_record,
 )
 
-from app.crud.community import (
-    get_post,
-    get_post_with_author,
-    get_posts,
-    create_post,
-    update_post,
-    delete_post,
-    get_post_like,
-    toggle_post_like,
-    is_post_liked_by_user,
-    get_comment,
-    get_comments_by_post,
-    create_comment,
-    update_comment,
-    delete_comment,
-    get_comment_like,
-    toggle_comment_like,
-    is_comment_liked_by_user,
-)
-
 __all__ = [
     # User
     "get_user",
@@ -111,22 +91,4 @@ __all__ = [
     "update_diaper_record",
     "create_etc_record",
     "update_etc_record",
-    # Community
-    "get_post",
-    "get_post_with_author",
-    "get_posts",
-    "create_post",
-    "update_post",
-    "delete_post",
-    "get_post_like",
-    "toggle_post_like",
-    "is_post_liked_by_user",
-    "get_comment",
-    "get_comments_by_post",
-    "create_comment",
-    "update_comment",
-    "delete_comment",
-    "get_comment_like",
-    "toggle_comment_like",
-    "is_comment_liked_by_user",
 ]
