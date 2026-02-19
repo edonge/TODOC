@@ -19,12 +19,21 @@ function AiChatPage() {
   const sessionIdParam = searchParams.get('session');
   const location = useLocation();
 
-  const [messages, setMessages] = useState([
-    { id: 'intro', sender: 'ai', text: introText, background: meta.bubble },
-  ]);
+  const [messages, setMessages] = useState(() => {
+    const intro = { id: 'intro', sender: 'ai', text: introText, background: meta.bubble };
+    const voiceText = !sessionIdParam ? location.state?.initialMessage : null;
+    if (voiceText) {
+      return [intro, { id: 'u-voice-init', sender: 'user', text: voiceText }];
+    }
+    return [intro];
+  });
   const [isSending, setIsSending] = useState(false);
   const [sessionId, setSessionId] = useState(sessionIdParam);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
+  const [kidId] = useState(() => {
+    const cached = localStorage.getItem('kidId');
+    return cached ? Number(cached) : null;
+  });
 
   const hasAutoSubmitted = useRef(false);
   const messagesEndRef = useRef(null);    // 유저 전송 시 자동스크롤용 앵커
@@ -40,10 +49,12 @@ function AiChatPage() {
     }
   }, [messages]);
 
-  // AI 응답 완료 → 스크롤 버튼 표시
+  // AI 응답 완료 → 하단에 없을 때만 스크롤 버튼 표시
   useEffect(() => {
     if (prevIsSendingRef.current && !isSending) {
-      setShowScrollBtn(true);
+      const nearBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80;
+      if (!nearBottom) setShowScrollBtn(true);
     }
     prevIsSendingRef.current = isSending;
   }, [isSending]);
@@ -72,7 +83,10 @@ function AiChatPage() {
   useEffect(() => {
     const loadSession = async () => {
       if (!sessionIdParam) {
-        setMessages([{ id: 'intro', sender: 'ai', text: introText, background: meta.bubble }]);
+        // Don't reset if a voice transcript was pre-populated on mount
+        if (!location.state?.initialMessage) {
+          setMessages([{ id: 'intro', sender: 'ai', text: introText, background: meta.bubble }]);
+        }
         setSessionId(null);
         return;
       }
@@ -84,6 +98,7 @@ function AiChatPage() {
           sender: msg.sender,
           text: msg.content,
           background: msg.sender === 'ai' ? meta.bubble : undefined,
+          docs: msg.doc_refs || [],
         }));
         if (serverMessages.length > 0) {
           shouldScrollRef.current = true; // 이전 채팅 로드 후 최하단으로
@@ -107,17 +122,20 @@ function AiChatPage() {
     const initial = location.state?.initialMessage;
     if (initial && !hasAutoSubmitted.current && !sessionIdParam) {
       hasAutoSubmitted.current = true;
-      handleSend(initial);
+      handleSend(initial, { skipAddMessage: true });
     }
   }, []); // mount only
 
-  const handleSend = async (text) => {
+  const handleSend = async (text, { skipAddMessage = false } = {}) => {
     const userMsg = { id: `u-${Date.now()}`, sender: 'user', text };
-    shouldScrollRef.current = true;
-    setMessages((prev) => [...prev, userMsg]);
+    if (!skipAddMessage) {
+      shouldScrollRef.current = true;
+      setMessages((prev) => [...prev, userMsg]);
+    }
     setIsSending(true);
     try {
-      const history = [...messages, userMsg].map((m) => ({ sender: m.sender, message: m.text }));
+      const historyBase = skipAddMessage ? messages : [...messages, userMsg];
+      const history = historyBase.map((m) => ({ sender: m.sender, message: m.text }));
       const res = await sendAiMessage({ mode: 'chat', message: text, history, sessionId });
       const aiText = res?.reply || '응답을 받지 못했어요.';
       const aiDocs = res?.references || [];
@@ -180,6 +198,8 @@ function AiChatPage() {
       <ChatInput
         placeholder="토닥 AI에게 무엇이든 물어보세요!"
         buttonColor={meta.send}
+        kidId={kidId}
+        onVoiceInput={handleSend}
         onSend={handleSend}
         disabled={isSending}
       />

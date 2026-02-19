@@ -139,12 +139,21 @@ function HomePage() {
 
   const callName = getCallName(childData.name);
 
+  const handleVoiceAiChat = (transcript) => {
+    navigate('/ai/chat', { state: { initialMessage: transcript } });
+  };
+
   return (
     <div className="home-container">
       <div className="home-content">
         <HeroSection childName={callName} />
         {kidId && (
-          <VoiceRecordButton kidId={kidId} onResult={setVoiceResult} inline />
+          <VoiceRecordButton
+            kidId={kidId}
+            onResult={setVoiceResult}
+            onAiChat={handleVoiceAiChat}
+            inline
+          />
         )}
         <BabyCard childData={childData} recentRecord={recentRecord} />
         <InsightCard />

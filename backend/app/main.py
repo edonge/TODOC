@@ -131,7 +131,7 @@ def create_app() -> FastAPI:
         db.add_all(
             [
                 ChatMessage(session_id=session.id, sender="user", content=req.message),
-                ChatMessage(session_id=session.id, sender="ai", content=reply),
+                ChatMessage(session_id=session.id, sender="ai", content=reply, doc_refs=docs_used or None),
             ]
         )
         session.updated_at = datetime.utcnow()

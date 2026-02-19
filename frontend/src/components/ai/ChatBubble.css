@@ -79,7 +79,7 @@
   background: #DDD5F0;
 }
 
-/* 클릭 시 전체 이름 툴팁 */
+/* 호버/클릭 시 전체 이름 툴팁 */
 .chat-bubble-doc-tooltip {
   position: absolute;
   bottom: calc(100% + 4px);
@@ -95,4 +95,12 @@
   max-width: 260px;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: none;
+  pointer-events: none;
+}
+
+/* 호버 또는 클릭(active) 시 표시 */
+.chat-bubble-doc-chip-wrapper:hover .chat-bubble-doc-tooltip,
+.chat-bubble-doc-chip-wrapper.active .chat-bubble-doc-tooltip {
+  display: block;
 }
