@@ -16,10 +16,18 @@ function HomePage() {
     name: '',
     birthday: null,
   });
-  const [kidId, setKidId] = useState(null);
+  const [kidId, setKidId] = useState(() => {
+    const cached = localStorage.getItem('kidId');
+    return cached ? Number(cached) : null;
+  });
   const [recentRecord, setRecentRecord] = useState(null);
   const [popularPost, setPopularPost] = useState(null);
   const [voiceResult, setVoiceResult] = useState(null);
+
+  // 홈 진입 시 항상 최상단으로
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -59,6 +67,7 @@ function HomePage() {
         // DB에 등록된 아이 정보가 있으면 사용
         if (data.kid) {
           setKidId(data.kid.id);
+          localStorage.setItem('kidId', data.kid.id);
           setChildData({
             name: data.kid.name,
             birthday: data.kid.birthday ? new Date(data.kid.birthday) : null,

@@ -5,7 +5,7 @@
   max-width: 390px;
   margin: 0 auto;
   background: #f1f1f1;
-  padding-bottom: 180px;
+  padding-bottom: 160px;
 }
 
 .ai-chat-body {
@@ -20,4 +20,23 @@
   flex-direction: column;
   gap: 8px;
   padding-bottom: 16px;
+}
+
+/* ChatInput(bottom:80px, 높이~70px) 바로 위에 고정 */
+.scroll-to-bottom-btn {
+  position: fixed;
+  bottom: 158px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #A89CD4;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+  z-index: 95;
+  white-space: nowrap;
 }

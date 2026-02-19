@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import json
 import re
 from typing import List, Optional
 
@@ -7,7 +6,6 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.models import Kid, Record
 from app.core.config import settings
-from langchain_openai import ChatOpenAI
 from .tools import (
     build_rag_tool,
     build_diary_tools,
@@ -68,7 +66,6 @@ class DiaryContextBuilder:
         """기록을 문자열로 변환"""
         detail = record.memo or ""
 
-        # 타입별 상세 정보 추가
         if record.sleep_record:
             sr = record.sleep_record
             parts = [f"{sr.sleep_type.value}"]
@@ -158,7 +155,7 @@ class DiaryContextBuilder:
         return "\n".join(self._describe(r) for r in recs)
 
 
-def _needs_personalization(message: str, mode: str) -> bool:
+def _needs_personalization(message: str) -> bool:
     if not message:
         return False
     keywords = [
@@ -167,44 +164,57 @@ def _needs_personalization(message: str, mode: str) -> bool:
         "성장", "키", "몸무게", "체중", "머리둘레", "발달",
         "배변", "기저귀", "설사", "변비",
     ]
-    return any(k in message for k in keywords) or mode in {"mom", "nutrition"}
-
-
-def _needs_doctor_handoff(message: str, mode: str) -> bool:
-    if mode not in {"mom", "nutrition"}:
-        return False
-    if not message:
-        return False
-    keywords = [
-        "증상", "진단", "치료", "병", "질환", "의학", "의료",
-        "백내장", "감기", "열", "고열", "구토", "설사", "발진",
-        "경련", "호흡곤란", "통증", "통증이", "상처", "염증",
-        "눈", "시력", "안과",
-    ]
     return any(k in message for k in keywords)
 
 
 def _is_medical_question(message: str) -> bool:
+    """증상·건강 상담 여부 감지 — 의료 안전 규칙을 특히 준수해야 하는 질문"""
     if not message:
         return False
     keywords = [
-        "증상", "진단", "치료", "병", "질환", "의학", "의료",
-        "백내장", "감기", "열", "고열", "구토", "설사", "발진",
-        "경련", "호흡곤란", "통증", "상처", "염증",
-        "눈", "시력", "안과", "검사", "처방", "약",
+        "열", "발열", "기침", "콧물", "구토", "설사", "발진", "두드러기",
+        "경련", "발작", "숨", "호흡", "청색증", "의식", "응급",
+        "병원", "소아과", "아프", "아파", "증상", "약", "처방",
+        "예방접종", "백신", "변비", "탈수", "체온", "고열",
     ]
     return any(k in message for k in keywords)
 
 
 def _is_emotional_support(message: str) -> bool:
+    """부모 감정 지원 여부 감지 — 공감 우선, 심리 진단 금지"""
     if not message:
         return False
     keywords = [
-        "우울", "불안", "스트레스", "불면", "무기력", "번아웃",
-        "힘들", "지쳐", "외롭", "위로", "공감", "감정", "마음",
-        "산후", "산후우울", "산후우울증", "육아우울",
+        "힘들", "지쳐", "우울", "번아웃", "못하겠", "포기",
+        "불안", "걱정", "무서", "외로", "죄책감", "자책",
+        "산후", "육아 스트레스", "감정", "화가 나", "억울",
+        "눈물", "울고 싶", "자신 없", "버겁",
     ]
     return any(k in message for k in keywords)
+
+
+def _is_growth_compare_question(message: str) -> bool:
+    """성장 비교 질문 여부 감지 — 아이 정보(키·몸무게·개월수) 활용 필수"""
+    if not message:
+        return False
+    keywords = [
+        "정상", "평균", "큰 편", "작은 편", "또래", "백분위",
+        "성장 곡선", "성장곡선", "표준", "비교", "편차",
+        "몇 퍼센트", "몇 kg", "몇 cm", "개월 평균",
+    ]
+    return any(k in message for k in keywords)
+
+
+def _build_care_hints(is_medical: bool, is_emotional: bool, is_growth: bool) -> str:
+    """질문 유형에 따른 추가 지침 문자열 생성 — 안전 규칙 강조용"""
+    hints = []
+    if is_medical:
+        hints.append("⚕️ 이 질문은 증상·건강 상담입니다. 의료 안전 규칙(진단 금지, 전문의 상담 권장, 응급 증상 확인)을 특히 준수하세요.")
+    if is_emotional:
+        hints.append("💙 이 질문은 부모의 감정 지원 요청입니다. 공감과 위로를 우선하고 심리 진단·병명 추정은 절대 하지 마세요.")
+    if is_growth:
+        hints.append("📏 이 질문은 성장 비교 질문입니다. [Kid] 블록의 개월 수·키·몸무게를 활용해 개인화된 답변을 제공하세요.")
+    return "\n".join(hints)
 
 
 def _is_kid_info_question(message: str) -> bool:
@@ -218,14 +228,29 @@ def _is_kid_info_question(message: str) -> bool:
     return any(k in message for k in keywords)
 
 
-def _is_growth_compare_question(message: str) -> bool:
-    if not message:
-        return False
-    keywords = [
-        "머리둘레", "두위", "성장", "큰편", "작은편", "평균", "비교",
-        "정상", "표준", "백분위",
-    ]
-    return any(k in message for k in keywords)
+def _extract_doc_names(rag_output: str) -> List[str]:
+    """RAG 도구 출력에서 참조 문서명 추출 (중복 제거, 파일 확장자 정리)
+
+    tools.py의 RAG 출력 형식: "[파일명.pdf] 본문 내용..."
+    각 스니펫은 줄 첫머리에서 [레이블]로 시작하므로, ^앵커로만 매칭해
+    본문 내 [표 1], [그림 2] 같은 인텍스트 참조를 걸러낸다.
+    """
+    if not rag_output:
+        return []
+    # 줄 첫머리([...]) 만 매칭 — 본문 중간의 [표 1], [그림 3] 제외
+    raw = re.findall(r'^\[([^\]]+)\]', rag_output, re.MULTILINE)
+    seen: set = set()
+    result = []
+    for name in raw:
+        clean = re.sub(r'_openai_faiss\.pkl$', '', name)
+        clean = re.sub(r'\.(pkl|pdf)$', '', clean)
+        # 파일명 자체가 [기관명]_문서명 형태인 경우 앞뒤 대괄호 제거
+        clean = clean.strip('[]').strip()
+        # 6자 미만은 표·그림·번호 등 인텍스트 참조로 간주하고 제외
+        if clean and len(clean) >= 6 and clean not in seen:
+            seen.add(clean)
+            result.append(clean)
+    return result
 
 
 def _strip_source_footer(text: str) -> str:
@@ -241,129 +266,41 @@ def _strip_source_footer(text: str) -> str:
     return "\n".join(filtered).strip()
 
 
-async def _classify_question(message: str, mode: str) -> dict:
-    if not message:
-        return {"decision": "ambiguous", "target": mode, "reason": "empty message"}
-
-    system = (
-        "You are a router for a childcare assistant. "
-        "Classify the user's question for routing.\n\n"
-        "Categories:\n"
-        "- mom: 육아 일상(수면, 루틴, 놀이, 습관, 생활 팁)\n"
-        "- doctor: 의료/진단/치료/질환/증상/안과/응급\n"
-        "- nutrition: 식단/영양/수유/이유식/알러지/레시피\n"
-        "- other: 위 범주 외\n\n"
-        "Given current_mode, choose the best target category and decision:\n"
-        "- in_scope: clearly fits current_mode\n"
-        "- ambiguous: overlaps current_mode and another category\n"
-        "- off_topic: clearly not current_mode\n\n"
-        "Hard rules:\n"
-        "- If current_mode is mom or nutrition and the question is medical/diagnosis/treatment, "
-        "decision must be off_topic and target must be doctor.\n"
-        "- If current_mode is doctor and question is clearly nutrition/recipe, target nutrition.\n\n"
-        "Return ONLY JSON with keys: decision, target, reason."
-    )
-    prompt = (
-        f"{system}\n\n"
-        f"current_mode: {mode}\n"
-        f"question: {message}"
-    )
-
-    llm = ChatOpenAI(
-        api_key=settings.openai_api_key,
-        model=settings.openai_model,
-        temperature=0.0,
-        max_tokens=200,
-    )
-    try:
-        result = await llm.ainvoke(prompt)
-        content = result.content if hasattr(result, "content") else str(result)
-        try:
-            data = json.loads(content)
-        except json.JSONDecodeError:
-            match = re.search(r"\{.*\}", content, re.DOTALL)
-            if not match:
-                raise
-            data = json.loads(match.group(0))
-        return {
-            "decision": data.get("decision", "ambiguous"),
-            "target": data.get("target", mode),
-            "reason": data.get("reason", ""),
-        }
-    except Exception:
-        return {"decision": "ambiguous", "target": mode, "reason": "fallback"}
-
-
 async def generate_response(
     message: str,
-    mode: str,
-    history: List[dict],
+    mode: str = "chat",
+    history: List[dict] = None,
     kid: Optional[Kid] = None,
     db: Optional[Session] = None,
 ) -> dict:
     """
-    AI 응답 생성
+    AI 응답 생성 (통합 모드)
     Returns:
         dict: {
-            "output": str,  # AI 응답
-            "tools_called": List[str],  # 호출된 도구 목록
-            "rag_used": bool,  # RAG 검색 여부
-            "kid_info_used": bool,  # 아이 정보 사용 여부
+            "output": str,
+            "tools_called": List[str],
+            "rag_used": bool,
+            "kid_info_used": bool,
         }
     """
+    if history is None:
+        history = []
+
     diary = DiaryContextBuilder(kid, db)
-    suggest_mom_note = False
-
-    if _is_kid_info_question(message):
-        decision = "in_scope"
-        target = mode
-        reason = "kidinfo_override"
-    else:
-        routing = await _classify_question(message, mode)
-        decision = routing.get("decision")
-        target = routing.get("target")
-        reason = routing.get("reason", "")
-
-        if mode in {"mom", "nutrition"} and _is_medical_question(message):
-            decision = "off_topic"
-            target = "doctor"
-            reason = f"{reason}|keyword_override"
-
-        if mode == "mom" and _is_emotional_support(message):
-            decision = "in_scope"
-            target = "mom"
-            reason = f"{reason}|emotional_override"
-
-    print(f"[AI Routing] mode={mode} decision={decision} target={target} reason={reason}")
-
-    if decision == "off_topic":
-        if mode == "mom":
-            decision = "in_scope"
-            target = "mom"
-            reason = f"{reason}|offtopic_mom_answer"
-        elif mode == "doctor":
-            decision = "in_scope"
-            target = "doctor"
-            suggest_mom_note = True
-            reason = f"{reason}|offtopic_doctor_answer"
-        elif mode == "nutrition":
-            return {
-                "output": (
-                    "이 질문은 맘 AI가 더 잘 도와줄 수 있어요. "
-                    "맘 AI로 전환해서 상담해보는 걸 추천드려요."
-                ),
-                "tools_called": [],
-                "rag_used": False,
-                "kid_info_used": kid is not None,
-            }
-
-    tools = [build_rag_tool(mode), *build_diary_tools(diary)]
-    if mode == "nutrition":
-        tools.append(build_web_tool())
-
     kid_snapshot = diary.kid_snapshot()
 
-    personalize = _needs_personalization(message, mode)
+    is_medical = _is_medical_question(message)
+    is_emotional = _is_emotional_support(message)
+    is_growth = _is_growth_compare_question(message)
+    personalize = (
+        _needs_personalization(message)
+        or _is_kid_info_question(message)
+        or is_medical   # 의료 상담은 아이 월령·기록 필수
+        or is_growth    # 성장 비교는 아이 수치 필수
+    )
+
+    tools = [build_rag_tool("chat"), *build_diary_tools(diary), build_web_tool()]
+
     executor, chat_history = build_agent(
         mode=mode,
         tools=tools,
@@ -372,50 +309,33 @@ async def generate_response(
         recent_digest=diary.recent_digest(),
         history=history,
         personalize=personalize,
+        care_hints=_build_care_hints(is_medical, is_emotional, is_growth),
     )
     result = await executor.ainvoke({"input": message, "chat_history": chat_history})
 
-    # 도구 호출 내역 분석
     tools_called = []
     rag_used = False
-
+    docs_used: List[str] = []
     if "intermediate_steps" in result:
         for step in result["intermediate_steps"]:
             if len(step) >= 1:
                 action = step[0]
-                tool_name = getattr(action, 'tool', None)
+                tool_name = getattr(action, "tool", None)
                 if tool_name:
                     tools_called.append(tool_name)
                     if tool_name == "rag_search":
                         rag_used = True
+                        if len(step) >= 2:
+                            for doc_name in _extract_doc_names(str(step[1])):
+                                if doc_name not in docs_used:
+                                    docs_used.append(doc_name)
 
-    # 아이 정보 사용 여부 (시스템 프롬프트에 포함됨)
     kid_info_used = kid is not None and "No kid selected" not in kid_snapshot
-
     output = result.get("output") if isinstance(result, dict) else str(result)
     output = _strip_source_footer(output)
-    if rag_used and "문서 기반" not in output:
-        output = f"{output}\n\n이 답변은 신뢰도 있는 문서 기반으로 생성되었어요!"
-    if decision == "ambiguous" and target and target != mode:
-        target_label = {"mom": "맘 AI", "doctor": "닥터 AI", "nutrition": "영양 AI"}.get(target, "다른 AI")
-        output = (
-            f"{output}\n\n"
-            f"혹시 이 질문은 {target_label}에서도 더 자세히 다룰 수 있어요. "
-            f"{target_label}로도 질문해보실래요?"
-        )
-    if suggest_mom_note:
-        output = (
-            f"{output}\n\n"
-            "추가로, 맘 AI가 생활/감정적인 부분까지 더 섬세하게 도와줄 수 있어요."
-        )
 
-    # 콘솔 로그 (디버깅용)
     print(f"\n{'='*50}")
-    print(f"[AI Chat Debug]")
-    print(f"Mode: {mode}")
-    print(f"Kid info used: {kid_info_used}")
-    print(f"Tools called: {tools_called}")
-    print(f"RAG used: {rag_used}")
+    print(f"[AI Chat Debug] kid_info_used={kid_info_used} tools={tools_called} rag={rag_used}")
     print(f"{'='*50}\n")
 
     return {
@@ -423,4 +343,5 @@ async def generate_response(
         "tools_called": tools_called,
         "rag_used": rag_used,
         "kid_info_used": kid_info_used,
+        "docs_used": docs_used,
     }

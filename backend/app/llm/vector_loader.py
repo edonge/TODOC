@@ -2,14 +2,30 @@ from pathlib import Path
 from typing import List, Optional
 
 from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+
+from app.core.config import settings
+
+_embeddings = None
+
+
+def _get_embeddings() -> OpenAIEmbeddings:
+    global _embeddings
+    if _embeddings is None:
+        _embeddings = OpenAIEmbeddings(api_key=settings.openai_api_key)
+    return _embeddings
 
 
 def _load_single_store(pkl_path: Path) -> Optional[FAISS]:
     if not pkl_path.exists():
         return None
-    # pkl 파일은 FAISS 저장본. dangerous_deserialization 필요.
+    faiss_path = pkl_path.with_suffix(".faiss")
+    if not faiss_path.exists():
+        return None
     return FAISS.load_local(
-        pkl_path.with_suffix(""),
+        folder_path=str(pkl_path.parent),
+        index_name=pkl_path.stem,
+        embeddings=_get_embeddings(),
         allow_dangerous_deserialization=True,
     )
 

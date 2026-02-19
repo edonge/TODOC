@@ -5,7 +5,7 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export async function sendAiMessage({ mode, message, history = [], kidId = null, sessionId = null }) {
+export async function sendAiMessage({ mode = 'chat', message, history = [], kidId = null, sessionId = null }) {
   const res = await apiFetch('/api/ai/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },

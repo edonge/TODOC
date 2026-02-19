@@ -22,11 +22,22 @@
   margin: 12px 0 14px;
 }
 
-.ai-mode-grid {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 6px;
+.ai-start-btn {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: #A89CD4;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.ai-start-btn:active {
+  background: #9080C0;
 }
 
 .ai-history-list {
