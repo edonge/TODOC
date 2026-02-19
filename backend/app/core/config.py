@@ -70,11 +70,12 @@ class Settings(BaseSettings):
     # -------------------------------------------------------------------------
     # Vector DB
     # -------------------------------------------------------------------------
-    vector_base_dir: Path = BASE_DIR / "backend" / "app" / "llm" / "vector_db"
+    vector_base_dir: Path = BASE_DIR / "app" / "llm" / "vector_db"
     mode_vector_dirs: dict = {
         "mom": ["mom_docs", "common_docs"],
         "doctor": ["doctor_docs", "common_docs"],
         "nutrition": ["nutrient_docs", "common_docs"],
+        "chat": ["mom_docs", "doctor_docs", "nutrient_docs"],  # unified — all 11 docs
     }
 
     # -------------------------------------------------------------------------

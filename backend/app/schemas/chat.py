@@ -26,7 +26,7 @@ class ChatSessionSummary(BaseModel):
 
 
 class ChatRequest(BaseModel):
-  mode: str
+  mode: str = "chat"
   message: str
   history: List[dict] = []
   kid_id: Optional[int] = None

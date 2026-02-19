@@ -28,7 +28,7 @@ def build_rag_tool(mode: str):
     return Tool.from_function(
         name="rag_search",
         func=_rag,
-        description=f"{mode} 전용+공통 문서를 검색해 스니펫·파일명을 반환",
+        description="육아·건강·영양 전문 문서를 검색해 스니펫·파일명을 반환",
     )
 
 

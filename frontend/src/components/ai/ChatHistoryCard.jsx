@@ -3,8 +3,15 @@ import CardStack from '../common/CardStack';
 import moreIcon from '../../assets/icons/more.png';
 import './ChatHistoryCard.css';
 
-// AI 모드별 색상 설정
+// AI 모드별 색상 설정 — 'chat'이 기본, 이전 세션(mom/doctor/nutrition) 하위 호환 유지
 const modeConfig = {
+  chat: {
+    label: '토닥 AI',
+    backColor: '#A89CD4',
+    tagBg: '#EDE8F7',
+    tagColor: '#7B6FB5',
+  },
+  // legacy modes — kept for existing sessions stored before the unified mode
   mom: {
     label: '맘 AI',
     backColor: '#FDA8A9',
@@ -26,7 +33,7 @@ const modeConfig = {
 };
 
 function ChatHistoryCard({ session, onClick, onDelete }) {
-  const config = modeConfig[session.mode] ?? modeConfig.mom;
+  const config = modeConfig[session.mode] ?? modeConfig.chat;
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef(null);
