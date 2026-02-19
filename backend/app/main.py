@@ -1,3 +1,5 @@
+import logging
+from contextlib import asynccontextmanager
 from typing import List
 
 from fastapi import FastAPI, Depends
@@ -12,6 +14,15 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models import Kid, ChatSession, ChatMessage, User
 from app.llm.agent import build_llm
+
+logger = logging.getLogger("todoc")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan — STT models are loaded lazily on first request."""
+    logger.info("TODOC app started. STT models will load on first speech request.")
+    yield
 
 
 def get_cors_origins() -> List[str]:
@@ -34,7 +45,8 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Todoc API",
         version="0.1.0",
-        description="육아 기록 및 커뮤니티 API"
+        description="육아 기록 및 커뮤니티 API",
+        lifespan=lifespan,
     )
 
     # CORS 설정 - 배포/개발 환경 모두 지원
