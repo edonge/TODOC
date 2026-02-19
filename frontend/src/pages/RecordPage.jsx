@@ -16,12 +16,15 @@ function RecordPage() {
     return today.toISOString().split('T')[0];
   });
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [kidId, setKidId] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [kidId, setKidId] = useState(() => {
+    const cached = localStorage.getItem('kidId');
+    return cached ? Number(cached) : null;
+  });
+  const [loading, setLoading] = useState(() => !localStorage.getItem('kidId'));
   const [refreshKey, setRefreshKey] = useState(0);
   const [voiceResult, setVoiceResult] = useState(null);
 
-  // 아이 정보 가져오기
+  // 아이 정보 가져오기 (캐시 있으면 백그라운드 갱신)
   useEffect(() => {
     const fetchKidInfo = async () => {
       try {
@@ -38,6 +41,7 @@ function RecordPage() {
         if (response.ok) {
           const data = await response.json();
           if (data.kids && data.kids.length > 0) {
+            localStorage.setItem('kidId', data.kids[0].id);
             setKidId(data.kids[0].id);
           }
         }
