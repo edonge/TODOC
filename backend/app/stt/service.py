@@ -4,10 +4,38 @@ import re
 from datetime import date, datetime
 from typing import Any, Dict, List, Union
 
-from app.stt.models import llm_extract, load_models, transcribe
+from app.stt.models import _get_client, llm_extract, load_models, transcribe
 from app.stt.prompt import RECORD_EXTRACTION_PROMPT
 
 logger = logging.getLogger("todoc.stt")
+
+
+async def classify_intent(transcript: str) -> str:
+    """음성 텍스트를 'RECORD' 또는 'AI_CHAT'으로 분류. 실패 시 'RECORD' 반환."""
+    if not transcript:
+        return "RECORD"
+    system = (
+        "You are an intent classifier for a baby health tracking app.\n"
+        "Classify the user voice input as either:\n"
+        "- RECORD: the user wants to log health data, symptoms, meals, sleep, diaper, or daily records.\n"
+        "- AI_CHAT: the user is asking a question, seeking advice, or starting a conversation.\n"
+        "Respond with only one word: RECORD or AI_CHAT."
+    )
+    try:
+        client = _get_client()
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": transcript},
+            ],
+            temperature=0.0,
+            max_tokens=5,
+        )
+        word = resp.choices[0].message.content.strip().upper()
+        return "AI_CHAT" if "AI_CHAT" in word else "RECORD"
+    except Exception:
+        return "RECORD"  # 안전한 폴백
 
 VALID_ENUMS = {
     "record_type": {"growth", "sleep", "meal", "health", "diaper", "etc"},
@@ -142,9 +170,12 @@ def validate_record_data(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 async def process_speech_to_record(
-    audio_bytes: bytes, audio_suffix: str = ".webm"
+    audio_bytes: bytes,
+    audio_suffix: str = ".webm",
+    classify: bool = False,
+    transcript_only: bool = False,
 ) -> Dict[str, Any]:
-    """Full pipeline: audio → transcript → structured JSON(s). No DB save."""
+    """Full pipeline: audio → transcript → (intent classification) → structured JSON(s). No DB save."""
     # Step 0: Ensure models are loaded (lazy — first request only)
     load_models()
 
@@ -153,6 +184,18 @@ async def process_speech_to_record(
     transcript = transcribe(audio_bytes, suffix=audio_suffix)
     if not transcript:
         raise ValueError("Transcription returned empty text")
+
+    # transcript_only 모드: 채팅 입력 마이크 전용 — LLM record extraction 불필요
+    if transcript_only:
+        logger.info("transcript_only mode: skipping record extraction")
+        return {"transcript": transcript, "intent": "TRANSCRIPT_ONLY", "records": []}
+
+    # Step 1b: Intent classification (홈 마이크 전용 — classify=True일 때만 실행)
+    if classify:
+        intent = await classify_intent(transcript)
+        logger.info(f"Intent classified as: {intent}")
+        if intent == "AI_CHAT":
+            return {"transcript": transcript, "intent": "AI_CHAT", "records": []}
 
     # Step 2: Build prompt with current time context
     now = datetime.now()
@@ -193,5 +236,6 @@ async def process_speech_to_record(
 
     return {
         "transcript": transcript,
+        "intent": "RECORD",
         "records": records,
     }

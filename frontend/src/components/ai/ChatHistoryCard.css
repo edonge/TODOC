@@ -104,7 +104,7 @@
 .chat-history-menu-btn {
   background: none;
   border: none;
-  padding: 4px;
+  padding: 8px 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -150,4 +150,27 @@
 
 .chat-history-menu-dropdown button:active {
   background-color: #eee;
+}
+
+/* 선택 모드 */
+.chat-history-card-wrapper.is-selected .card-stack-content {
+  background-color: #EDE8F7;
+}
+
+.chat-history-select-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.chat-history-select-check.checked {
+  background: #A89CD4;
+  border-color: #A89CD4;
 }

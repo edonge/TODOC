@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -29,6 +29,8 @@ SUFFIX_MAP = {
 async def transcribe_speech(
     kid_id: int,
     audio: UploadFile = File(...),
+    classify: bool = Query(default=False, description="True이면 인텐트 분류 후 AI_CHAT 여부 반환"),
+    transcript_only: bool = Query(default=False, description="True이면 전사만 반환 (record extraction 생략)"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -50,7 +52,7 @@ async def transcribe_speech(
     suffix = SUFFIX_MAP.get(audio.content_type, ".webm")
 
     try:
-        result = await process_speech_to_record(audio_bytes, suffix)
+        result = await process_speech_to_record(audio_bytes, suffix, classify=classify, transcript_only=transcript_only)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=f"음성 처리 실패: {str(e)}")
     except Exception:
@@ -61,5 +63,6 @@ async def transcribe_speech(
 
     return {
         "transcript": result["transcript"],
+        "intent": result.get("intent", "RECORD"),
         "records": result["records"],
     }

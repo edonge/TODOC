@@ -71,6 +71,7 @@ def get_session(
                 session_id=m.session_id,
                 sender=m.sender,
                 content=m.content,
+                doc_refs=m.doc_refs,
                 created_at=m.created_at,
             )
             for m in messages

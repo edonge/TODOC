@@ -11,6 +11,7 @@ class ChatMessage(BaseModel):
   session_id: Optional[int] = None
   sender: str  # "user" | "ai"
   content: str
+  doc_refs: Optional[List[str]] = None
   created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

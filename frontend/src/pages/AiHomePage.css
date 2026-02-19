@@ -22,6 +22,71 @@
   margin: 12px 0 14px;
 }
 
+/* 지난 채팅 내역 섹션 헤더 (제목 + 선택 버튼) */
+.ai-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.ai-section-header .ai-section-title {
+  margin: 12px 0 0;
+  text-align: left;
+}
+
+.ai-select-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #A89CD4;
+  cursor: pointer;
+  padding: 4px 2px;
+  margin-top: 12px;
+}
+
+/* 멀티셀렉트 하단 바 */
+.ai-select-bar {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 390px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+  z-index: 90;
+  box-sizing: border-box;
+}
+
+.ai-select-count {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.ai-select-delete-btn {
+  background: #E05C5C;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ai-select-delete-btn:disabled {
+  background: #ccc;
+  cursor: default;
+}
+
 .ai-start-btn {
   display: block;
   width: 100%;
