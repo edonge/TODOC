@@ -54,9 +54,10 @@ medicines 매핑: 해열제/타이레놀=antipyretic, 진통제=painkiller, 감�
 symptoms, medicines는 배열 형식: ["fever", "cough"] 또는 null
 
 ### 6. 기타 (etc)
-{{"record_type": "etc", "record_date": "YYYY-MM-DD", "title": "string", "memo": null}}
+{{"record_type": "etc", "record_date": "YYYY-MM-DD", "title": "string", "memo": "string"}}
 
-title: 전사 텍스트 내용 요약
+title: 전사 텍스트를 20자 이내로 핵심만 담아 요약한 제목 (조사·어미 생략 가능, 명사형 선호)
+memo: 전사 텍스트 원문 그대로
 
 ## 한국어 시간 표현 변환 규칙
 - 한시=1시, 두시=2시, 세시=3시, 네시=4시, 다섯시=5시, 여섯시=6시, 일곱시=7시, 여덟시=8시, 아홉시=9시, 열시=10시, 열한시=11시, 열두시=12시
@@ -74,6 +75,6 @@ title: 전사 텍스트 내용 요약
 4. "오전", "오후"를 24시간제로 변환하세요 (예: 오후 2시 → 14:00).
 5. 오전/오후가 명시되지 않은 시간은 위의 "한국어 시간 표현 변환 규칙"에 따라 추정하세요.
 6. 언급되지 않은 선택 필드는 null로 설정하세요.
-7. 어떤 기록 유형인지 판단할 수 없으면 record_type을 "etc"로 설정하고 title에 전사 텍스트 요약을 넣으세요.
+7. 어떤 기록 유형인지 판단할 수 없으면 record_type을 "etc"로 설정하고, title에는 20자 이내 요약 제목, memo에는 전사 텍스트 원문을 넣으세요.
 8. 반드시 유효한 JSON만 출력하세요. markdown 코드블록(```)을 사용하지 마세요.
 9. JSON 외 다른 텍스트를 절대 출력하지 마세요."""
