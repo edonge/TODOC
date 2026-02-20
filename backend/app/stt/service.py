@@ -1,13 +1,26 @@
 import json
 import logging
 import re
-from datetime import date, datetime
+from datetime import date, datetime, timezone, timedelta
 from typing import Any, Dict, List, Union
 
 from app.stt.models import _get_client, llm_extract, load_models, transcribe
 from app.stt.prompt import RECORD_EXTRACTION_PROMPT
 
 logger = logging.getLogger("todoc.stt")
+
+# 한국 시간대 (UTC+9)
+KST = timezone(timedelta(hours=9))
+
+
+def _now_kst() -> datetime:
+    """현재 한국 시간 반환"""
+    return datetime.now(KST)
+
+
+def _today_kst() -> date:
+    """오늘 날짜 (한국 시간 기준) 반환"""
+    return _now_kst().date()
 
 
 async def classify_intent(transcript: str) -> str:
@@ -96,7 +109,7 @@ def validate_record_data(data: Dict[str, Any]) -> Dict[str, Any]:
         data["title"] = data.get("title") or data.get("memo") or "음성 기록"
 
     if not data.get("record_date"):
-        data["record_date"] = date.today().isoformat()
+        data["record_date"] = _today_kst().isoformat()
 
     now_iso = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
     today_noon = data["record_date"] + "T12:00:00"
@@ -197,8 +210,8 @@ async def process_speech_to_record(
         if intent == "AI_CHAT":
             return {"transcript": transcript, "intent": "AI_CHAT", "records": []}
 
-    # Step 2: Build prompt with current time context
-    now = datetime.now()
+    # Step 2: Build prompt with current time context (한국 시간 기준)
+    now = _now_kst()
     prompt = RECORD_EXTRACTION_PROMPT.format(
         today=now.strftime("%Y-%m-%d"),
         now=now.strftime("%H:%M"),
