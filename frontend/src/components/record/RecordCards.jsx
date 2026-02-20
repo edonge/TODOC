@@ -232,7 +232,7 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
       start: formatTime(record.start_datetime),
       end: formatTime(record.end_datetime),
       duration: formatDuration(record.duration_hours),
-      color: record.sleep_type === 'night' ? '#328B6D' : '#E8D5A3',
+      color: record.sleep_type === 'night' ? '#8090C0' : '#C8C2E8',
       raw: record,
     }));
   };
@@ -385,7 +385,7 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
         time: formatTime(record.diaper_datetime),
         type: diaperTypeLabels[record.diaper_type] || record.diaper_type,
         condition: conditionLabels[record.condition] || record.condition || '정상',
-        color: record.diaper_type === 'urine' ? '#E8D5A3' : '#4B3131',
+        color: record.diaper_type === 'urine' ? '#DDD6F3' : '#9090A8',
         raw: record,
       })),
     };
@@ -555,6 +555,13 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
         onDelete={(record) => handleDeleteRecord(record)}
       />
 
+      {/* 식사 카드 - 항상 표시 */}
+      <MealCard
+        records={mealData}
+        onEdit={(record) => handleEditRecord(record)}
+        onDelete={(record) => handleDeleteRecord(record)}
+      />
+
       {/* 성장 카드 - 항상 표시 */}
       <GrowthCard
         data={growthData}
@@ -564,13 +571,6 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
           '해당 날짜에 성장 기록이 없어요.',
           '키, 몸무게, 머리둘레를 기록해 보세요.',
         ]}
-        onEdit={(record) => handleEditRecord(record)}
-        onDelete={(record) => handleDeleteRecord(record)}
-      />
-
-      {/* 식사 카드 - 항상 표시 */}
-      <MealCard
-        records={mealData}
         onEdit={(record) => handleEditRecord(record)}
         onDelete={(record) => handleDeleteRecord(record)}
       />

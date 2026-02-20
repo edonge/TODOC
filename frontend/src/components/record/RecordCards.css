@@ -27,30 +27,29 @@
 }
 
 .record-card-label.sleep {
-  background-color: #FFF2DB;
+  background-color: #9AA8D0;
   color: #3D3D3D;
 }
 
 .record-card-label.growth {
-  background-color: #328B6D;
+  background-color: #7A9870;
 }
 
 .record-card-label.meal {
-  background-color: #DBD0BC;
+  background-color: #C8A070;
   color: #3D3D3D;
 }
 
 .record-card-label.health {
-  background-color: #8D0000;
+  background-color: #B07888;
 }
 
 .record-card-label.diaper {
-  background-color: #EFC3C8;
-  color: #3D3D3D;
+  background-color: #A090B8;
 }
 
 .record-card-label.etc {
-  background-color: #8F8F8F;
+  background-color: #9090A8;
 }
 
 /* 카드 헤더 */

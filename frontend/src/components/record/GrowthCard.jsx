@@ -47,7 +47,7 @@ function GrowthCard({ data = null, headerTitle, headerSub, emptyLines, onEdit, o
   return (
     <div className="record-card" onClick={() => setOpenMenu(false)} ref={cardRef}>
       <div className="record-card-label growth">성장</div>
-      <CardStack backColor="#328B6D">
+      <CardStack backColor="#A8C4A0">
         <div className="growth-card-header">
           <div className="growth-header-left">
             <span className="growth-header-title">{titleText}</span>

@@ -2,14 +2,6 @@ import { useEffect } from 'react';
 import VoiceRecordButton from '../common/VoiceRecordButton';
 import './RecordCategoryModal.css';
 
-// 카테고리 이미지 import
-import sleepImg from '../../assets/categories/수면.png';
-import growthImg from '../../assets/categories/성장.png';
-import mealImg from '../../assets/categories/식사.png';
-import healthImg from '../../assets/categories/건강.png';
-import diaperImg from '../../assets/categories/배변.png';
-import etcImg from '../../assets/categories/기타.png';
-
 function RecordCategoryModal({ onClose, onSelectCategory, kidId, onVoiceResult }) {
   // 스크롤 방지
   useEffect(() => {
@@ -21,12 +13,12 @@ function RecordCategoryModal({ onClose, onSelectCategory, kidId, onVoiceResult }
   }, []);
 
   const categories = [
-    { id: 'sleep', name: '수면', image: sleepImg },
-    { id: 'growth', name: '성장', image: growthImg },
-    { id: 'meal', name: '식사', image: mealImg },
-    { id: 'health', name: '건강', image: healthImg },
-    { id: 'diaper', name: '배변', image: diaperImg },
-    { id: 'etc', name: '기타', image: etcImg },
+    { id: 'sleep', name: '수면' },
+    { id: 'meal', name: '식사' },
+    { id: 'growth', name: '성장' },
+    { id: 'health', name: '건강' },
+    { id: 'diaper', name: '배변' },
+    { id: 'etc', name: '기타' },
   ];
 
   const handleCategoryClick = (category) => {
@@ -40,14 +32,13 @@ function RecordCategoryModal({ onClose, onSelectCategory, kidId, onVoiceResult }
           {categories.map((category) => (
             <button
               key={category.id}
-              className="record-modal-item"
+              className={`record-modal-item record-modal-item--${category.id}`}
               onClick={() => handleCategoryClick(category)}
             >
-              <img
-                src={category.image}
-                alt={category.name}
-                className="record-modal-img"
-              />
+              <div className="record-modal-strip">
+                <span className="record-modal-plus">+</span>
+              </div>
+              <span className="record-modal-name">{category.name}</span>
             </button>
           ))}
         </div>

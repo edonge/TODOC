@@ -12,12 +12,12 @@ const RECORD_TYPE_LABELS = {
 };
 
 const RECORD_TYPE_COLORS = {
-  sleep: { bg: '#F5E6C8', color: '#8B6914' },
-  growth: { bg: '#C8E6C9', color: '#2E7D32' },
-  meal: { bg: '#FFF8E1', color: '#F9A825' },
-  health: { bg: '#FFCDD2', color: '#8B1A1A' },
-  diaper: { bg: '#FCE4EC', color: '#AD1457' },
-  etc: { bg: '#F1F1F1', color: '#5C5C5C' },
+  sleep: { bg: '#EEF0FA', color: '#5A6A90' },
+  growth: { bg: '#EBF2EB', color: '#4A7040' },
+  meal: { bg: '#F5E8D5', color: '#8A6030' },
+  health: { bg: '#F5ECED', color: '#905060' },
+  diaper: { bg: '#EDE8F5', color: '#705890' },
+  etc: { bg: '#EAEAF0', color: '#606070' },
 };
 
 const FIELD_LABELS = {

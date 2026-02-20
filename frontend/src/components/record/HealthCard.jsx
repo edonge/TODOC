@@ -56,7 +56,7 @@ function HealthCard({ data, headerTitle, headerSub, emptyLines, onEdit, onDelete
   return (
     <div className="record-card" onClick={() => setOpenRecordMenu(null)} ref={cardRef}>
       <div className="record-card-label health">건강</div>
-      <CardStack backColor="#8D0000">
+      <CardStack backColor="#D0A8B0">
         <div className="health-card-header">
           <div className="health-header-left">
             <span className="health-header-text">{titleText}</span>

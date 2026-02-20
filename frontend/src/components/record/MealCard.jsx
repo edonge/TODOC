@@ -42,7 +42,7 @@ function MealCard({ records = [], onEdit, onDelete }) {
   return (
     <div className="record-card" onClick={() => setOpenRecordMenu(null)} ref={cardRef}>
       <div className="record-card-label meal">식사</div>
-      <CardStack backColor="#DBD0BC">
+      <CardStack backColor="#E8CCAA">
         <div className="meal-card-header">
           <span className="meal-header-text">오늘의 식사 : 총 {totalCount}회</span>
         </div>

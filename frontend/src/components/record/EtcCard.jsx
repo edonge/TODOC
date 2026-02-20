@@ -48,7 +48,7 @@ function EtcCard({ data, headerTitle, headerSub, emptyLines, onEdit, onDelete })
   return (
     <div className="record-card" onClick={() => setOpenRecordMenu(null)} ref={cardRef}>
       <div className="record-card-label etc">기타</div>
-      <CardStack backColor="#8F8F8F">
+      <CardStack backColor="#B8B4C8">
         <div className="record-card-header">
           <div className="header-inline">
             <span className="header-text-plain">{titleText}</span>

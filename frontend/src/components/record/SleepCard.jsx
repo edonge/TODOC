@@ -58,7 +58,7 @@ function SleepCard({ records = [], onEdit, onDelete }) {
   return (
     <div className="record-card" onClick={() => setOpenRecordMenu(null)} ref={cardRef}>
       <div className="record-card-label sleep">수면</div>
-      <CardStack backColor="#FFF2DB">
+      <CardStack backColor="#C0C8E8">
         <div className="sleep-card-header">
           <span className="sleep-header-text">오늘의 수면 : {totalHours}시간</span>
         </div>

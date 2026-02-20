@@ -48,7 +48,7 @@ function DiaperCard({ data, headerTitle, headerSub, emptyLines, onEdit, onDelete
   return (
     <div className="record-card" onClick={() => setOpenRecordMenu(null)} ref={cardRef}>
       <div className="record-card-label diaper">배변</div>
-      <CardStack backColor="#EFC3C8">
+      <CardStack backColor="#C8B8D8">
         <div className="record-card-header">
           <div className="header-inline">
             <span className="header-text-plain">{titleText}</span>
