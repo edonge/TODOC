@@ -3,7 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 function Header({ title = '홈' }) {
-  const dateLabel = '01.27 월요일';
+  const getDayOfWeek = (date) => {
+    const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    return days[date.getDay()];
+  };
+
+  const getDateLabel = () => {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const dayOfWeek = getDayOfWeek(now);
+    return `${month}.${day} ${dayOfWeek}`;
+  };
+
+  const dateLabel = getDateLabel();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
@@ -45,8 +58,6 @@ function Header({ title = '홈' }) {
       <div className="header-actions">
         <div className="header-date-badge">
           <span className="date-text">{dateLabel}</span>
-          <span className="weather-icon">☀️</span>
-          <span className="weather-temp">-7°</span>
         </div>
 
         <div className="header-menu-wrapper" ref={menuRef}>
