@@ -41,6 +41,23 @@
   background-color: #F1F1F1;
 }
 
+.calendar-today-btn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1.5px solid #A89CD4;
+  background: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7B6FB5;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.calendar-today-btn:hover {
+  background-color: #EDE8F7;
+}
+
 /* 요일 헤더 */
 .calendar-weekdays {
   display: grid;
@@ -117,42 +134,24 @@
   transform: translateX(-50%);
 }
 
-/* 기록 있는 날 - 파란색 */
+/* 기록 있는 날 - 진한 퍼플 */
 .calendar-cell.recorded::before {
-  background-color: #6F99F4;
+  background-color: #7B6FB5;
 }
 
-/* 기록 없는 날 - 빨간색 */
+/* 기록 없는 날 - 연한 라벤더 */
 .calendar-cell.no-record::before {
-  background-color: #8D0000;
+  background-color: #C8C2E8;
 }
 
-/* 미래 날짜 - 핑크/라벤더 */
+/* 미래 날짜 */
 .calendar-cell.future::before {
-  background-color: #D9D9D9;
+  background-color: #E0E0E0;
 }
 
-/* 오늘 날짜 */
-.calendar-cell.today::before {
-  background-color: #EFC3C8;
-}
-
-.calendar-cell.selected::after {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  width: 28px;
-  height: 44px;
-  border-radius: 10px;
-  background-color: #DDD6F3;
-  opacity: 0.6;
-  z-index: -1;
-}
-
-/* 선택된 날짜 */
+/* 선택된 날짜 - 검은 테두리 */
 .calendar-cell.selected::before {
-  box-shadow: 0 0 0 2px #3D3D3D;
+  box-shadow: 0 0 0 2px #000000;
 }
 
 /* 호버 효과 - 선택되지 않은 셀만 */

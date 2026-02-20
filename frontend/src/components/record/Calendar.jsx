@@ -4,6 +4,7 @@ import './Calendar.css';
 
 function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
   const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -71,6 +72,12 @@ function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
     }
   };
 
+  const goToToday = () => {
+    setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDate(todayStr);
+    if (onDateSelect) onDateSelect(todayStr);
+  };
+
   // 캘린더 그리드 생성
   const renderCalendar = () => {
     const year = currentMonth.getFullYear();
@@ -85,7 +92,6 @@ function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
     if (startDayOfWeek < 0) startDayOfWeek = 6;
 
     const daysInMonth = lastDay.getDate();
-    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     const cells = [];
 
@@ -143,6 +149,11 @@ function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
           {currentMonth.getFullYear()}년 {monthNames[currentMonth.getMonth()]}
         </span>
         <div className="calendar-nav">
+          {selectedDate !== todayStr && (
+            <button className="calendar-today-btn" onClick={goToToday}>
+              오늘
+            </button>
+          )}
           <button className="calendar-nav-btn" onClick={goToPrevMonth}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M15 18L9 12L15 6" stroke="#3D3D3D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
