@@ -1,8 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiFetch } from '../../api/base';
 import './Calendar.css';
 
-function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
+// Module-level cache: key = `${kidId}-${year}-${month}`, TTL = 60s
+const calendarCache = new Map();
+const CALENDAR_CACHE_TTL = 60_000;
+
+function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId, refreshKey = 0 }) {
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -12,21 +16,38 @@ function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
   const [selectedDate, setSelectedDate] = useState(externalSelectedDate || null);
   const [recordedDates, setRecordedDates] = useState({});
   const [loading, setLoading] = useState(false);
+  const lastRefreshKeyRef = useRef(refreshKey);
 
-  // 월별 기록 데이터 가져오기
+  // 월별 기록 데이터 가져오기 (stale-while-revalidate)
   const fetchMonthlyRecords = useCallback(async () => {
     if (!kidId) {
       setRecordedDates({});
       return;
     }
 
-    setLoading(true);
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth() + 1;
+    const cacheKey = `${kidId}-${year}-${month}`;
+
+    // refreshKey 변경 감지 → 강제 갱신
+    const refreshKeyChanged = lastRefreshKeyRef.current !== refreshKey;
+    lastRefreshKeyRef.current = refreshKey;
+    if (refreshKeyChanged) {
+      calendarCache.delete(cacheKey);
+    }
+
+    const cached = calendarCache.get(cacheKey);
+    if (cached) {
+      setRecordedDates(cached.dates);
+      if (Date.now() - cached.timestamp < CALENDAR_CACHE_TTL) return;
+      // TTL 초과: 백그라운드 갱신 (로딩 표시 안 함)
+    } else {
+      setLoading(true);
+    }
+
     try {
       const token = localStorage.getItem('access_token');
       if (!token) return;
-
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth() + 1;
 
       const response = await apiFetch(
         `/api/kids/${kidId}/records/monthly/${year}/${month}`,
@@ -35,14 +56,16 @@ function Calendar({ onDateSelect, selectedDate: externalSelectedDate, kidId }) {
 
       if (response.ok) {
         const data = await response.json();
-        setRecordedDates(data.dates || {});
+        const dates = data.dates || {};
+        calendarCache.set(cacheKey, { dates, timestamp: Date.now() });
+        setRecordedDates(dates);
       }
     } catch (error) {
       console.error('월별 기록 조회 실패:', error);
     } finally {
       setLoading(false);
     }
-  }, [kidId, currentMonth]);
+  }, [kidId, currentMonth, refreshKey]);
 
   useEffect(() => {
     fetchMonthlyRecords();

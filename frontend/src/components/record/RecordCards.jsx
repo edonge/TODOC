@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../../api/base';
 import DiaperCard from './DiaperCard';
@@ -99,6 +99,10 @@ const isSameDate = (dateA, dateB) => {
 
 const toDateString = (date) => date.toISOString().split('T')[0];
 
+// Module-level cache: key = `${kidId}-${date}`, TTL = 60s
+const recordsCache = new Map();
+const CACHE_TTL = 60_000;
+
 function RecordCards({ selectedDate, kidId, refreshKey }) {
   const [records, setRecords] = useState([]);
   const [growthHistory, setGrowthHistory] = useState([]);
@@ -110,16 +114,39 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const lastRefreshKeyRef = useRef(refreshKey);
 
-  // 기록 데이터 가져오기
-  const fetchRecords = useCallback(async () => {
+  // 기록 데이터 가져오기 (forceInvalidate=true → 캐시 무시)
+  const fetchRecords = useCallback(async (forceInvalidate = false) => {
     if (!kidId || !selectedDate) {
       setRecords([]);
       setGrowthHistory([]);
       return;
     }
 
-    setLoading(true);
+    const cacheKey = `${kidId}-${selectedDate}`;
+
+    // refreshKey 변경 감지 → 강제 갱신
+    const refreshKeyChanged = lastRefreshKeyRef.current !== refreshKey;
+    lastRefreshKeyRef.current = refreshKey;
+
+    if (forceInvalidate || refreshKeyChanged) {
+      recordsCache.delete(cacheKey);
+    }
+
+    const cached = recordsCache.get(cacheKey);
+    if (cached) {
+      // 캐시 데이터 즉시 반영 (로딩 스피너 없음)
+      setRecords(cached.records);
+      setGrowthHistory(cached.growthHistory);
+      setPreviousRecords(cached.previousRecords);
+      // TTL 이내면 네트워크 요청 생략
+      if (Date.now() - cached.timestamp < CACHE_TTL) return;
+      // TTL 초과: 백그라운드 갱신 (로딩 표시 안 함)
+    } else {
+      setLoading(true);
+    }
+
     try {
       const token = localStorage.getItem('access_token');
       if (!token) return;
@@ -145,16 +172,18 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
         }),
       ]);
 
+      let newRecords = [];
+      let newGrowthHistory = [];
+      const nextPrevious = { growth: null, health: null, diaper: null, etc: null };
+
       if (dailyResponse.ok) {
         const data = await dailyResponse.json();
-        setRecords(data.records || []);
+        newRecords = data.records || [];
       }
-
       if (growthResponse.ok) {
         const data = await growthResponse.json();
-        setGrowthHistory(data.records || []);
+        newGrowthHistory = data.records || [];
       }
-      const nextPrevious = { growth: null, health: null, diaper: null, etc: null };
       if (prevGrowth.ok) {
         const data = await prevGrowth.json();
         nextPrevious.growth = data.records?.[0] || null;
@@ -171,6 +200,16 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
         const data = await prevEtc.json();
         nextPrevious.etc = data.records?.[0] || null;
       }
+
+      recordsCache.set(cacheKey, {
+        records: newRecords,
+        growthHistory: newGrowthHistory,
+        previousRecords: nextPrevious,
+        timestamp: Date.now(),
+      });
+
+      setRecords(newRecords);
+      setGrowthHistory(newGrowthHistory);
       setPreviousRecords(nextPrevious);
     } catch (error) {
       console.error('기록 조회 실패:', error);
@@ -535,7 +574,7 @@ function RecordCards({ selectedDate, kidId, refreshKey }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.ok) {
-        fetchRecords();
+        fetchRecords(true);
       } else {
         const error = await response.json();
         alert(error.detail || '기록 삭제에 실패했습니다.');

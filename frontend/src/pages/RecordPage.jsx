@@ -109,6 +109,7 @@ function RecordPage() {
         onDateSelect={handleDateSelect}
         selectedDate={selectedDate}
         kidId={kidId}
+        refreshKey={refreshKey}
       />
 
       <div className="record-add-area">
