@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './ChatBubble.css';
 
 function ChatBubble({ text, align = 'left', background, isIntro = false, docs = [] }) {
@@ -28,10 +29,10 @@ function ChatBubble({ text, align = 'left', background, isIntro = false, docs = 
     <div className={`chat-bubble-row ${align === 'right' ? 'align-right' : ''}`}>
       <div className="chat-bubble-wrapper">
         <div
-          className={`chat-bubble ${isIntro ? 'intro' : ''}`}
+          className={`chat-bubble ${isIntro ? 'intro' : ''} ${align === 'left' ? 'markdown' : ''}`}
           style={bubbleStyle}
         >
-          {text}
+          {align === 'left' ? <ReactMarkdown>{text}</ReactMarkdown> : text}
         </div>
         {docs.length > 0 && (
           <div className="chat-bubble-docs">
