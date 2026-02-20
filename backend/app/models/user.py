@@ -8,7 +8,6 @@ from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.models.kid import Kid
-    from app.models.community import Post, Comment, PostLike, CommentLike
 
 
 class User(Base):
@@ -26,10 +25,6 @@ class User(Base):
 
     # Relationships
     kids: Mapped[List["Kid"]] = relationship("Kid", back_populates="user", cascade="all, delete-orphan")
-    posts: Mapped[List["Post"]] = relationship("Post", back_populates="user", cascade="all, delete-orphan")
-    comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
-    post_likes: Mapped[List["PostLike"]] = relationship("PostLike", back_populates="user", cascade="all, delete-orphan")
-    comment_likes: Mapped[List["CommentLike"]] = relationship("CommentLike", back_populates="user", cascade="all, delete-orphan")
     refresh_tokens: Mapped[List["RefreshToken"]] = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
 
 

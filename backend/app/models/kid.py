@@ -11,7 +11,6 @@ from app.models.enums import enum_values
 if TYPE_CHECKING:
     from app.models.user import User
     from app.models.record import Record
-    from app.models.community import Post
 
 
 class GenderEnum(str, enum.Enum):
@@ -42,7 +41,6 @@ class Kid(Base):
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="kids")
     records: Mapped[List["Record"]] = relationship("Record", back_populates="kid", cascade="all, delete-orphan")
-    posts: Mapped[List["Post"]] = relationship("Post", back_populates="kid")
 
     @property
     def age_in_months(self) -> int:
